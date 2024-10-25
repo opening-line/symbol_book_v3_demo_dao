@@ -1,0 +1,2 @@
+# symbol_book_v3_demo_dao
+次世代組織のための実用Symbolブロックチェーンアプリケーションのデモアプリ（DAO）
