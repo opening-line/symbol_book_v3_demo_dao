@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "biome format --write ./src",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@rollup/plugin-inject": "^5.0.5",
     "module": "^1.2.5",
     "node-stdlib-browser": "^1.2.0",
