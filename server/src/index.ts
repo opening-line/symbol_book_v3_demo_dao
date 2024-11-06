@@ -5,11 +5,14 @@ import { Network } from "symbol-sdk/nem"
 import { KeyPair, SymbolFacade } from "symbol-sdk/symbol"
 import dotenv from "dotenv"
 import { env } from "hono/adapter"
+import adminRoute from "./routes/admin"
 
 // 環境変数を読み込む
 dotenv.config()
 
 const app = new Hono()
+
+app.route("/admin", adminRoute);
 
 app.get("/", (c) => {
   return c.text("Hello Hono!")
