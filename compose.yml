@@ -1,0 +1,26 @@
+services:
+  client:
+    image: node:20.14.0-slim
+    env_file:
+      - .env
+    volumes:
+      - ./client:/app
+    working_dir: /app
+    ports:
+      - 5173:5173
+      - 24678:24678
+    command: npm run dev
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      
+  server:
+    image: node:20.14.0-slim
+    env_file:
+      - .env
+    volumes:
+      - ./server:/app
+    working_dir: /app
+    ports:
+      - "127.0.0.1:3000:3000"
+    restart: on-failure
+    command: npm run dev
