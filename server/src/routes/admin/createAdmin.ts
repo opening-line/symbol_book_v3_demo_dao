@@ -1,7 +1,7 @@
 import type { Context } from "hono"
 import { generateAccount } from "../../transactions/generateAccount"
 import { env } from "hono/adapter"
-import { PrivateKey, utils } from "symbol-sdk"
+import { PrivateKey, PublicKey, utils } from "symbol-sdk"
 import {
   descriptors,
   metadataUpdateValue,
@@ -21,6 +21,20 @@ export const createAdmin = async (c: Context) => {
   const ENV = env<{ PRIVATE_KEY: string }>(c)
   const facade = new SymbolFacade(Config.NETWORK)
   const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
+
+  const { daoName, ownerPublicKey } = await c.req.json() as { daoName: string, ownerPublicKey: string }
+
+  if (daoName === undefined || daoName === "") {
+    return c.json({ message: "daoName is required" }, 400)
+  }
+  if (ownerPublicKey === undefined || ownerPublicKey === "") {
+    return c.json({ message: "ownerPublicKey is required" }, 400)
+  }
+  if (ownerPublicKey.length !== 64) {
+    return c.json({ message: "ownerPublicKey is invalid" }, 400)
+  }
+
+  const ownerAccount = facade.createPublicAccount(new PublicKey(ownerPublicKey))
 
   // TODO: DAO アカウントの生成
   const daoAccount = generateAccount()
@@ -49,7 +63,7 @@ export const createAdmin = async (c: Context) => {
   const memberNftDes = createMosaic(nftIdInfo.id, nftIdInfo.nonce, 100, flags)
 
   // TODO: DAOアカウントをマルチシグに変換
-  const daoAccountMultisig = createMultisig([masterAccount.address])
+  const daoAccountMultisig = createMultisig([ownerAccount.address])
 
   // TODO: Vote先アカウントの生成
   const voteAccounts = [
@@ -63,7 +77,7 @@ export const createAdmin = async (c: Context) => {
   const metadatas = [
     {
       key: METADATA_KEYS.GOVERNANCE_TOKEN_ID,
-      value: mosaicIdInfo.id.toString(), // 16新数にしたい
+      value: `0${mosaicIdInfo.id.toString(16)}`.slice(-16),
     },
     {
       key: METADATA_KEYS.VOTE_A,
@@ -83,11 +97,11 @@ export const createAdmin = async (c: Context) => {
     },
     {
       key: METADATA_KEYS.MEMBER_NFT_ID,
-      value: nftIdInfo.id.toString(), // 16新数にしたい
+      value: `0${nftIdInfo.id.toString(16)}`.slice(-16),
     },
     {
       key: METADATA_KEYS.DAO_NAME,
-      value: "test dao",
+      value: daoName,
     },
   ]
 
@@ -165,25 +179,25 @@ export const createAdmin = async (c: Context) => {
 
   tx.cosignatures.push(cosign)
 
-  const jsonPayload2 = `{"payload":"${utils.uint8ToHex(tx.serialize())}"}`
+  // const jsonPayload2 = `{"payload":"${utils.uint8ToHex(tx.serialize())}"}`
 
-  const hash = facade.hashTransaction(tx)
+  // const hash = facade.hashTransaction(tx)
 
-  const sendRes = await fetch(new URL("/transactions", Config.NODE_URL), {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: jsonPayload2,
-  }).then((res) => res.json())
-  console.log(sendRes)
+  // const sendRes = await fetch(new URL("/transactions", Config.NODE_URL), {
+  //   method: "PUT",
+  //   headers: { "Content-Type": "application/json" },
+  //   body: jsonPayload2,
+  // }).then((res) => res.json())
+  // console.log(sendRes)
 
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  // await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  const statusRes = await fetch(
-    new URL("/transactionStatus/" + hash, Config.NODE_URL),
-  ).then((res) => res.json())
-  console.log(statusRes)
+  // const statusRes = await fetch(
+  //   new URL("/transactionStatus/" + hash, Config.NODE_URL),
+  // ).then((res) => res.json())
+  // console.log(statusRes)
 
   return c.json({
-    message: new URL("/transactionStatus/" + hash, Config.NODE_URL),
+    payload: utils.uint8ToHex(tx.serialize())
   })
 }
