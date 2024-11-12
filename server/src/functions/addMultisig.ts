@@ -1,6 +1,6 @@
 import { Address, descriptors } from "symbol-sdk/symbol"
 
-export const createMultisig = (cosignatories: Address[]) => {
+export const addMultisig = (cosignatories: Address[]) => {
   const cosignatoriesCount = cosignatories.length
   return new descriptors.MultisigAccountModificationTransactionV1Descriptor(
     cosignatoriesCount,

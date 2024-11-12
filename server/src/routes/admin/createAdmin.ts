@@ -1,5 +1,5 @@
 import type { Context } from "hono"
-import { generateAccount } from "../../transactions/generateAccount"
+import { generateAccount } from "../../functions/generateAccount"
 import { env } from "hono/adapter"
 import { PrivateKey, PublicKey, utils } from "symbol-sdk"
 import {
@@ -8,12 +8,12 @@ import {
   SymbolFacade,
 } from "symbol-sdk/symbol"
 import { Config } from "../../utils/config"
-import { transferXym } from "../../transactions/transfer"
-import { createMosaic } from "../../transactions/createMosaic"
-import { createMultisig } from "../../transactions/createMultisig"
+import { transferXym } from "../../functions/transfer"
+import { createMosaic } from "../../functions/createMosaic"
+import { addMultisig } from "../../functions/addMultisig"
 import { METADATA_KEYS } from "../../utils/metadataKeys"
-import { createMosaicId } from "../../transactions/createMosaicId"
-import { createMetadata } from "../../transactions/createMetadata"
+import { createMosaicId } from "../../functions/createMosaicId"
+import { createMetadata } from "../../functions/createMetadata"
 import { models } from "symbol-sdk/symbol"
 
 export const createAdmin = async (c: Context) => {
@@ -63,7 +63,7 @@ export const createAdmin = async (c: Context) => {
   const memberNftDes = createMosaic(nftIdInfo.id, nftIdInfo.nonce, 100, flags)
 
   // TODO: DAOアカウントをマルチシグに変換
-  const daoAccountMultisig = createMultisig([ownerAccount.address])
+  const daoAccountMultisig = addMultisig([ownerAccount.address])
 
   // TODO: Vote先アカウントの生成
   const voteAccounts = [
@@ -169,7 +169,7 @@ export const createAdmin = async (c: Context) => {
         Config.DEADLINE_SECONDS,
       )
       .serialize(),
-  )
+    )
 
   const signatureMaster = masterAccount.signTransaction(tx)
 
@@ -178,24 +178,6 @@ export const createAdmin = async (c: Context) => {
   const cosign = facade.cosignTransaction(daoAccount.keyPair, tx)
 
   tx.cosignatures.push(cosign)
-
-  // const jsonPayload2 = `{"payload":"${utils.uint8ToHex(tx.serialize())}"}`
-
-  // const hash = facade.hashTransaction(tx)
-
-  // const sendRes = await fetch(new URL("/transactions", Config.NODE_URL), {
-  //   method: "PUT",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: jsonPayload2,
-  // }).then((res) => res.json())
-  // console.log(sendRes)
-
-  // await new Promise((resolve) => setTimeout(resolve, 1000))
-
-  // const statusRes = await fetch(
-  //   new URL("/transactionStatus/" + hash, Config.NODE_URL),
-  // ).then((res) => res.json())
-  // console.log(statusRes)
 
   return c.json({
     payload: utils.uint8ToHex(tx.serialize())
