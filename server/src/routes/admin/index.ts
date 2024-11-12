@@ -2,9 +2,11 @@ import { Hono } from "hono"
 import { createAdmin } from "./createAdmin"
 import { addAdmin } from "./addAdmin"
 import { deleteAdmin } from "./deleteAdmin"
+import { getDao } from "./getDao"
 
 const adminRoute = new Hono()
 
+adminRoute.get("/:id", getDao)
 adminRoute.post("/new", createAdmin)
 adminRoute.post("/add", addAdmin)
 adminRoute.post("/delete", deleteAdmin)
