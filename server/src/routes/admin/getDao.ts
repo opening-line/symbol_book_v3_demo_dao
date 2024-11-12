@@ -2,18 +2,16 @@ import type { Context } from "hono";
 import { SymbolFacade } from "symbol-sdk/symbol";
 import { Config } from "../../utils/config";
 import { PublicKey } from "symbol-sdk";
+import { getMultisigInfo } from "../../functions/getMultisigInfo";
+import { getMetadataInfo } from "../../functions/getMetadataInfo";
 
 export const getDao = async (c: Context) => {
   const id = c.req.param('id')
   const facade = new SymbolFacade(Config.NETWORK)
   const daoAccount = facade.createPublicAccount(new PublicKey(id))
   const address = daoAccount.address
-  const mdRes = await fetch(new URL(`/metadata?targetAddress=${address}&pageSize=10&pageNumber=1&order=desc`, Config.NODE_URL))
-    .then((res) => res.json().then((data) => data.data));
-  console.log(mdRes);
-  const msRes = await fetch(new URL(`/account/${address}/multisig`, Config.NODE_URL))
-    .then((res) => res.json().then((data) => data.multisig));
-  console.log(msRes);
+  const mdRes = await getMetadataInfo(address.toString())
+  const msRes = await getMultisigInfo(address.toString())
 
   const textDecoder = new TextDecoder()
 

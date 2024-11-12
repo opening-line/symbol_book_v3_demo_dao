@@ -8,7 +8,7 @@ import { deleteMultisig } from "../../functions/deleteMultisig";
 import { createHashLock } from "../../functions/createHashLock";
 
 export const deleteAdmin = async (c: Context) => {
-const { daoId, addresses } = await c.req.json() as { daoId: string, ownerPublicKey: string, addresses: string[] }
+const { daoId, addresses } = await c.req.json() as { daoId: string,  addresses: string[] }
 
   const ENV = env<{ PRIVATE_KEY: string }>(c)
   const facade = new SymbolFacade(Config.NETWORK)

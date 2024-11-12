@@ -1,36 +1,49 @@
 import type { Context } from "hono";
-import { PrivateKey, PublicKey } from "symbol-sdk";
+import { transfer } from "../../functions/transfer";
 import { Address, descriptors, models, SymbolFacade } from "symbol-sdk/symbol";
+import { getMetadataInfo } from "../../functions/getMetadataInfo";
+import { METADATA_KEYS } from "../../utils/metadataKeys";
 import { Config } from "../../utils/config";
-import { addMultisig } from "../../functions/addMultisig";
-import { createDummy } from "../../functions/createDummy";
 import { env } from "hono/adapter";
+import { PrivateKey, PublicKey } from "symbol-sdk";
+import { createDummy } from "../../functions/createDummy";
 import { createHashLock } from "../../functions/createHashLock";
 
-export const addAdmin = async (c: Context) => {
-  const { daoId, addresses } = await c.req.json() as { daoId: string, addresses: string[] }
-
+export const sendReward = async (c: Context) => {
   const ENV = env<{ PRIVATE_KEY: string }>(c)
+
+  const { daoId, to, amount, message } = await c.req.json() as { daoId: string, to: string, amount: string, message: string }
+  // const daoId = 'BCEECAE597FAD80A7BB81F5BDBBD39C4D2869F6128405C04F7EC23C7227B27D6'
+
   const facade = new SymbolFacade(Config.NETWORK)
   const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
-  // Add admin to DAO
-
   const daoAccount = facade.createPublicAccount(new PublicKey(daoId))
+  const textDecoder = new TextDecoder()
+  // const to = 'TD6IEDSFGUHAXZJGTPDXURGP52ESHDDSUYEFA2Y'
+  const address = new Address(to)
+  // const amt = BigInt(1)
 
-  const newAdmins = addresses.map((address) => new Address(address))
+  const mdRes = await getMetadataInfo(daoAccount.address.toString())
+  const tokenId = mdRes.map((e: {metadataEntry: {scopedMetadataKey: string, value: string}}) => {
+    return {
+      key: e.metadataEntry.scopedMetadataKey,
+      value: textDecoder.decode(Uint8Array.from(Buffer.from(e.metadataEntry.value, 'hex')))  
+    }
+  }).filter((md: {key: string, value: string}) => {
+    return BigInt(md.key) === METADATA_KEYS.GOVERNANCE_TOKEN_ID
+  })[0].value
 
-  const daoAccountMultisig = addMultisig(newAdmins)
+  const transferDes = transfer(address, BigInt(`0x${tokenId}`), BigInt(amount), message)
+  const transferTransaction = facade.createEmbeddedTransactionFromTypedDescriptor(transferDes, daoAccount.publicKey)
 
-  const multisigTransaction = facade.createEmbeddedTransactionFromTypedDescriptor(daoAccountMultisig, daoAccount.publicKey)
-
-  const dummy = createDummy(daoAccount.address.toString())
+    const dummy = createDummy(daoAccount.address.toString())
   const dummyTransaction = facade.createEmbeddedTransactionFromTypedDescriptor(dummy, masterAccount.publicKey)
   const innerTransactions = [
-    multisigTransaction,
+    transferTransaction,
     dummyTransaction
   ]
 
-  
+
   // TODO: アグリゲート
   const txHash = SymbolFacade.hashEmbeddedTransactions(innerTransactions)
   const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
@@ -94,6 +107,6 @@ export const addAdmin = async (c: Context) => {
       .then((res) => res.json());
   console.log(sendAggRes);
   
-
-  return c.json({ message: "Hello addAdmin" });
+  
+  return c.json({ message: "sendReward" })
 }
