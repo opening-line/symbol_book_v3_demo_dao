@@ -17,7 +17,7 @@ export const transfer = (toAddress: Address, mosaicId: bigint, amount: bigint, m
         new models.Amount(amount),
       )
     ],
-    new Uint8Array([
+    message === undefined ? undefined : new Uint8Array([
       0x00,
       ...new TextEncoder().encode(message),
     ])

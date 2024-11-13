@@ -6,6 +6,7 @@ import { createDummy } from "../../functions/createDummy";
 import { env } from "hono/adapter";
 import { deleteMultisig } from "../../functions/deleteMultisig";
 import { createHashLock } from "../../functions/createHashLock";
+import { awaitHashLock } from "../../functions/awaitHashLock";
 
 export const deleteAdmin = async (c: Context) => {
 const { daoId, addresses } = await c.req.json() as { daoId: string,  addresses: string[] }
@@ -75,24 +76,16 @@ const { daoId, addresses } = await c.req.json() as { daoId: string,  addresses: 
 
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  for (let i = 0; i < 100; i++) {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const hashLockStatus = await fetch(
-        new URL("/transactionStatus/" + hashHL, Config.NODE_URL)
-    )
-        .then((res) => res.json());
-        console.log(hashLockStatus);
-    if (hashLockStatus.group === "confirmed") {
-      break;
-    }
-  }
-
+  awaitHashLock(hashHL.toString()).then(async () => {
     const sendAggRes = await fetch(
       new URL('/transactions/partial', Config.NODE_URL),
       { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: jsonPayload }
-  )
-      .then((res) => res.json());
-  console.log(sendAggRes);
+    )
+    .then((res) => res.json());
+    console.log(sendAggRes);
+  }).catch(() => {
+    console.error('hash lock error')
+  })
   
 
   return c.json({ message: "Hello deleteAdmin" });

@@ -8,35 +8,34 @@ import { env } from "hono/adapter";
 import { PrivateKey, PublicKey } from "symbol-sdk";
 import { createDummy } from "../../functions/createDummy";
 import { createHashLock } from "../../functions/createHashLock";
+import { awaitHashLock } from "../../functions/awaitHashLock";
+import { pickMetadata } from "../../functions/pickMetadata";
 
 export const sendReward = async (c: Context) => {
   const ENV = env<{ PRIVATE_KEY: string }>(c)
 
   const { daoId, to, amount, message } = await c.req.json() as { daoId: string, to: string, amount: string, message: string }
-  // const daoId = 'BCEECAE597FAD80A7BB81F5BDBBD39C4D2869F6128405C04F7EC23C7227B27D6'
 
   const facade = new SymbolFacade(Config.NETWORK)
   const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
   const daoAccount = facade.createPublicAccount(new PublicKey(daoId))
   const textDecoder = new TextDecoder()
-  // const to = 'TD6IEDSFGUHAXZJGTPDXURGP52ESHDDSUYEFA2Y'
   const address = new Address(to)
-  // const amt = BigInt(1)
 
   const mdRes = await getMetadataInfo(daoAccount.address.toString())
-  const tokenId = mdRes.map((e: {metadataEntry: {scopedMetadataKey: string, value: string}}) => {
+  const metadatas = mdRes.map((e: {metadataEntry: {scopedMetadataKey: string, value: string}}) => {
     return {
       key: e.metadataEntry.scopedMetadataKey,
       value: textDecoder.decode(Uint8Array.from(Buffer.from(e.metadataEntry.value, 'hex')))  
     }
-  }).filter((md: {key: string, value: string}) => {
-    return BigInt(md.key) === METADATA_KEYS.GOVERNANCE_TOKEN_ID
-  })[0].value
+  })
+
+  const tokenId = pickMetadata(metadatas, METADATA_KEYS.GOVERNANCE_TOKEN_ID).value
 
   const transferDes = transfer(address, BigInt(`0x${tokenId}`), BigInt(amount), message)
   const transferTransaction = facade.createEmbeddedTransactionFromTypedDescriptor(transferDes, daoAccount.publicKey)
 
-    const dummy = createDummy(daoAccount.address.toString())
+  const dummy = createDummy(daoAccount.address.toString())
   const dummyTransaction = facade.createEmbeddedTransactionFromTypedDescriptor(dummy, masterAccount.publicKey)
   const innerTransactions = [
     transferTransaction,
@@ -86,26 +85,16 @@ export const sendReward = async (c: Context) => {
       .then((res) => res.json());
   console.log(sendRes);
 
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  for (let i = 0; i < 100; i++) {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const hashLockStatus = await fetch(
-        new URL("/transactionStatus/" + hashHL, Config.NODE_URL)
-    )
-        .then((res) => res.json());
-        console.log(hashLockStatus);
-    if (hashLockStatus.group === "confirmed") {
-      break;
-    }
-  }
-
+  awaitHashLock(hashHL.toString()).then(async () => {
     const sendAggRes = await fetch(
       new URL('/transactions/partial', Config.NODE_URL),
       { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: jsonPayload }
-  )
-      .then((res) => res.json());
-  console.log(sendAggRes);
+    )
+    .then((res) => res.json());
+    console.log(sendAggRes);
+  }).catch(() => {
+    console.error('hash lock error')
+  })
   
   
   return c.json({ message: "sendReward" })
