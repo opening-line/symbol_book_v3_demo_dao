@@ -1,9 +1,9 @@
 import type { Context } from "hono";
-import { SymbolFacade } from "symbol-sdk/symbol";
+import { Address, models, SymbolFacade } from "symbol-sdk/symbol";
 import { Config } from "../../utils/config";
-import { PublicKey } from "symbol-sdk";
-import { getMultisigInfo } from "../../functions/getMultisigInfo";
-import { getMetadataInfo } from "../../functions/getMetadataInfo";
+import { PublicKey, utils } from "symbol-sdk";
+import { getMultisigInfo } from "../../info/getMultisigInfo";
+import { getMetadataInfo } from "../../info/getMetadataInfo";
 
 export const getDao = async (c: Context) => {
   const id = c.req.param('id')
@@ -25,7 +25,7 @@ export const getDao = async (c: Context) => {
   const res = {
     address: address.toString(),
     metadata: metadata,
-    cosignatory: msRes.cosignatoryAddresses
+    cosignatory: msRes.cosignatoryAddresses.map((cosignatory: string) => new Address((new models.UnresolvedAddress(utils.hexToUint8(cosignatory)).bytes)).toString())
   }
 
   return c.json(res)

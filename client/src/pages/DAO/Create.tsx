@@ -2,10 +2,12 @@ import { utils } from "symbol-sdk"
 import { models, Network, SymbolFacade } from "symbol-sdk/symbol"
 
 import { setTransactionByPayload, requestSignCosignatureTransaction, getActivePublicKey } from "sss-module"
+import { useState } from "react"
 
 const NODE_URL = 'https://sym-test-03.opening-line.jp:3001'
 
 export const CreateDAOPage: React.FC = () => {
+  const [name, setName] = useState('');
   const sign = async () => {
 
     const ownerPublicKey = getActivePublicKey()
@@ -13,7 +15,7 @@ export const CreateDAOPage: React.FC = () => {
   const {payload} = await fetch("http://localhost:3000/admin/new", {
     method: 'POST',
     body: JSON.stringify({
-      daoName: "test dao dao",
+      daoName: name,
       ownerPublicKey
     }),
   })
@@ -50,7 +52,19 @@ export const CreateDAOPage: React.FC = () => {
     console.log(statusRes)
       
   }
-  return <div>CREATE DAO PAGE
-    <button onClick={sign}>PUSH</button>
-  </div>
+  return (
+    <div>
+      <h1>CREATE DAO PAGE</h1>
+      <div>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter DAO name"
+          style={{ marginRight: '10px' }}
+        />
+        <button onClick={sign}>CREATE</button>
+      </div>
+    </div>
+  );
 }

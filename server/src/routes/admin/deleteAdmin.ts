@@ -18,9 +18,9 @@ const { daoId, addresses } = await c.req.json() as { daoId: string,  addresses: 
 
   const daoAccount = facade.createPublicAccount(new PublicKey(daoId))
 
-  const newAdmins = addresses.map((address) => new Address(address))
+  const deleteAdmins = addresses.map((address) => new Address(address))
 
-  const daoAccountMultisig = deleteMultisig(newAdmins)
+  const daoAccountMultisig = deleteMultisig(deleteAdmins)
 
   const multisigTransaction = facade.createEmbeddedTransactionFromTypedDescriptor(daoAccountMultisig, daoAccount.publicKey)
 

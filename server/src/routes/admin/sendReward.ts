@@ -1,7 +1,7 @@
 import type { Context } from "hono";
 import { transfer } from "../../functions/transfer";
 import { Address, descriptors, models, SymbolFacade } from "symbol-sdk/symbol";
-import { getMetadataInfo } from "../../functions/getMetadataInfo";
+import { getMetadataInfo } from "../../info/getMetadataInfo";
 import { METADATA_KEYS } from "../../utils/metadataKeys";
 import { Config } from "../../utils/config";
 import { env } from "hono/adapter";
