@@ -1,8 +1,9 @@
 import { utils } from "symbol-sdk"
-import { models, Network, SymbolFacade } from "symbol-sdk/symbol"
+import { Address, models, Network, SymbolFacade } from "symbol-sdk/symbol"
 
 import { setTransactionByPayload, requestSignCosignatureTransaction, getActivePublicKey } from "sss-module"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { Config } from "../../utils/Config"
 
 const NODE_URL = 'https://sym-test-03.opening-line.jp:3001'
 
@@ -10,9 +11,10 @@ export const CreateDAOPage: React.FC = () => {
   const [name, setName] = useState('');
   const sign = async () => {
 
-    const ownerPublicKey = getActivePublicKey()
+  const ownerPublicKey = getActivePublicKey()
 
-  const {payload} = await fetch("http://localhost:3000/admin/new", {
+
+  const {payload, daoId} = await fetch(`${Config.API_HOST}/admin/new`, {
     method: 'POST',
     body: JSON.stringify({
       daoName: name,
@@ -20,7 +22,6 @@ export const CreateDAOPage: React.FC = () => {
     }),
   })
     .then(response => response.json())
-
     const facade = new SymbolFacade(Network.TESTNET)
 
     const tx = models.AggregateCompleteTransactionV2.deserialize(utils.hexToUint8(payload))
@@ -37,7 +38,7 @@ export const CreateDAOPage: React.FC = () => {
 
     const hash = facade.hashTransaction(tx)
 
-    const sendRes = await fetch(new URL("/transactions", NODE_URL), {
+    const sendRes = await fetch(new URL("/transactions", Config.NODE_URL), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: jsonPayload2,
@@ -50,7 +51,8 @@ export const CreateDAOPage: React.FC = () => {
       new URL("/transactionStatus/" + hash, NODE_URL),
     ).then((res) => res.json())
     console.log(statusRes)
-      
+    
+    alert(`DAO created with id: ${daoId}`)
   }
   return (
     <div>

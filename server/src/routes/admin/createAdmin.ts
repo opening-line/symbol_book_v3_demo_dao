@@ -16,6 +16,7 @@ import { createMosaicId } from "../../functions/createMosaicId"
 import { createMetadata } from "../../functions/createMetadata"
 import { models } from "symbol-sdk/symbol"
 
+// TODO: rename CreateDao
 export const createAdmin = async (c: Context) => {
   // TODO: 準備
   const ENV = env<{ PRIVATE_KEY: string }>(c)
@@ -180,6 +181,7 @@ export const createAdmin = async (c: Context) => {
   tx.cosignatures.push(cosign)
 
   return c.json({
-    payload: utils.uint8ToHex(tx.serialize())
+    payload: utils.uint8ToHex(tx.serialize()),
+    daoId: daoAccount.publicKey.toString()
   })
 }
