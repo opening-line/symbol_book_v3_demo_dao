@@ -1,5 +1,4 @@
-// TODO: NODE_URLをプロパティファイルから取得するよう変更
-const NODE_URL = "https://sym-test-03.opening-line.jp:3001"
+import { Config } from "../utils/config"
 
 /**
  * モザイク情報を取得する
@@ -7,7 +6,7 @@ const NODE_URL = "https://sym-test-03.opening-line.jp:3001"
  * @returns モザイク情報
  */
 export const getMosaicInfo = async (mosaicId: string) => {
-  return await fetch(new URL(`/mosaics/${mosaicId}`, NODE_URL), {
+  return await fetch(new URL(`/mosaics/${mosaicId}`, Config.NODE_URL), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

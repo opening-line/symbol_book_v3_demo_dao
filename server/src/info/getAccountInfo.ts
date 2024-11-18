@@ -1,5 +1,4 @@
-// TODO: NODE_URLをプロパティファイルから取得するよう変更
-const NODE_URL = "https://sym-test-03.opening-line.jp:3001"
+import { Config } from "../utils/config"
 
 /**
  * アカウント情報を取得する
@@ -7,7 +6,7 @@ const NODE_URL = "https://sym-test-03.opening-line.jp:3001"
  * @returns アカウント情報
  */
 export const getAccountInfo = async (accountId: string) => {
-  return await fetch(new URL(`/accounts/${accountId}`, NODE_URL), {
+  return await fetch(new URL(`/accounts/${accountId}`, Config.NODE_URL), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
