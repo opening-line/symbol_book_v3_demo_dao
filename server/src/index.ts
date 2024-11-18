@@ -5,11 +5,21 @@ import { Network } from "symbol-sdk/nem"
 import { KeyPair, SymbolFacade } from "symbol-sdk/symbol"
 import dotenv from "dotenv"
 import { env } from "hono/adapter"
-
+import adminRoute from "./routes/admin"
+import { cors } from "hono/cors";
 // 環境変数を読み込む
 dotenv.config()
 
 const app = new Hono()
+app.use(
+  cors({
+    origin: ["http://localhost:5173"],
+  })
+);
+
+app.route("/admin", adminRoute)
+
+
 
 app.get("/", (c) => {
   return c.text("Hello Hono!")
