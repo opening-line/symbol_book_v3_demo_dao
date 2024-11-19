@@ -1,54 +1,51 @@
 import { useEffect, useState } from "react"
-import { useParams } from "react-router";
-import { Config } from "../../utils/Config";
-
+import { useParams } from "react-router"
+import { Config } from "../../utils/Config"
 
 export const UpdateDAOPage: React.FC = () => {
-  const [admins, setAdmins] = useState<string[]>([]);
-  const [selectedAdmins, setSelectedAdmins] = useState<string[]>([]);
+  const [admins, setAdmins] = useState<string[]>([])
+  const [selectedAdmins, setSelectedAdmins] = useState<string[]>([])
 
-  const {id} = useParams();
+  const { id } = useParams()
 
-
-  const [newAdmin, setNewAdmin] = useState('');
+  const [newAdmin, setNewAdmin] = useState("")
 
   const handleRemoveSelectedAdmins = () => {
-    console.log({selectedAdmins})
+    console.log({ selectedAdmins })
     fetch(`${Config.API_HOST}/admin/delete`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({
         daoId: id,
-        addresses: selectedAdmins
+        addresses: selectedAdmins,
       }),
     })
   }
   const handleAddAdmin = () => {
     fetch(`${Config.API_HOST}/admin/add`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({
         daoId: id,
-        addresses: [newAdmin]
+        addresses: [newAdmin],
       }),
     })
   }
 
   const handleSelectAdmin = (admin: string) => {
     if (selectedAdmins.includes(admin)) {
-      setSelectedAdmins(selectedAdmins.filter(a => a !== admin));
+      setSelectedAdmins(selectedAdmins.filter((a) => a !== admin))
     } else {
-      setSelectedAdmins([...selectedAdmins, admin]);
+      setSelectedAdmins([...selectedAdmins, admin])
     }
-  };
+  }
 
   useEffect(() => {
     fetch(`${Config.API_HOST}/admin/get/${id}`)
       .then((res) => res.json())
       .then((data) => {
         console.log(data)
-        setAdmins(data.cosignatory);
-      });
+        setAdmins(data.cosignatory)
+      })
   }, [])
-
 
   return (
     <div>
@@ -59,7 +56,7 @@ export const UpdateDAOPage: React.FC = () => {
           {admins.map((admin) => (
             <li key={admin}>
               <input
-                type="checkbox"
+                type='checkbox'
                 checked={selectedAdmins.includes(admin)}
                 onChange={() => handleSelectAdmin(admin)}
               />
@@ -67,16 +64,18 @@ export const UpdateDAOPage: React.FC = () => {
             </li>
           ))}
         </ul>
-        <button onClick={handleRemoveSelectedAdmins}>Remove Selected Admins</button>
+        <button onClick={handleRemoveSelectedAdmins}>
+          Remove Selected Admins
+        </button>
         <h2>Add New Admin</h2>
         <input
-          type="text"
+          type='text'
           value={newAdmin}
           onChange={(e) => setNewAdmin(e.target.value)}
-          placeholder="Enter admin address"
+          placeholder='Enter admin address'
         />
         <button onClick={handleAddAdmin}>Add Admin</button>
       </div>
     </div>
-  );
+  )
 }

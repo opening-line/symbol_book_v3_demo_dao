@@ -23,7 +23,10 @@ export const createAdmin = async (c: Context) => {
   const facade = new SymbolFacade(Config.NETWORK)
   const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
 
-  const { daoName, ownerPublicKey } = await c.req.json() as { daoName: string, ownerPublicKey: string }
+  const { daoName, ownerPublicKey } = (await c.req.json()) as {
+    daoName: string
+    ownerPublicKey: string
+  }
 
   if (daoName === undefined || daoName === "") {
     return c.json({ message: "daoName is required" }, 400)
@@ -170,7 +173,7 @@ export const createAdmin = async (c: Context) => {
         Config.DEADLINE_SECONDS,
       )
       .serialize(),
-    )
+  )
 
   const signatureMaster = masterAccount.signTransaction(tx)
 
@@ -182,6 +185,6 @@ export const createAdmin = async (c: Context) => {
 
   return c.json({
     payload: utils.uint8ToHex(tx.serialize()),
-    daoId: daoAccount.publicKey.toString()
+    daoId: daoAccount.publicKey.toString(),
   })
 }
