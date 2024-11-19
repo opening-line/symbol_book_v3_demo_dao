@@ -13,5 +13,4 @@ adminRoute.post("/new", createAdmin)
 adminRoute.post("/add", addAdmin)
 adminRoute.post("/delete", deleteAdmin)
 
-
 export default adminRoute

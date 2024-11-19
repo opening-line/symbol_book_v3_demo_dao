@@ -1,5 +1,5 @@
 type Metadata = {
-  key: string,
+  key: string
   value: string
 }
 export const pickMetadata = (metadatas: Metadata[], key: bigint) => {
