@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { useParams } from "react-router"
-import { Config } from "../../utils/Config"
+import { Config } from "../../utils/config"
 
-export const RewardPaga: React.FC = () => {
+export const RewardPage: React.FC = () => {
   const { id } = useParams()
   const [recipient, setRecipient] = useState("")
 
