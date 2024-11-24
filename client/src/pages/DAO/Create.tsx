@@ -7,7 +7,7 @@ import {
   getActivePublicKey,
 } from "sss-module"
 import { useEffect, useState } from "react"
-import { Config } from "../../utils/Config"
+import { Config } from "../../utils/config"
 
 const NODE_URL = "https://sym-test-03.opening-line.jp:3001"
 
