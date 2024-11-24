@@ -11,5 +11,19 @@ export const getAccountInfo = async (accountId: string) => {
     headers: {
       "Content-Type": "application/json",
     },
-  }).then((res) => res.json())
+  }).then((res) => res.json().then((data) => data.account))
+}
+
+/**
+ * 特定モザイクを所有するアカウント一覧を取得する
+ * @param query 検索条件
+ * @returns 特定モザイクを所有するアカウント一覧
+ */
+export const getMosaicHolders = async (query: string) => {
+  return await fetch(new URL(`/accounts?${query}`, Config.NODE_URL), {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((res) => res.json().then((data) => data.data))
 }
