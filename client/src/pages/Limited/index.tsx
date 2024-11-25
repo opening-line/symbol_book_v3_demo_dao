@@ -3,5 +3,5 @@ export const LimitedMemberPage: React.FC = () => {
     <div>
       <h1>LIMITED MEMBER TOP PAGE</h1>
     </div>
-  );
+  )
 }

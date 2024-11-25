@@ -26,7 +26,7 @@ function App() {
           <Route path='/dao/create' element={<CreateDAOPage />} />
           <Route path='/dao/:id/update' element={<UpdateDAOPage />} />
           <Route path='/reward' element={<RewardPage />} />
-        {/* <Route path='/dao/:id/reward' element={<RewardPage />} /> */}
+          {/* <Route path='/dao/:id/reward' element={<RewardPage />} /> */}
           <Route path='/reward/send' element={<RewardSendPage />} />
           <Route path='/reward/revoke' element={<RewardRevokePage />} />
           <Route path='/point' element={<PointPage />} />

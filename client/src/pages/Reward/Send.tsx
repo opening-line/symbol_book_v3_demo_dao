@@ -4,5 +4,5 @@ export const RewardSendPage: React.FC = () => {
     <div>
       <h1>特典配布</h1>
     </div>
-  );
+  )
 }

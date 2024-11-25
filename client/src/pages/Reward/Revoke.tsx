@@ -4,5 +4,5 @@ export const RewardRevokePage: React.FC = () => {
     <div>
       <h1>特典回収</h1>
     </div>
-  );
+  )
 }

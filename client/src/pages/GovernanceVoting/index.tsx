@@ -3,5 +3,5 @@ export const GovernanceVotingPage: React.FC = () => {
     <div>
       <h1>ガバナンス投票</h1>
     </div>
-  );
+  )
 }
