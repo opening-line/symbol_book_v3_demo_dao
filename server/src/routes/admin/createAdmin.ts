@@ -15,6 +15,7 @@ import { METADATA_KEYS } from "../../utils/metadataKeys"
 import { createMosaicId } from "../../functions/createMosaicId"
 import { createMetadata } from "../../functions/createMetadata"
 import { models } from "symbol-sdk/symbol"
+import { signTransaction } from "../../functions/signTransaction"
 
 // TODO: rename CreateDao
 export const createAdmin = async (c: Context) => {
@@ -175,9 +176,7 @@ export const createAdmin = async (c: Context) => {
       .serialize(),
   )
 
-  const signatureMaster = masterAccount.signTransaction(tx)
-
-  facade.transactionFactory.static.attachSignature(tx, signatureMaster)
+  signTransaction(masterAccount, tx)
 
   const cosign = facade.cosignTransaction(daoAccount.keyPair, tx)
 

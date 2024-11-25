@@ -6,7 +6,6 @@ import { Config } from "../../utils/config"
 import {
   messaging,
   transferMosaic,
-  transferXym,
 } from "../../functions/transfer"
 import { env } from "hono/adapter"
 import { createMosaic } from "../../functions/createMosaic"
@@ -17,8 +16,10 @@ import { METADATA_KEYS } from "../../utils/metadataKeys"
 import { decordHexAddress } from "../../functions/decordHexAddress"
 import { createMetadata } from "../../functions/createMetadata"
 import { createDummy } from "../../functions/createDummy"
-import { awaitHashLock } from "../../functions/awaitHashLock"
+import { anounceBonded } from "../../functions/anounceBonded"
 import { createHashLock } from "../../functions/createHashLock"
+import { anounceTransaction } from "../../functions/anounceTransaction"
+import { signTransaction } from "../../functions/signTransaction"
 
 export const createVote = async (c: Context) => {
   const { daoId, title, voteA, voteB, voteC, voteD } = (await c.req.json()) as {
@@ -155,18 +156,7 @@ export const createVote = async (c: Context) => {
     Config.DEADLINE_SECONDS,
   )
 
-  const signatureMaster = masterAccount.signTransaction(tx)
-
-  const jsonPayload = facade.transactionFactory.static.attachSignature(
-    tx,
-    signatureMaster,
-  )
-  const hash = facade.hashTransaction(tx).toString()
-  const sendRes = await fetch(new URL("/transactions", Config.NODE_URL), {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: jsonPayload,
-  }).then((res) => res.json())
+  const announcedTx = await anounceTransaction(masterAccount, tx)
 
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
@@ -174,8 +164,8 @@ export const createVote = async (c: Context) => {
 
   const metadataDes = createMetadata(
     daoAccount.address,
-    BigInt(100),
-    Buffer.from(hash, "hex"),
+    BigInt(101),
+    Buffer.from(announcedTx.hash.toString(), "hex"),
   )
 
   const inTxs = [
@@ -200,16 +190,10 @@ export const createVote = async (c: Context) => {
       .serialize(),
   )
 
-  const bondedSignature = masterAccount.signTransaction(bondedTx)
-
-  const bondedPayload = facade.transactionFactory.static.attachSignature(
-    bondedTx,
-    bondedSignature,
-  )
-  const hashAgg = facade.hashTransaction(bondedTx)
+  const signedBonded = signTransaction(masterAccount, bondedTx)
 
   // TODO: HashLock
-  const hashLock = createHashLock(hashAgg)
+  const hashLock = createHashLock(signedBonded.hash)
   const hashLockTransaction = facade.createTransactionFromTypedDescriptor(
     hashLock,
     masterAccount.publicKey,
@@ -217,37 +201,11 @@ export const createVote = async (c: Context) => {
     Config.DEADLINE_SECONDS,
   )
 
-  const signatureMasterHashLock =
-    masterAccount.signTransaction(hashLockTransaction)
-
-  const jsonPayloadHashLock = facade.transactionFactory.static.attachSignature(
-    hashLockTransaction,
-    signatureMasterHashLock,
-  )
-
-  const hashHL = facade.hashTransaction(hashLockTransaction)
-
-  const bondedSendRes = await fetch(new URL("/transactions", Config.NODE_URL), {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: jsonPayloadHashLock,
-  }).then((res) => res.json())
-  console.log({bondedSendRes})
+  const announcedHashLockTx = await anounceTransaction(masterAccount, hashLockTransaction)
 
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  awaitHashLock(hashHL.toString())
-    .then(async () => {
-      const sendAggRes = await fetch(
-        new URL("/transactions/partial", Config.NODE_URL),
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: bondedPayload,
-        },
-      ).then((res) => res.json())
-      console.log({sendAggRes})
-    })
+  anounceBonded(announcedHashLockTx.hash.toString(), signedBonded.jsonPayload)
     .catch(() => {
       console.error("hash lock error")
     })
