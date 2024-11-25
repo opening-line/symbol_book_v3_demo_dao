@@ -6,6 +6,7 @@ import { KeyPair, SymbolFacade } from "symbol-sdk/symbol"
 import dotenv from "dotenv"
 import { env } from "hono/adapter"
 import adminRoute from "./routes/admin"
+import gavarnanceRoute from "./routes/governance"
 import { cors } from "hono/cors"
 // 環境変数を読み込む
 dotenv.config()
@@ -18,6 +19,7 @@ app.use(
 )
 
 app.route("/admin", adminRoute)
+app.route("/gavarnance", gavarnanceRoute)
 
 app.get("/", (c) => {
   return c.text("Hello Hono!")

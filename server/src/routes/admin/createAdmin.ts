@@ -58,7 +58,7 @@ export const createAdmin = async (c: Context) => {
   const createGovTokenDes = createMosaic(
     mosaicIdInfo.id,
     mosaicIdInfo.nonce,
-    100,
+    Config.TOKEN_AMOUNT,
     flags,
   )
 

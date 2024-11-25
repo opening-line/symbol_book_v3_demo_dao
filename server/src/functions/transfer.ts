@@ -33,3 +33,11 @@ export const transfer = (
       : new Uint8Array([0x00, ...new TextEncoder().encode(message)]),
   )
 }
+
+export const messaging = (toAddress: Address, message: string) => {
+  return new descriptors.TransferTransactionV1Descriptor(
+    toAddress,
+    [],
+    new Uint8Array([0x00, ...new TextEncoder().encode(message)]),
+  )
+}
