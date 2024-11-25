@@ -11,5 +11,5 @@ export const getMetadataInfo = async (query: string) => {
     headers: {
       "Content-Type": "application/json",
     },
-  }).then((res) => res.json())
+  }).then((res) => res.json().then((data) => data.data))
 }

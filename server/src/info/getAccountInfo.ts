@@ -11,7 +11,7 @@ export const getAccountInfo = async (accountId: string) => {
     headers: {
       "Content-Type": "application/json",
     },
-  }).then((res) => res.json())
+  }).then((res) => res.json().then((data) => data.account))
 }
 
 /**
