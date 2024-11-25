@@ -68,14 +68,19 @@ export const deleteAdmin = async (c: Context) => {
     Config.DEADLINE_SECONDS,
   )
 
-  const announcedHashLockTx = await anounceTransaction(masterAccount, hashLockTransaction)
+  const announcedHashLockTx = await anounceTransaction(
+    masterAccount,
+    hashLockTransaction,
+  )
 
   // await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  anounceBonded(announcedHashLockTx.hash.toString(), signedBonded.jsonPayload)
-    .catch(() => {
-      console.error("hash lock error")
-    })
+  anounceBonded(
+    announcedHashLockTx.hash.toString(),
+    signedBonded.jsonPayload,
+  ).catch(() => {
+    console.error("hash lock error")
+  })
 
   return c.json({ message: "Hello deleteAdmin" })
 }

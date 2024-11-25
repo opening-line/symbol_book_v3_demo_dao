@@ -3,10 +3,7 @@ import { createMosaicId } from "../../functions/createMosaicId"
 import { PrivateKey, PublicKey } from "symbol-sdk"
 import { Address, SymbolFacade, descriptors, models } from "symbol-sdk/symbol"
 import { Config } from "../../utils/config"
-import {
-  messaging,
-  transferMosaic,
-} from "../../functions/transfer"
+import { messaging, transferMosaic } from "../../functions/transfer"
 import { env } from "hono/adapter"
 import { createMosaic } from "../../functions/createMosaic"
 import { getMosaicHolders } from "../../info/getAccountInfo"
@@ -169,8 +166,14 @@ export const createVote = async (c: Context) => {
   )
 
   const inTxs = [
-    facade.createEmbeddedTransactionFromTypedDescriptor(dummyDes, masterAccount.publicKey),
-    facade.createEmbeddedTransactionFromTypedDescriptor(metadataDes, daoAccount.publicKey),
+    facade.createEmbeddedTransactionFromTypedDescriptor(
+      dummyDes,
+      masterAccount.publicKey,
+    ),
+    facade.createEmbeddedTransactionFromTypedDescriptor(
+      metadataDes,
+      daoAccount.publicKey,
+    ),
   ]
 
   // TODO: アグリゲート
@@ -201,14 +204,19 @@ export const createVote = async (c: Context) => {
     Config.DEADLINE_SECONDS,
   )
 
-  const announcedHashLockTx = await anounceTransaction(masterAccount, hashLockTransaction)
+  const announcedHashLockTx = await anounceTransaction(
+    masterAccount,
+    hashLockTransaction,
+  )
 
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  anounceBonded(announcedHashLockTx.hash.toString(), signedBonded.jsonPayload)
-    .catch(() => {
-      console.error("hash lock error")
-    })
+  anounceBonded(
+    announcedHashLockTx.hash.toString(),
+    signedBonded.jsonPayload,
+  ).catch(() => {
+    console.error("hash lock error")
+  })
 
   return c.json({ message: "Hello, World!" })
 }

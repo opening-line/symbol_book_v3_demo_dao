@@ -84,7 +84,7 @@ export const sendReward = async (c: Context) => {
       .serialize(),
   )
 
-  const signedBonded = signTransaction(masterAccount, tx) 
+  const signedBonded = signTransaction(masterAccount, tx)
 
   // TODO: HashLock
   const hashLock = createHashLock(signedBonded.hash)
@@ -95,12 +95,17 @@ export const sendReward = async (c: Context) => {
     Config.DEADLINE_SECONDS,
   )
 
-  const anouncedHashLockTx = await anounceTransaction(masterAccount, hashLockTransaction)
+  const anouncedHashLockTx = await anounceTransaction(
+    masterAccount,
+    hashLockTransaction,
+  )
 
-  anounceBonded(anouncedHashLockTx.hash.toString(), signedBonded.jsonPayload)
-    .catch(() => {
-      console.error("hash lock error")
-    })
+  anounceBonded(
+    anouncedHashLockTx.hash.toString(),
+    signedBonded.jsonPayload,
+  ).catch(() => {
+    console.error("hash lock error")
+  })
 
   return c.json({ message: "sendReward" })
 }

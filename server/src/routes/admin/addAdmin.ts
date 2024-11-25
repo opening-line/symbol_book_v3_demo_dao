@@ -68,12 +68,17 @@ export const addAdmin = async (c: Context) => {
     Config.DEADLINE_SECONDS,
   )
 
-  const anouncedHashLockTx = await anounceTransaction(masterAccount, hashLockTransaction)
+  const anouncedHashLockTx = await anounceTransaction(
+    masterAccount,
+    hashLockTransaction,
+  )
 
-  anounceBonded(anouncedHashLockTx.hash.toString(), signedBonded.jsonPayload)
-    .catch(() => {
-      console.error("hash lock error")
-    })
+  anounceBonded(
+    anouncedHashLockTx.hash.toString(),
+    signedBonded.jsonPayload,
+  ).catch(() => {
+    console.error("hash lock error")
+  })
 
   return c.json({ message: "Hello addAdmin" })
 }

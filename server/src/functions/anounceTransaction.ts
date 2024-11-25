@@ -1,8 +1,11 @@
-import { type models, type SymbolAccount } from "symbol-sdk/symbol";
-import { signTransaction } from "./signTransaction";
-import { Config } from "../utils/config";
+import { type models, type SymbolAccount } from "symbol-sdk/symbol"
+import { signTransaction } from "./signTransaction"
+import { Config } from "../utils/config"
 
-export const anounceTransaction = async (account: SymbolAccount,transaction: models.Transaction) => {
+export const anounceTransaction = async (
+  account: SymbolAccount,
+  transaction: models.Transaction,
+) => {
   const { hash, jsonPayload } = signTransaction(account, transaction)
 
   await fetch(new URL("/transactions", Config.NODE_URL), {
@@ -13,6 +16,6 @@ export const anounceTransaction = async (account: SymbolAccount,transaction: mod
 
   return {
     hash,
-    jsonPayload
+    jsonPayload,
   }
 }
