@@ -28,6 +28,8 @@ export const createVote = async (c: Context) => {
     voteD: string
   }
 
+  console.log({daoId, title, voteA, voteB, voteC, voteD})
+
   const textDecoder = new TextDecoder()
   const ENV = env<{ PRIVATE_KEY: string }>(c)
   const facade = new SymbolFacade(Config.NETWORK)
@@ -62,6 +64,7 @@ export const createVote = async (c: Context) => {
       }
     },
   )
+
 
   const tokenId = pickMetadata(
     metadatas,
@@ -161,7 +164,7 @@ export const createVote = async (c: Context) => {
 
   const metadataDes = createMetadata(
     daoAccount.address,
-    BigInt(101),
+    BigInt(100 + mdRes.length - 7), // 100 + metadata length - default metadata
     Buffer.from(announcedTx.hash.toString(), "hex"),
   )
 
