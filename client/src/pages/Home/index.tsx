@@ -22,19 +22,19 @@ export const HomePage: React.FC = () => {
     const name = isSSSLinked ? getActiveName() : "ゲスト"
     setIsSSSLinked(isSSSLinked)
     setUsername(name)
-
     if (!address) {
       setMosaics([])
       return
     }
 
-    ;(async () => {
+    const fetchMosaics = async () => {
       // アドレスを基に保有モザイク一覧を取得
       const response = await fetch(`${Config.API_HOST}/home/mosaics/${address}`)
       const data = await response.json()
       console.log("mosaics", data)
       setMosaics(data)
-    })()
+    }
+    fetchMosaics()
   }, [])
 
   return (
