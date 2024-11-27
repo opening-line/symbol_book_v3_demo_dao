@@ -1,4 +1,4 @@
-import React from "react"
+import { useEffect, useState } from "react"
 import { Config } from "../../utils/config"
 import { getActiveAddress, getActiveName, isAllowedSSS } from "sss-module"
 
@@ -8,12 +8,12 @@ interface Mosaic {
 }
 
 export const HomePage: React.FC = () => {
-  const [username, setUsername] = React.useState<string>("")
+  const [username, setUsername] = useState<string>("")
   // TODO: SSSと連携しているかどうかの判定がLayout.tsxと二重管理になってしまっている問題を解消する
-  const [isSSSLinked, setIsSSSLinked] = React.useState<boolean>(false)
-  const [mosaics, setMosaics] = React.useState<Mosaic[]>([])
+  const [isSSSLinked, setIsSSSLinked] = useState<boolean>(false)
+  const [mosaics, setMosaics] = useState<Mosaic[]>([])
 
-  React.useEffect(() => {
+  useEffect(() => {
     // デバッグ用
     // const isSSSLinked = false;
 
