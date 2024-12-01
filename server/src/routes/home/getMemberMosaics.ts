@@ -14,7 +14,7 @@ export const getMemberMosaics = async (c: Context) => {
         return {
           id: mosaic.id,
           amount: convertToMosaicActualAmount(
-            mosaic.amount,
+            Number(mosaic.amount),
             mosaicInfo.divisibility,
           ),
         }

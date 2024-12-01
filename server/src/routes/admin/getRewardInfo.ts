@@ -55,7 +55,7 @@ async function fetchMosaicData(mosaic: Mosaic): Promise<MosaicData> {
     id: mosaic.id,
     maxSupply: mosaicInfo.supply.toString(),
     balance: convertToMosaicActualAmount(
-      mosaic.amount,
+      Number(mosaic.amount),
       mosaicInfo.divisibility,
     ),
   }

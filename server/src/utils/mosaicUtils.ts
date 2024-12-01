@@ -1,6 +1,6 @@
 export const convertToMosaicActualAmount = (
-  amount: string,
+  amount: number,
   divisibility: number,
 ) => {
-  return Number(amount) / Math.pow(10, divisibility)
+  return amount / Math.pow(10, divisibility)
 }
