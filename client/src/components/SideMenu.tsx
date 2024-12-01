@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom"
+import { useEffect, useState } from "react"
 import { BiCoinStack } from "react-icons/bi"
 import {
   MdOutlineCardGiftcard,
@@ -7,16 +7,31 @@ import {
   MdOutlineSettings,
   MdOutlineHome,
 } from "react-icons/md"
-import { useEffect, useState } from "react"
+import { Link, useLocation } from "react-router-dom"
+import { Config } from "../utils/config"
+import { useTheme } from "./ThemeContext"
+
+interface DaoInfo {
+  address: string
+  metadata: any[]
+  cosignatory: any[]
+}
+
+interface Mosaic {
+  id: string
+  amount: string
+}
 
 interface SideMenuProps {
-  address: string
+  id: string
+  sssAddress: string
   isOpen: boolean
   isSSSLinked: boolean
 }
 
 const SideMenu: React.FC<SideMenuProps> = ({
-  address,
+  id,
+  sssAddress,
   isOpen,
   isSSSLinked,
 }) => {
@@ -24,67 +39,90 @@ const SideMenu: React.FC<SideMenuProps> = ({
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const [isManagerAccount, setIsManagerAccount] = useState<boolean>(false)
   const [hasLimitedMosaic, setHasLimitedMosaic] = useState<boolean>(false)
+  const { theme } = useTheme()
+
   useEffect(() => {
-    ;(async () => {
-      // 自分がDAO管理者であるかどうかを確認
-      const daoInfo = {
-        address: address,
-        metadata: [],
-        cosignatory: [],
-      } // TODO: DAOデータ取得APIに変更
-      const isManagerAccount = daoInfo?.address === address
-      setIsManagerAccount(isManagerAccount)
+    const checkUserPermissions = async () => {
+      try {
+        // 自分がDAO管理者であるかどうかを確認
+        const daoInfo: DaoInfo = await fetch(
+          `${Config.API_HOST}/admin/get/${id}`,
+        ).then((res) => res.json())
+        const isManagerAccount = daoInfo?.cosignatory?.includes(sssAddress)
+        setIsManagerAccount(isManagerAccount)
 
-      // 特別会員限定モザイクを保有しているかどうかを確認
-      const hasLimitedMosaic = true // TODO: 保有モザイク取得APIに変更
-      setHasLimitedMosaic(hasLimitedMosaic)
-    })()
-  }, [])
+        // 特別会員限定モザイクを保有しているかどうかを確認
+        const mosaics = await fetch(
+          `${Config.API_HOST}/home/mosaics/${sssAddress}`,
+        )
+        const mosaicsData = await mosaics.json()
+        const daoRewardMosaics = await fetch(
+          `${Config.API_HOST}/admin/reward/${id}`,
+        )
+        const daoRewardMosaicsData = await daoRewardMosaics.json()
+        const hasLimitedMosaic = mosaicsData.some((mosaic: Mosaic) =>
+          daoRewardMosaicsData.includes(mosaic.id),
+        )
+        setHasLimitedMosaic(hasLimitedMosaic)
+      } catch (error) {
+        console.error("権限チェック中にエラーが発生しました:", error)
+        setIsManagerAccount(false)
+        setHasLimitedMosaic(false)
+      }
+    }
 
-  // TODO: そもそもDAOが存在するかどうかをどう判定するか
-  const menuItems = [
-    { text: "ホーム", path: "/", icon: <MdOutlineHome />, requiresSSS: false },
-    {
-      text: "ガバナンス投票",
-      path: "/governance",
-      icon: <MdOutlineHowToVote />,
-      requiresSSS: true,
-    },
-    {
-      text: "特別会員限定",
-      path: "/limited",
-      icon: <MdOutlineLock />,
-      requiresSSS: true,
-    },
-    ...(isManagerAccount
-      ? [
-          {
-            text: "DAO設定",
-            path: "/dao",
-            icon: <MdOutlineSettings />,
-            requiresSSS: true,
-          },
-          {
-            text: "特典管理",
-            path: "/reward",
-            icon: <MdOutlineCardGiftcard />,
-            requiresSSS: true,
-          },
-          {
-            text: "ポイント管理",
-            path: "/point",
-            icon: <BiCoinStack />,
-            requiresSSS: true,
-          },
-        ]
-      : []),
-  ]
+    checkUserPermissions()
+  }, [sssAddress])
+
+  const menuItems = id
+    ? [
+        {
+          text: "ホーム",
+          path: "/",
+          icon: <MdOutlineHome />,
+          requiresSSS: false,
+        },
+        {
+          text: "ガバナンス投票",
+          path: "/governance",
+          icon: <MdOutlineHowToVote />,
+          requiresSSS: true,
+        },
+        {
+          text: "特別会員限定",
+          path: "/limited",
+          icon: <MdOutlineLock />,
+          requiresSSS: true,
+        },
+        ...(isManagerAccount
+          ? [
+              {
+                text: "DAO設定",
+                path: `/dao/${id}`,
+                icon: <MdOutlineSettings />,
+                requiresSSS: true,
+              },
+              {
+                text: "特典管理",
+                path: `/dao/${id}/reward`,
+                icon: <MdOutlineCardGiftcard />,
+                requiresSSS: true,
+              },
+              {
+                text: "ポイント管理",
+                path: `/dao/${id}/point`,
+                icon: <BiCoinStack />,
+                requiresSSS: true,
+              },
+            ]
+          : []),
+      ]
+    : []
 
   const sideMenuStyle = {
     width: isOpen ? "200px" : "60px",
-    borderRight: "1px solid #e0e0e0",
     padding: "10px",
-    backgroundColor: "#181F39",
+    backgroundColor: theme.secondary,
     height: "calc(100vh - 60px)",
     position: "fixed" as const,
     top: "60px",
@@ -112,7 +150,11 @@ const SideMenu: React.FC<SideMenuProps> = ({
     isDisabled: boolean,
   ) => ({
     textDecoration: "none" as const,
-    color: isDisabled ? "#666666" : isActive ? "#F88D4B" : "#FFFFFF",
+    color: isDisabled
+      ? theme.text.placeholder
+      : isActive
+        ? theme.text.active
+        : theme.white,
     display: "flex",
     alignItems: "center",
     padding: "8px",
@@ -121,7 +163,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
     whiteSpace: "nowrap" as const,
     overflow: "hidden",
     transition: "background-color 0.2s",
-    backgroundColor: isHovered && !isDisabled ? "#2A3352" : "transparent",
+    backgroundColor: isHovered && !isDisabled ? theme.primary : "transparent",
     height: "40px",
     lineHeight: "24px",
     pointerEvents: isDisabled ? ("none" as const) : ("auto" as const),
