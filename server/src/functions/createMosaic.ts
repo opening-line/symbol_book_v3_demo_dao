@@ -1,16 +1,13 @@
-import {
-  Address,
-  descriptors,
-  generateMosaicId,
-  models,
-  SymbolPublicAccount,
-} from "symbol-sdk/symbol"
+import { descriptors, models } from "symbol-sdk/symbol"
+import { configureMosaicMetadata } from "./configureMetadata"
+
 interface MosaicFlags {
   supplyMutable: boolean
   transferable: boolean
   restrictable: boolean
   revokable: boolean
 }
+
 export const createMosaic = (
   mosaicId: bigint,
   nonce: number,
@@ -42,4 +39,122 @@ export const createMosaic = (
     )
 
   return { mosaicDefinitionDescriptor, mosaicSupplyChangeDescriptor }
+}
+
+export const createGovToken = (
+  mosaicId: bigint,
+  nonce: number,
+  amount: number,
+  supplyMutable: boolean,
+  mosaicName: string,
+  address: string,
+) => {
+  const flags: MosaicFlags = {
+    supplyMutable: supplyMutable,
+    transferable: true,
+    restrictable: false,
+    revokable: true,
+  }
+  // モザイク定義トランザクションの作成
+  const mosaicDefinitionDescriptor = createMosaic(
+    mosaicId,
+    nonce,
+    amount,
+    flags,
+  )
+  // metadataでmosaicNameを定義
+  const configureMosaicMetadataDescriptor = configureMosaicMetadata(
+    "name",
+    mosaicName,
+    mosaicId.toString(),
+    true,
+    address,
+  )
+  return { mosaicDefinitionDescriptor, configureMosaicMetadataDescriptor }
+}
+
+export const createPointMosaic = async (
+  mosaicId: bigint,
+  nonce: number,
+  amount: number,
+  supplyMutable: boolean,
+  mosaicName: string,
+  address: string,
+) => {
+  const flags: MosaicFlags = {
+    supplyMutable: supplyMutable,
+    transferable: false,
+    restrictable: false,
+    revokable: true,
+  }
+  // モザイク定義トランザクションの作成
+  const { mosaicDefinitionDescriptor, mosaicSupplyChangeDescriptor } =
+    createMosaic(mosaicId, nonce, amount, flags)
+
+  // metadataでmosaicNameを定義
+  const configureMosaicNameMetadataDescriptor = await configureMosaicMetadata(
+    "name",
+    mosaicName,
+    mosaicId.toString(),
+    true,
+    address,
+  )
+
+  // metadataでtype: pointを定義
+  const configureMosaicTypeMetadataDescriptor = await configureMosaicMetadata(
+    "type",
+    "point",
+    mosaicId.toString(),
+    true,
+    address,
+  )
+  return {
+    mosaicDefinitionDescriptor,
+    mosaicSupplyChangeDescriptor,
+    configureMosaicNameMetadataDescriptor,
+    configureMosaicTypeMetadataDescriptor,
+  }
+}
+
+export const createRewardMosaic = async (
+  mosaicId: bigint,
+  nonce: number,
+  amount: number,
+  supplyMutable: boolean,
+  mosaicName: string,
+  address: string,
+) => {
+  const flags: MosaicFlags = {
+    supplyMutable: supplyMutable,
+    transferable: false,
+    restrictable: false,
+    revokable: false,
+  }
+  // モザイク定義トランザクションの作成
+  const { mosaicDefinitionDescriptor, mosaicSupplyChangeDescriptor } =
+    createMosaic(mosaicId, nonce, amount, flags)
+
+  // metadataでmosaicNameを定義
+  const configureMosaicNameMetadataDescriptor = await configureMosaicMetadata(
+    "name",
+    mosaicName,
+    mosaicId.toString(),
+    true,
+    address,
+  )
+
+  // metadataでtype: rewardを定義
+  const configureMosaicTypeMetadataDescriptor = await configureMosaicMetadata(
+    "type",
+    "reward",
+    mosaicId.toString(),
+    true,
+    address,
+  )
+  return {
+    mosaicDefinitionDescriptor,
+    mosaicSupplyChangeDescriptor,
+    configureMosaicNameMetadataDescriptor,
+    configureMosaicTypeMetadataDescriptor,
+  }
 }
