@@ -1,57 +1,57 @@
 import type { Context } from "hono"
 import { env } from "hono/adapter"
 import { PrivateKey, PublicKey } from "symbol-sdk"
-import { Address, descriptors, models, SymbolFacade } from "symbol-sdk/symbol"
+import { descriptors, models, SymbolFacade } from "symbol-sdk/symbol"
 import { announceBonded } from "../../functions/announceBonded"
 import { announceTransaction } from "../../functions/announceTransaction"
 import { createDummy } from "../../functions/createDummy"
 import { createHashLock } from "../../functions/createHashLock"
+import { revokeMosaic } from "../../functions/revokeMosaic"
 import { signTransaction } from "../../functions/signTransaction"
-import { transfer } from "../../functions/transfer"
 import { Config } from "../../utils/config"
 
-export const sendReward = async (c: Context) => {
+/**
+ * ポイントモザイクを回収する
+ */
+export const revokePoint = async (c: Context) => {
   const ENV = env<{ PRIVATE_KEY: string }>(c)
 
-  const { id, mosaicId, recipientsAddresses, amount, message } = (await c.req.json()) as {
-    id: string
-    mosaicId: string
-    recipientsAddresses: string[]
-    amount: string
-    message: string
-  }
+  const { id, mosaicId, sourceAddresses, amount } =
+    (await c.req.json()) as {
+      id: string
+      mosaicId: string
+      sourceAddresses: string[]
+      amount: string
+    }
 
   const facade = new SymbolFacade(Config.NETWORK)
   const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
   const daoAccount = facade.createPublicAccount(new PublicKey(id))
 
-  // 複数のtransferTransactionを生成
-  const transferTxs = recipientsAddresses.map((address) => {
-    const recipientAddress = new Address(address)
-    const transferDes = transfer(
-      recipientAddress,
-      BigInt(`0x${mosaicId}`),
-      BigInt(amount),
-      message,
-    )
-    return facade.createEmbeddedTransactionFromTypedDescriptor(
-      transferDes,
+  const revokeDes = revokeMosaic(
+    mosaicId,
+    sourceAddresses,
+    Number(amount),
+  )
+  const revokeTxs = revokeDes.map((des) =>
+    facade.createEmbeddedTransactionFromTypedDescriptor(
+      des,
       daoAccount.publicKey,
-    )
-  })
+    ),
+  )
 
   const dummy = createDummy(daoAccount.address.toString())
-  const dummyTransaction = facade.createEmbeddedTransactionFromTypedDescriptor(
+  const dummyTx = facade.createEmbeddedTransactionFromTypedDescriptor(
     dummy,
     masterAccount.publicKey,
   )
-  const innerTx = [...transferTxs, dummyTransaction]
+  const innerTx = [...revokeTxs, dummyTx]
   const txHash = SymbolFacade.hashEmbeddedTransactions(innerTx)
   const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
     txHash,
     innerTx,
   )
-  const mosaicSendBondedTx = models.AggregateBondedTransactionV2.deserialize(
+  const mosaicRevokeBondedTx = models.AggregateBondedTransactionV2.deserialize(
     facade
       .createTransactionFromTypedDescriptor(
         aggregateDes,
@@ -62,7 +62,7 @@ export const sendReward = async (c: Context) => {
       .serialize(),
   )
 
-  const signedBonded = signTransaction(masterAccount, mosaicSendBondedTx)
+  const signedBonded = signTransaction(masterAccount, mosaicRevokeBondedTx)
 
   const hashLock = createHashLock(signedBonded.hash)
   const hashLockTx = facade.createTransactionFromTypedDescriptor(
@@ -83,5 +83,5 @@ export const sendReward = async (c: Context) => {
     console.error("hash lock error")
   })
 
-  return c.json({ message: `特典モザイクの配布を実施しました。他の管理者による承認をお待ちください。` })
+  return c.json({ message: `ポイントモザイクの回収を実施しました。他の管理者による承認をお待ちください。` })
 }

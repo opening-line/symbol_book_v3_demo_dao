@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useTheme } from "../../components/ThemeContext"
 import { Config } from "../../utils/config"
-
 interface Mosaic {
   id: string
   maxSupply: number
@@ -10,37 +9,37 @@ interface Mosaic {
   name?: string
 }
 
-export const RewardPage: React.FC = () => {
+export const PointPage: React.FC = () => {
   const { theme } = useTheme()
   const navigate = useNavigate()
-  const { id } = useParams()
+  const { id } = useParams<{ id: string }>()
   const [mosaics, setMosaics] = useState<Mosaic[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchRewardMosaics = async () => {
+    const fetchPointMosaics = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`${Config.API_HOST}/admin/reward/${id}`)
+        const response = await fetch(`${Config.API_HOST}/admin/point/${id}`)
         const mosaics = await response.json()
         setMosaics(mosaics)
       } catch (error) {
         console.error(error)
-        alert("特典モザイクが見つかりませんでした。")
+        alert("ポイントモザイクが見つかりませんでした。")
       } finally {
         setLoading(false)
       }
     }
 
-    fetchRewardMosaics()
-  }, [])
+    fetchPointMosaics()
+  }, [id])
 
   const handleCreateClick = () => {
-    navigate(`/dao/${id}/reward/create`)
+    navigate(`/dao/${id}/point/create`)
   }
 
   const handleSendClick = (mosaic: Mosaic) => {
-    navigate(`/dao/${id}/reward/send/${mosaic.id}`, {
+    navigate(`/dao/${id}/point/send/${mosaic.id}`, {
       state: {
         balance: mosaic.balance,
         name: mosaic.name || "",
@@ -48,9 +47,17 @@ export const RewardPage: React.FC = () => {
     })
   }
 
+  const handleRevokeClick = (mosaic: Mosaic) => {
+    navigate(`/dao/${id}/point/revoke/${mosaic.id}`, {
+      state: {
+        name: mosaic.name || "",
+      },
+    })
+  }
+
   return (
     <div>
-      <h1>特典管理</h1>
+      <h1>ポイント管理</h1>
       <button
         style={{
           padding: "8px 16px",
@@ -89,7 +96,7 @@ export const RewardPage: React.FC = () => {
                 fontSize: "16px",
               }}
             >
-              特典モザイク一覧（{mosaics.length}件）
+              ポイントモザイク一覧（{mosaics.length}件）
             </h2>
           </li>
           {loading ? (
@@ -141,6 +148,19 @@ export const RewardPage: React.FC = () => {
                     onClick={() => handleSendClick(mosaic)}
                   >
                     配布
+                  </button>
+                  <button
+                    style={{
+                      padding: "4px 12px",
+                      borderRadius: "4px",
+                      border: `1px solid ${theme.secondary}`,
+                      backgroundColor: theme.transparent,
+                      color: theme.secondary,
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleRevokeClick(mosaic)}
+                  >
+                    回収
                   </button>
                 </div>
               </li>

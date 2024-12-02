@@ -10,7 +10,7 @@ import { signTransaction } from "../../functions/signTransaction"
 import { transfer } from "../../functions/transfer"
 import { Config } from "../../utils/config"
 
-export const sendReward = async (c: Context) => {
+export const sendPoint = async (c: Context) => {
   const ENV = env<{ PRIVATE_KEY: string }>(c)
 
   const { id, mosaicId, recipientsAddresses, amount, message } = (await c.req.json()) as {
@@ -83,5 +83,5 @@ export const sendReward = async (c: Context) => {
     console.error("hash lock error")
   })
 
-  return c.json({ message: `特典モザイクの配布を実施しました。他の管理者による承認をお待ちください。` })
+  return c.json({ message: `ポイントモザイクの配布を実施しました。他の管理者による承認をお待ちください。` })
 }

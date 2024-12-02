@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router"
-import { Config } from "../../utils/Config"
+import { Config } from "../../utils/config"
 
 export const UpdateDAOPage: React.FC = () => {
   const [admins, setAdmins] = useState<string[]>([])
