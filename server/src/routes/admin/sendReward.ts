@@ -29,9 +29,7 @@ export const sendReward = async (c: Context) => {
   const textDecoder = new TextDecoder()
   const address = new Address(to)
 
-  const mdRes = await getMetadataInfo(
-    `targetAddress=${daoAccount.address.toString()}`,
-  ).then((res) => res.data)
+  const mdRes = await getMetadataInfo(`targetAddress=${daoAccount.address.toString()}`)
   const metadatas = mdRes.map(
     (e: { metadataEntry: { scopedMetadataKey: string; value: string } }) => {
       return {
