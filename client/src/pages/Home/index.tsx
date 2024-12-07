@@ -5,6 +5,7 @@ import { Config } from "../../utils/config"
 
 interface Mosaic {
   id: string
+  name?: string
   amount: string
 }
 
@@ -77,7 +78,7 @@ export const HomePage: React.FC = () => {
                   alignItems: "center",
                 }}
               >
-                <span>{mosaic.id}</span>
+                <span>{mosaic.name || mosaic.id}</span>
                 <span>{mosaic.amount}</span>
               </li>
             ))}
