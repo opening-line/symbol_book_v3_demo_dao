@@ -1,7 +1,7 @@
 import type { Context } from "hono"
 import { createMosaicId } from "../../functions/createMosaicId"
 import { PrivateKey, PublicKey } from "symbol-sdk"
-import { Address, SymbolFacade, descriptors, models } from "symbol-sdk/symbol"
+import { Address, SymbolFacade, descriptors, metadataUpdateValue, models } from "symbol-sdk/symbol"
 import { Config } from "../../utils/config"
 import { messaging, transferMosaic } from "../../functions/transfer"
 import { env } from "hono/adapter"
@@ -28,8 +28,6 @@ export const createVote = async (c: Context) => {
     voteD: string
   }
 
-  console.log({daoId, title, voteA, voteB, voteC, voteD})
-
   const textDecoder = new TextDecoder()
   const ENV = env<{ PRIVATE_KEY: string }>(c)
   const facade = new SymbolFacade(Config.NETWORK)
@@ -53,7 +51,7 @@ export const createVote = async (c: Context) => {
   // TODO: ガバナンストークンのIDを取得
   const mdRes = await getMetadataInfo(
     `targetAddress=${daoAccount.address.toString()}`,
-  ).then((res) => res.data)
+  )
   const metadatas = mdRes.map(
     (e: { metadataEntry: { scopedMetadataKey: string; value: string } }) => {
       return {
@@ -162,10 +160,11 @@ export const createVote = async (c: Context) => {
 
   const dummyDes = createDummy(daoAccount.address.toString())
 
+  const textEncoder = new TextEncoder()
   const metadataDes = createMetadata(
     daoAccount.address,
     BigInt(100 + mdRes.length - 7), // 100 + metadata length - default metadata
-    Buffer.from(announcedTx.hash.toString(), "hex"),
+    metadataUpdateValue(textEncoder.encode(""), textEncoder.encode(announcedTx.hash.toString()))
   )
 
   const inTxs = [
