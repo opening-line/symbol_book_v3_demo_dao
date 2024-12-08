@@ -46,11 +46,12 @@ const SideMenu: React.FC<SideMenuProps> = ({
       if (!id) return
 
       try {
-        // 自分がDAO管理者��あるかどうかを確認
+        // 自分がDAO管理者であるかどうかを確認
         const daoInfo: DaoInfo = await fetch(
           `${Config.API_HOST}/admin/get/${id}`,
         ).then((res) => res.json())
         const isManagerAccount = daoInfo?.cosignatory?.includes(sssAddress)
+        console.log("isManagerAccount", isManagerAccount)
         setIsManagerAccount(isManagerAccount)
 
         // 特別会員限定モザイクを保有しているかどうかを確認
