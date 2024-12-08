@@ -48,23 +48,44 @@ export const UpdateDAOPage: React.FC = () => {
   }, [])
 
   return (
-    <div>
-      <h1>UPDATE DAO PAGE</h1>
+    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+      <h1>Update DAO Page</h1>
       <div>
         <h2>Current Admins</h2>
-        <ul>
-          {admins.map((admin) => (
-            <li key={admin}>
-              <input
-                type='checkbox'
-                checked={selectedAdmins.includes(admin)}
-                onChange={() => handleSelectAdmin(admin)}
-              />
-              {admin}
-            </li>
-          ))}
-        </ul>
-        <button onClick={handleRemoveSelectedAdmins}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th style={{ border: "1px solid #ddd", padding: "8px", textAlign: 'left', width: '100px' }}>Select</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px", textAlign: 'left' }}>Admin Address</th>
+            </tr>
+          </thead>
+          <tbody>
+            {admins.map((admin) => (
+              <tr key={admin}>
+                <td style={{ border: "1px solid #ddd", padding: "8px", textAlign: "left" }}>
+                  <input
+                    type='checkbox'
+                    checked={selectedAdmins.includes(admin)}
+                    onChange={() => handleSelectAdmin(admin)}
+                  />
+                </td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{admin}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button
+          onClick={handleRemoveSelectedAdmins}
+          style={{
+            marginTop: "10px",
+            padding: "10px 20px",
+            backgroundColor: "#f44336",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+          }}
+          disabled={selectedAdmins.length === 0}
+        >
           Remove Selected Admins
         </button>
         <h2>Add New Admin</h2>
@@ -73,8 +94,25 @@ export const UpdateDAOPage: React.FC = () => {
           value={newAdmin}
           onChange={(e) => setNewAdmin(e.target.value)}
           placeholder='Enter admin address'
+          style={{
+            padding: "10px",
+            width: "calc(100% - 22px)",
+            marginBottom: "10px",
+            border: "1px solid #ddd",
+          }}
         />
-        <button onClick={handleAddAdmin}>Add Admin</button>
+        <button
+          onClick={handleAddAdmin}
+          style={{
+            padding: "10px 20px",
+            backgroundColor: "#4CAF50",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Add Admin
+        </button>
       </div>
     </div>
   )

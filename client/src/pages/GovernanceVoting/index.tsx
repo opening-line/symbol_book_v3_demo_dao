@@ -111,13 +111,15 @@ export const GovernanceVotingPage: React.FC = () => {
                 console.log(data[0].account)
                 const a = data.map((d: any) => {
                   return {
-                    address: Address.fromDecodedAddressHexString(d.account.address).toString(),
+                    address: Address.fromDecodedAddressHexString(
+                      d.account.address,
+                    ).toString(),
                     mosaics: d.account.mosaics.map((m: any) => {
                       return {
                         id: m.id,
                         amount: m.amount,
                       }
-                    })
+                    }),
                   }
                 })
                 console.log(a)
@@ -140,7 +142,7 @@ export const GovernanceVotingPage: React.FC = () => {
                 console.log({ mosaics })
                 setVoteMosaics(mosaics)
               })
-              console.log({messages})
+            console.log({ messages })
             setVotes(messages)
           })
       })
@@ -285,47 +287,89 @@ export const GovernanceVotingPage: React.FC = () => {
               mosaic.id === BigInt(vote.token).toString(16).toUpperCase(),
           )
           const facade = new SymbolFacade(Config.NETWORK)
-          const a = voteAccounts.find(acc => acc.address === new SymbolPublicAccount(facade, new PublicKey(metadatas[0].value)).address.toString()) 
-          const b = voteAccounts.find(acc => acc.address === new SymbolPublicAccount(facade, new PublicKey(metadatas[1].value)).address.toString())
-          const c = voteAccounts.find(acc => acc.address === new SymbolPublicAccount(facade, new PublicKey(metadatas[2].value)).address.toString())
-          const d = voteAccounts.find(acc => acc.address === new SymbolPublicAccount(facade, new PublicKey(metadatas[3].value)).address.toString())
+          const a = voteAccounts.find(
+            (acc) =>
+              acc.address ===
+              new SymbolPublicAccount(
+                facade,
+                new PublicKey(metadatas[0].value),
+              ).address.toString(),
+          )
+          const b = voteAccounts.find(
+            (acc) =>
+              acc.address ===
+              new SymbolPublicAccount(
+                facade,
+                new PublicKey(metadatas[1].value),
+              ).address.toString(),
+          )
+          const c = voteAccounts.find(
+            (acc) =>
+              acc.address ===
+              new SymbolPublicAccount(
+                facade,
+                new PublicKey(metadatas[2].value),
+              ).address.toString(),
+          )
+          const d = voteAccounts.find(
+            (acc) =>
+              acc.address ===
+              new SymbolPublicAccount(
+                facade,
+                new PublicKey(metadatas[3].value),
+              ).address.toString(),
+          )
 
-          const aa = a?.mosaics.find(m => m.id === BigInt(vote.token).toString(16).toUpperCase())?.amount
-          const bb = b?.mosaics.find(m => m.id === BigInt(vote.token).toString(16).toUpperCase())?.amount
-          const cc = c?.mosaics.find(m => m.id === BigInt(vote.token).toString(16).toUpperCase())?.amount
-          const dd = d?.mosaics.find(m => m.id === BigInt(vote.token).toString(16).toUpperCase())?.amount
+          const aa = a?.mosaics.find(
+            (m) => m.id === BigInt(vote.token).toString(16).toUpperCase(),
+          )?.amount
+          const bb = b?.mosaics.find(
+            (m) => m.id === BigInt(vote.token).toString(16).toUpperCase(),
+          )?.amount
+          const cc = c?.mosaics.find(
+            (m) => m.id === BigInt(vote.token).toString(16).toUpperCase(),
+          )?.amount
+          const dd = d?.mosaics.find(
+            (m) => m.id === BigInt(vote.token).toString(16).toUpperCase(),
+          )?.amount
           return (
-  <div
-    key={vote.token}
-    style={{
-      padding: "10px",
-      border: "1px solid #ddd",
-      marginBottom: "10px",
-      cursor: "pointer",
-      backgroundColor: hasMosaic ? "#e0f7fa" : "transparent",
-    }}
-    onClick={() => setIndex(hasMosaic ? i : -1)}
-  >
-    <p>{vote.title}</p>
-    <div>
-      <div>{metadatas[0].value}</div>
-      <div>
-          <div style={{ display: "flex", justifyContent: 'space-between' }}>
-            <span>A: {vote.a}</span> {a && aa !== undefined && (<span>{aa}票</span>)}
-          </div>
-        
-          <div>
-            <span>B: {vote.b}</span> {b && bb !== undefined && (<span>{bb}票</span>)}
-          </div>
-          <div>
-            <span>C: {vote.c}</span> {c && cc !== undefined && (<span>{cc}票</span>)}
-          </div>
-          <div>
-            <span>D: {vote.d}</span> {d && dd !== undefined && (<span>{dd}票</span>)}
-          </div>
-      </div>
-    </div>
-  </div>
+            <div
+              key={vote.token}
+              style={{
+                padding: "10px",
+                border: "1px solid #ddd",
+                marginBottom: "10px",
+                cursor: "pointer",
+                backgroundColor: hasMosaic ? "#e0f7fa" : "transparent",
+              }}
+              onClick={() => setIndex(hasMosaic ? i : -1)}
+            >
+              <p>{vote.title}</p>
+              <div>
+                <div>{metadatas[0].value}</div>
+                <div>
+                  <div
+                    style={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <span>A: {vote.a}</span>{" "}
+                    {a && aa !== undefined && <span>{aa}票</span>}
+                  </div>
+
+                  <div>
+                    <span>B: {vote.b}</span>{" "}
+                    {b && bb !== undefined && <span>{bb}票</span>}
+                  </div>
+                  <div>
+                    <span>C: {vote.c}</span>{" "}
+                    {c && cc !== undefined && <span>{cc}票</span>}
+                  </div>
+                  <div>
+                    <span>D: {vote.d}</span>{" "}
+                    {d && dd !== undefined && <span>{dd}票</span>}
+                  </div>
+                </div>
+              </div>
+            </div>
           )
         })}
       </div>

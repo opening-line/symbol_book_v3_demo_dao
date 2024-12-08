@@ -43,6 +43,8 @@ const SideMenu: React.FC<SideMenuProps> = ({
 
   useEffect(() => {
     const checkUserPermissions = async () => {
+      if (!id) return
+
       try {
         // 自分がDAO管理者であるかどうかを確認
         const daoInfo: DaoInfo = await fetch(
@@ -78,13 +80,13 @@ const SideMenu: React.FC<SideMenuProps> = ({
     ? [
         {
           text: "ホーム",
-          path: "/",
+          path: `/dao/${id}`,
           icon: <MdOutlineHome />,
           requiresSSS: false,
         },
         {
           text: "ガバナンス投票",
-          path: "/governance",
+          path: `/dao/${id}/governance`,
           icon: <MdOutlineHowToVote />,
           requiresSSS: true,
         },
@@ -98,7 +100,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
           ? [
               {
                 text: "DAO設定",
-                path: `/dao/${id}`,
+                path: `/dao/${id}/update`,
                 icon: <MdOutlineSettings />,
                 requiresSSS: true,
               },

@@ -9,8 +9,6 @@ import {
 import { useState } from "react"
 import { Config } from "../../utils/config"
 
-const NODE_URL = "https://sym-test-03.opening-line.jp:3001"
-
 export const CreateDAOPage: React.FC = () => {
   const [name, setName] = useState("")
   const sign = async () => {
@@ -59,24 +57,29 @@ export const CreateDAOPage: React.FC = () => {
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     const statusRes = await fetch(
-      new URL("/transactionStatus/" + hash, NODE_URL),
+      new URL("/transactionStatus/" + hash, Config.NODE_URL),
     ).then((res) => res.json())
     console.log(statusRes)
 
     alert(`DAO created with id: ${daoId}`)
   }
   return (
-    <div>
-      <h1>CREATE DAO PAGE</h1>
-      <div>
+    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+      <h1 style={{ textAlign: 'center' }}>Create DAO Page</h1>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
         <input
           type='text'
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder='Enter DAO name'
-          style={{ marginRight: "10px" }}
+          style={{ marginBottom: '10px', padding: '10px', width: '300px', borderRadius: '5px', border: '1px solid #ccc' }}
         />
-        <button onClick={sign}>CREATE</button>
+        <button
+          onClick={sign}
+          style={{ padding: '10px 20px', borderRadius: '5px', border: 'none', backgroundColor: '#007BFF', color: 'white', cursor: 'pointer' }}
+        >
+          Create DAO
+        </button>
       </div>
     </div>
   )
