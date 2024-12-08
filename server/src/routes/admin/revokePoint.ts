@@ -14,68 +14,84 @@ import { Config } from "../../utils/config"
  * ポイントモザイクを回収する
  */
 export const revokePoint = async (c: Context) => {
-  const ENV = env<{ PRIVATE_KEY: string }>(c)
+  try {
+    const ENV = env<{ PRIVATE_KEY: string }>(c)
 
-  const { id, mosaicId, sourceAddresses, amount } = (await c.req.json()) as {
-    id: string
-    mosaicId: string
-    sourceAddresses: string[]
-    amount: string
+    const { id, mosaicId, sourceAddresses, amount } = (await c.req.json()) as {
+      id: string
+      mosaicId: string
+      sourceAddresses: string[]
+      amount: string
+    }
+
+    const facade = new SymbolFacade(Config.NETWORK)
+    const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
+    const daoAccount = facade.createPublicAccount(new PublicKey(id))
+
+    // ポイントモザイクの回収
+    const revokeDes = revokeMosaic(mosaicId, sourceAddresses, Number(amount))
+    const revokeTxs = revokeDes.map((des) =>
+      facade.createEmbeddedTransactionFromTypedDescriptor(
+        des,
+        daoAccount.publicKey,
+      ),
+    )
+
+    // 手数料代替トランザクションの作成
+    const dummy = createDummy(daoAccount.address.toString())
+    const dummyTx = facade.createEmbeddedTransactionFromTypedDescriptor(
+      dummy,
+      masterAccount.publicKey,
+    )
+    const innerTx = [...revokeTxs, dummyTx]
+
+    // アグリゲート
+    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTx)
+    const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
+      txHash,
+      innerTx,
+    )
+    const mosaicRevokeBondedTx = models.AggregateBondedTransactionV2.deserialize(
+      facade
+        .createTransactionFromTypedDescriptor(
+          aggregateDes,
+          masterAccount.publicKey,
+          Config.FEE_MULTIPLIER,
+          Config.DEADLINE_SECONDS,
+        )
+        .serialize(),
+    )
+
+    // 署名
+    const signedBonded = signTransaction(masterAccount, mosaicRevokeBondedTx)
+
+    // HashLock
+    const hashLock = createHashLock(signedBonded.hash)
+    const hashLockTx = facade.createTransactionFromTypedDescriptor(
+      hashLock,
+      masterAccount.publicKey,
+      Config.FEE_MULTIPLIER,
+      Config.DEADLINE_SECONDS,
+    )
+
+    const announcedHashLockTx = await announceTransaction(
+      masterAccount,
+      hashLockTx,
+    )
+
+    await announceBonded(
+      announcedHashLockTx.hash.toString(),
+      signedBonded.jsonPayload,
+    ).catch(() => {
+      console.error("hash lock error")
+    })
+
+    return c.json({
+      message:
+        "ポイントモザイクの回収を実施しました。他の管理者による承認をお待ちください。",
+    })
+  } catch (error) {
+    console.error("ポイントモザイク回収エラー:", error)
+    return c.json({ message: "ポイントモザイクの回収に失敗しました。" }, 500)
   }
-
-  const facade = new SymbolFacade(Config.NETWORK)
-  const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
-  const daoAccount = facade.createPublicAccount(new PublicKey(id))
-
-  const revokeDes = revokeMosaic(mosaicId, sourceAddresses, Number(amount))
-  const revokeTxs = revokeDes.map((des) =>
-    facade.createEmbeddedTransactionFromTypedDescriptor(
-      des,
-      daoAccount.publicKey,
-    ),
-  )
-
-  const dummy = createDummy(daoAccount.address.toString())
-  const dummyTx = facade.createEmbeddedTransactionFromTypedDescriptor(
-    dummy,
-    masterAccount.publicKey,
-  )
-  const innerTx = [...revokeTxs, dummyTx]
-  const txHash = SymbolFacade.hashEmbeddedTransactions(innerTx)
-  const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
-    txHash,
-    innerTx,
-  )
-  const mosaicRevokeBondedTx = models.AggregateBondedTransactionV2.deserialize(
-    facade
-      .createTransactionFromTypedDescriptor(
-        aggregateDes,
-        masterAccount.publicKey,
-        Config.FEE_MULTIPLIER,
-        Config.DEADLINE_SECONDS,
-      )
-      .serialize(),
-  )
-
-  const signedBonded = signTransaction(masterAccount, mosaicRevokeBondedTx)
-
-  const hashLock = createHashLock(signedBonded.hash)
-  const hashLockTx = facade.createTransactionFromTypedDescriptor(
-    hashLock,
-    masterAccount.publicKey,
-    Config.FEE_MULTIPLIER,
-    Config.DEADLINE_SECONDS,
-  )
-
-  const announcedHashLock = await announceTransaction(masterAccount, hashLockTx)
-  await announceBonded(
-    announcedHashLock.hash.toString(),
-    signedBonded.jsonPayload,
-  ).catch(() => {
-    console.error("hash lock error")
-  })
-
-  return c.json({
-    message: `ポイントモザイクの回収を実施しました。他の管理者による承認をお待ちください。`,
-  })
 }
