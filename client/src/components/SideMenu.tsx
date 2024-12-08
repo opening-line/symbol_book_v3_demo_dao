@@ -56,14 +56,14 @@ const SideMenu: React.FC<SideMenuProps> = ({
         // 特別会員限定モザイクを保有しているかどうかを確認
         const mosaics = await fetch(
           `${Config.API_HOST}/home/mosaics/${sssAddress}`,
-        )
-        const mosaicsData = await mosaics.json()
+        ).then((res) => res.json())
+
         const daoRewardMosaics = await fetch(
           `${Config.API_HOST}/admin/reward/${id}`,
-        )
-        const daoRewardMosaicsData = await daoRewardMosaics.json()
-        const hasLimitedMosaic = mosaicsData.some((mosaic: Mosaic) =>
-          daoRewardMosaicsData.includes(mosaic.id),
+        ).then((res) => res.json())
+
+        const hasLimitedMosaic = mosaics.some((mosaic: Mosaic) =>
+          daoRewardMosaics.includes(mosaic.id),
         )
         setHasLimitedMosaic(hasLimitedMosaic)
       } catch (error) {
@@ -90,12 +90,16 @@ const SideMenu: React.FC<SideMenuProps> = ({
           icon: <MdOutlineHowToVote />,
           requiresSSS: true,
         },
-        {
-          text: "特別会員限定",
-          path: `/dao/${id}/limited`,
-          icon: <MdOutlineLock />,
-          requiresSSS: true,
-        },
+        ...(hasLimitedMosaic
+          ? [
+              {
+                text: "特別会員限定",
+                path: `/dao/${id}/limited`,
+                icon: <MdOutlineLock />,
+                requiresSSS: true,
+              },
+            ]
+          : []),
         ...(isManagerAccount
           ? [
               {
