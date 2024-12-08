@@ -17,9 +17,8 @@ import { createAccountMetadata } from "../../functions/createAccountMetadata"
 import { models } from "symbol-sdk/symbol"
 import { signTransaction } from "../../functions/signTransaction"
 
-// TODO: rename CreateDao
 export const createDao = async (c: Context) => {
-  // TODO: 準備
+  // 準備
   const ENV = env<{ PRIVATE_KEY: string }>(c)
   const facade = new SymbolFacade(Config.NETWORK)
   const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
@@ -41,13 +40,13 @@ export const createDao = async (c: Context) => {
 
   const ownerAccount = facade.createPublicAccount(new PublicKey(ownerPublicKey))
 
-  // TODO: DAO アカウントの生成
+  // DAO アカウントの生成
   const daoAccount = generateAccount()
 
-  // TODO: 100XYMをDAOアカウントに入金
-  const transferDes = transferXym(daoAccount.address, 100n * 1000000n)
+  // 50XYMをDAOアカウントに入金
+  const transferDes = transferXym(daoAccount.address, 50n * 1000000n)
 
-  // TODO: ガバナンストークンの生成
+  // ガバナンストークンの生成
   const flags = {
     supplyMutable: false,
     transferable: false,
@@ -63,14 +62,10 @@ export const createDao = async (c: Context) => {
     flags,
   )
 
-  // TODO: 会員証NFTの生成
-  const nftIdInfo = createMosaicId(daoAccount.address)
-  const memberNftDes = createMosaic(nftIdInfo.id, nftIdInfo.nonce, 100, flags)
-
-  // TODO: DAOアカウントをマルチシグに変換
+  // DAOアカウントをマルチシグに変換
   const daoAccountMultisig = addMultisig([ownerAccount.address])
 
-  // TODO: Vote先アカウントの生成
+  // Vote先アカウントの生成
   const voteAccounts = [
     generateAccount(),
     generateAccount(),
@@ -78,7 +73,7 @@ export const createDao = async (c: Context) => {
     generateAccount(),
   ]
 
-  // TODO: メタデータの登録
+  // メタデータの登録
   const metadatas = [
     {
       key: METADATA_KEYS.GOVERNANCE_TOKEN_ID,
@@ -101,10 +96,6 @@ export const createDao = async (c: Context) => {
       value: voteAccounts[3].publicKey.toString(),
     },
     {
-      key: METADATA_KEYS.MEMBER_NFT_ID,
-      value: `0${nftIdInfo.id.toString(16)}`.slice(-16),
-    },
-    {
       key: METADATA_KEYS.DAO_NAME,
       value: daoName,
     },
@@ -120,7 +111,7 @@ export const createDao = async (c: Context) => {
     ),
   )
 
-  // TODO: アグリゲート
+  // アグリゲート
   const txs = [
     {
       transaction: transferDes,
@@ -132,14 +123,6 @@ export const createDao = async (c: Context) => {
     },
     {
       transaction: createGovTokenDes.mosaicSupplyChangeDescriptor,
-      signer: daoAccount.publicKey,
-    },
-    {
-      transaction: memberNftDes.mosaicDefinitionDescriptor,
-      signer: daoAccount.publicKey,
-    },
-    {
-      transaction: memberNftDes.mosaicSupplyChangeDescriptor,
       signer: daoAccount.publicKey,
     },
     {
@@ -159,7 +142,7 @@ export const createDao = async (c: Context) => {
     ),
   )
 
-  // TODO: 署名
+  // 署名
   const txHash = SymbolFacade.hashEmbeddedTransactions(innerTransactions)
   const aggregateDes = new descriptors.AggregateCompleteTransactionV2Descriptor(
     txHash,
