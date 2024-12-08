@@ -1,6 +1,5 @@
-import { descriptors, type Address } from "symbol-sdk/symbol"
+import { descriptors, models, type Address } from "symbol-sdk/symbol"
 import { Config } from "../utils/config"
-import { models } from "symbol-sdk/symbol"
 
 /**
  * XYMの送信

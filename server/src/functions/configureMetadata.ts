@@ -1,3 +1,4 @@
+import { utils } from "symbol-sdk"
 import {
   Address,
   descriptors,
@@ -7,7 +8,6 @@ import {
 } from "symbol-sdk/symbol"
 import { getMetadataInfoByQuery } from "../info/getMetadataInfoByQuery"
 import { getMosaicInfo } from "../info/getMosaicInfo"
-import { utils } from "symbol-sdk"
 
 /**
  * アカウントメタデータの設定
@@ -43,7 +43,10 @@ export const configureAccountMetadata = async (
 
     const preData = existingAccountMetadataInfo[0]?.metadataEntry
     const preValueSizeDelta = isExists ? preData.valueSize : 0
-    const value = metadataUpdateValue(isExists ? utils.hexToUint8(preData.value) : undefined, targetValue)
+    const value = metadataUpdateValue(
+      isExists ? utils.hexToUint8(preData.value) : undefined,
+      targetValue,
+    )
 
     // アカウントメタデータ登録トランザクションの作成
     const accountMetadataTransactionDescriptor =

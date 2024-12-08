@@ -1,6 +1,6 @@
+import { PrivateKey } from "symbol-sdk"
 import { SymbolFacade } from "symbol-sdk/symbol"
 import { Config } from "../utils/config"
-import { PrivateKey } from "symbol-sdk"
 
 /**
  * アカウントの生成
