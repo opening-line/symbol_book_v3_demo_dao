@@ -6,4 +6,5 @@ export const Config = {
   XYM_ID: 0x72c0212e67a08bcen,
   DEADLINE_SECONDS: 7200,
   FEE_MULTIPLIER: 200,
+  TOKEN_AMOUNT: 1000000,
 }

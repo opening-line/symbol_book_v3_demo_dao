@@ -6,6 +6,9 @@ import { announceBonded } from "../../functions/announceBonded"
 import { announceTransaction } from "../../functions/announceTransaction"
 import { createDummy } from "../../functions/createDummy"
 import { createHashLock } from "../../functions/createHashLock"
+import { anounceBonded } from "../../functions/anounceBonded"
+import { pickMetadata } from "../../functions/pickMetadata"
+import { anounceTransaction } from "../../functions/anounceTransaction"
 import { signTransaction } from "../../functions/signTransaction"
 import { transfer } from "../../functions/transfer"
 import { Config } from "../../utils/config"
@@ -71,6 +74,7 @@ export const sendReward = async (c: Context) => {
     Config.FEE_MULTIPLIER,
     Config.DEADLINE_SECONDS,
   )
+
 
   const announcedHashLock = await announceTransaction(
     masterAccount,

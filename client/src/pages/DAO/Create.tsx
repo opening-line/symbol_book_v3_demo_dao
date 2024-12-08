@@ -6,7 +6,7 @@ import {
   requestSignCosignatureTransaction,
   getActivePublicKey,
 } from "sss-module"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Config } from "../../utils/config"
 
 const NODE_URL = "https://sym-test-03.opening-line.jp:3001"
@@ -38,6 +38,12 @@ export const CreateDAOPage: React.FC = () => {
       cosignedTx.signerPublicKey,
     )
     tx.cosignatures.push(cosignature)
+
+    console.log("signer", tx.signerPublicKey.toString())
+    console.log(
+      "cosigner",
+      tx.cosignatures.map((cosign) => cosign.signerPublicKey.toString()),
+    )
 
     const jsonPayload2 = `{"payload":"${utils.uint8ToHex(tx.serialize())}"}`
 

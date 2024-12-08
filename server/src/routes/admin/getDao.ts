@@ -4,6 +4,7 @@ import { Config } from "../../utils/config"
 import { PublicKey, utils } from "symbol-sdk"
 import { getMultisigInfo } from "../../info/getMultisigInfo"
 import { getMetadataInfo } from "../../info/getMetadataInfo"
+import { decordHexAddress } from "../../functions/decordHexAddress"
 
 export const getDao = async (c: Context) => {
   const id = c.req.param("id")
@@ -34,9 +35,7 @@ export const getDao = async (c: Context) => {
     address: address.toString(),
     metadata: metadata,
     cosignatory: msRes.cosignatoryAddresses.map((cosignatory: string) =>
-      new Address(
-        new models.UnresolvedAddress(utils.hexToUint8(cosignatory)).bytes,
-      ).toString(),
+      decordHexAddress(cosignatory),
     ),
   }
 

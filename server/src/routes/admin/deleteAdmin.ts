@@ -6,7 +6,9 @@ import { createDummy } from "../../functions/createDummy"
 import { env } from "hono/adapter"
 import { deleteMultisig } from "../../functions/deleteMultisig"
 import { createHashLock } from "../../functions/createHashLock"
-import { awaitHashLock } from "../../functions/awaitHashLock"
+import { anounceBonded } from "../../functions/anounceBonded"
+import { anounceTransaction } from "../../functions/anounceTransaction"
+import { signTransaction } from "../../functions/signTransaction"
 
 export const deleteAdmin = async (c: Context) => {
   const { daoId, addresses } = (await c.req.json()) as {
@@ -55,17 +57,10 @@ export const deleteAdmin = async (c: Context) => {
       .serialize(),
   )
 
-  const signatureMaster = masterAccount.signTransaction(tx)
-
-  const jsonPayload = facade.transactionFactory.static.attachSignature(
-    tx,
-    signatureMaster,
-  )
-
-  const hashAgg = facade.hashTransaction(tx)
+  const signedBonded = signTransaction(masterAccount, tx)
 
   // TODO: HashLock
-  const hashLock = createHashLock(hashAgg)
+  const hashLock = createHashLock(signedBonded.hash)
   const hashLockTransaction = facade.createTransactionFromTypedDescriptor(
     hashLock,
     masterAccount.publicKey,
@@ -73,40 +68,19 @@ export const deleteAdmin = async (c: Context) => {
     Config.DEADLINE_SECONDS,
   )
 
-  const signatureMasterHashLock =
-    masterAccount.signTransaction(hashLockTransaction)
-
-  const jsonPayloadHashLock = facade.transactionFactory.static.attachSignature(
+  const announcedHashLockTx = await anounceTransaction(
+    masterAccount,
     hashLockTransaction,
-    signatureMasterHashLock,
   )
 
-  const hashHL = facade.hashTransaction(hashLockTransaction)
+  // await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  const sendRes = await fetch(new URL("/transactions", Config.NODE_URL), {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: jsonPayloadHashLock,
-  }).then((res) => res.json())
-  console.log(sendRes)
-
-  await new Promise((resolve) => setTimeout(resolve, 1000))
-
-  awaitHashLock(hashHL.toString())
-    .then(async () => {
-      const sendAggRes = await fetch(
-        new URL("/transactions/partial", Config.NODE_URL),
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: jsonPayload,
-        },
-      ).then((res) => res.json())
-      console.log(sendAggRes)
-    })
-    .catch(() => {
-      console.error("hash lock error")
-    })
+  anounceBonded(
+    announcedHashLockTx.hash.toString(),
+    signedBonded.jsonPayload,
+  ).catch(() => {
+    console.error("hash lock error")
+  })
 
   return c.json({ message: "Hello deleteAdmin" })
 }
