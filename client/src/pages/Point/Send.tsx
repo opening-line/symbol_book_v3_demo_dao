@@ -1,37 +1,63 @@
 import { useEffect, useState } from "react"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
+import { useTheme } from "../../components/ThemeContext"
 import { Config } from "../../utils/config"
-import { useParams, useNavigate, useLocation } from "react-router-dom"
 
 export const PointSendPage: React.FC = () => {
-  const HEADER_HEIGHT = 60
-  const { mosaicId } = useParams<{ mosaicId: string }>()
+  const { theme } = useTheme()
   const location = useLocation()
-  const { balance } = location.state as { maxSupply: number; balance: number }
+  const navigate = useNavigate()
+  const { id, mosaicId } = useParams<{ id: string; mosaicId: string }>()
+  const { balance, name } = location.state as { balance: number; name: string }
   const [holders, setHolders] = useState<{ address: string; amount: number }[]>(
     [],
   )
   const [selectedAddresses, setSelectedAddresses] = useState<string[]>([])
   const [amount, setAmount] = useState<string>("")
+  const [message, setMessage] = useState<string>("")
   const [error, setError] = useState<string>("")
-  const navigate = useNavigate()
+  const [accountValidationError, setAccountValidationError] =
+    useState<string>("")
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
-  const handleCheckboxChange = (address: string) => {
-    setSelectedAddresses((prev) => {
-      if (prev.includes(address)) {
-        return prev.filter((addr) => addr !== address)
-      } else {
-        return [...prev, address]
+  useEffect(() => {
+    // ポイント保有者一覧を取得
+    const fetchHolders = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch(
+          `${Config.API_HOST}/admin/holders/${id}/mosaic/${mosaicId}`,
+        ).then((res) => res.json())
+        setHolders(response)
+      } finally {
+        setIsLoading(false)
       }
-    })
-  }
-
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedAddresses(holders.map((holder) => holder.address))
-    } else {
-      setSelectedAddresses([])
     }
-  }
+
+    fetchHolders()
+  }, [mosaicId, balance])
+
+  useEffect(() => {
+    if (selectedAddresses.length > 99) {
+      setAccountValidationError("選択できるユーザーは99名までです。")
+    } else {
+      setAccountValidationError("")
+    }
+  }, [selectedAddresses])
+
+  useEffect(() => {
+    if (amount && selectedAddresses.length > 0) {
+      const numValue = parseInt(amount)
+      if (numValue * selectedAddresses.length > balance) {
+        setError(
+          `選択された${selectedAddresses.length}名に${numValue.toLocaleString()}ずつ配布すると、合計${(numValue * selectedAddresses.length).toLocaleString()}となり配布可能な残高（${balance.toLocaleString()}）を超えています`,
+        )
+      } else {
+        setError("")
+      }
+    }
+  }, [selectedAddresses, amount, balance])
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -47,65 +73,69 @@ export const PointSendPage: React.FC = () => {
         setError("0より大きい数値を入力してください")
       } else if (numValue > balance) {
         setError(`配布可能な残高（${balance.toLocaleString()}）を超えています`)
+      } else if (
+        selectedAddresses.length > 0 &&
+        numValue * selectedAddresses.length > balance
+      ) {
+        setError(
+          `選択された${selectedAddresses.length}名に${numValue.toLocaleString()}ずつ配布すると、合計${(numValue * selectedAddresses.length).toLocaleString()}となり配布可能な残高（${balance.toLocaleString()}）を超えています`,
+        )
       } else {
         setError("")
       }
     }
   }
 
-  const handleSend = () => {
-    // TODO: ポイント配布APIを呼び出す
-    console.log("配布先アドレス:", selectedAddresses, "配布数量:", amount)
+  const handleCheckboxChange = (address: string) => {
+    setSelectedAddresses((prev) => {
+      const newSelection = prev.includes(address)
+        ? prev.filter((addr) => addr !== address)
+        : [...prev, address]
+      return newSelection
+    })
   }
 
-  useEffect(() => {
-    ;(async () => {
-      // TODO: DAO参加者一覧取得APIに変更
-      // テスト用データ
-      const response = [
-        { address: "ユーザー1", amount: 1000 },
-        { address: "ユーザー2", amount: 500 },
-        { address: "ユーザー3", amount: 100 },
-        { address: "ユーザー4", amount: 100 },
-        { address: "ユーザー5", amount: 100 },
-        { address: "ユーザー6", amount: 100 },
-        { address: "ユーザー7", amount: 100 },
-        { address: "ユーザー8", amount: 100 },
-        { address: "ユーザー9", amount: 100 },
-        { address: "ユーザー10", amount: 100 },
-        { address: "ユーザー11", amount: 100 },
-        { address: "ユーザー12", amount: 100 },
-        { address: "ユーザー13", amount: 100 },
-        { address: "ユーザー14", amount: 100 },
-        { address: "ユーザー15", amount: 100 },
-        { address: "ユーザー16", amount: 100 },
-        { address: "ユーザー17", amount: 100 },
-        { address: "ユーザー18", amount: 100 },
-        { address: "ユーザー19", amount: 100 },
-        { address: "ユーザー20", amount: 100 },
-        { address: "ユーザー21", amount: 100 },
-        { address: "ユーザー22", amount: 100 },
-        { address: "ユーザー23", amount: 100 },
-        { address: "ユーザー24", amount: 100 },
-        { address: "ユーザー25", amount: 100 },
-        { address: "ユーザー26", amount: 100 },
-        { address: "ユーザー27", amount: 0 },
-        { address: "ユーザー28", amount: 0 },
-        { address: "ユーザー29", amount: 0 },
-        { address: "ユーザー30", amount: 0 },
-      ]
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedAddresses(holders.map((holder) => holder.address))
+    } else {
+      setSelectedAddresses([])
+    }
+  }
 
-      // const response = await fetch(`${Config.API_HOST}/point/holders`);
-      setHolders(response)
-    })()
-  }, [])
+  const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(e.target.value)
+  }
+
+  const handleSend = () => {
+    setIsSubmitting(true)
+    fetch(`${Config.API_HOST}/admin/point/send`, {
+      method: "POST",
+      body: JSON.stringify({
+        id,
+        mosaicId,
+        recipientsAddresses: selectedAddresses,
+        amount,
+        message,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        alert(data.message)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => {
+        setIsSubmitting(false)
+      })
+  }
 
   return (
     <div
       style={{
         display: "flex",
         gap: "24px",
-        minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
         overflow: "hidden",
       }}
     >
@@ -121,12 +151,12 @@ export const PointSendPage: React.FC = () => {
           }}
         >
           <button
-            onClick={() => navigate("/point")}
+            onClick={() => navigate(`/dao/${id}/point`)}
             style={{
               padding: "16px 0px",
-              backgroundColor: "transparent",
+              backgroundColor: theme.transparent,
               border: "none",
-              color: "#0C1228",
+              color: theme.primary,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
@@ -140,8 +170,10 @@ export const PointSendPage: React.FC = () => {
         <h1 style={{ margin: 0, marginBottom: "20px" }}>ポイント配布</h1>
 
         <label>
-          配布するポイントID：
-          <span style={{ fontWeight: "bold" }}>{mosaicId}</span>
+          配布するポイントモザイク：
+          <span style={{ fontWeight: "bold" }}>
+            {name === mosaicId ? mosaicId : `${name} (${mosaicId})`}
+          </span>
         </label>
         <div
           style={{
@@ -158,7 +190,7 @@ export const PointSendPage: React.FC = () => {
               marginTop: "4px",
             }}
           >
-            配布数量：
+            配布数量：　
           </label>
           <div
             style={{
@@ -175,39 +207,66 @@ export const PointSendPage: React.FC = () => {
               style={{
                 padding: "8px",
                 borderRadius: "4px",
-                backgroundColor: "#FFFFFF",
-                border: error ? "1px solid #F44336" : "none",
+                backgroundColor: theme.white,
+                border: error ? `1px solid ${theme.alert}` : "none",
                 width: "200px",
               }}
               min='1'
               max={balance.toString()}
               placeholder='配布するポイント数を入力'
             />
-            <div
+            <span
               style={{
-                height: "16px",
+                color: theme.text.placeholder,
                 fontSize: "12px",
-                color: "#F44336",
               }}
             >
-              {error}
-            </div>
+              上限：{balance.toLocaleString()}
+            </span>
           </div>
-          <span
+          <div
             style={{
-              color: "#666666",
-              fontSize: "14px",
+              height: "16px",
+              fontSize: "12px",
+              color: theme.alert,
               marginTop: "4px",
             }}
           >
-            上限：{balance.toLocaleString()}
-          </span>
+            {error}
+          </div>
+        </div>
+
+        <div
+          style={{
+            marginBottom: "20px",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "12px",
+          }}
+        >
+          <label style={{ marginTop: "4px" }}>メッセージ：</label>
+          <textarea
+            value={message}
+            onChange={handleMessageChange}
+            style={{
+              padding: "8px",
+              borderRadius: "4px",
+              backgroundColor: theme.white,
+              border: "none",
+              width: "400px",
+              minHeight: "80px",
+              resize: "vertical",
+              fontSize: "14px",
+              fontWeight: "normal",
+            }}
+            placeholder='配布時のメッセージを入力（任意）'
+          />
         </div>
 
         <div>
           <div
             style={{
-              backgroundColor: "#FFFFFF",
+              backgroundColor: theme.white,
               padding: "12px",
               margin: 0,
               borderRadius: "8px",
@@ -228,6 +287,7 @@ export const PointSendPage: React.FC = () => {
                   type='checkbox'
                   checked={selectedAddresses.length === holders.length}
                   onChange={(e) => handleSelectAll(e.target.checked)}
+                  disabled={isLoading}
                 />
                 <h2
                   style={{
@@ -238,7 +298,7 @@ export const PointSendPage: React.FC = () => {
                   ポイント保有者一覧
                 </h2>
               </div>
-              <span style={{ fontSize: "14px", color: "#666666" }}>
+              <span style={{ fontSize: "14px", color: theme.text.placeholder }}>
                 {selectedAddresses.length}件選択中
               </span>
             </div>
@@ -250,62 +310,141 @@ export const PointSendPage: React.FC = () => {
                 gap: "12px",
               }}
             >
-              {holders.map((holder) => (
+              {isLoading ? (
                 <div
-                  key={holder.address}
                   style={{
-                    padding: "12px",
-                    border: "1px solid #E0E0E0",
-                    borderRadius: "4px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    minWidth: "250px",
-                    flex: "1 1 250px",
+                    width: "100%",
+                    textAlign: "center",
+                    padding: "20px",
+                    color: theme.text.placeholder,
                   }}
                 >
+                  読み込み中...
+                </div>
+              ) : holders.length === 0 ? (
+                <div
+                  style={{
+                    width: "100%",
+                    textAlign: "center",
+                    padding: "20px",
+                    color: theme.text.placeholder,
+                  }}
+                >
+                  ポイント保有者がいません
+                </div>
+              ) : (
+                holders.map((holder) => (
                   <div
+                    key={holder.address}
                     style={{
+                      padding: "12px",
+                      border: `1px solid ${theme.border}`,
+                      borderRadius: "4px",
                       display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      width: "250px",
+                      flex: "1 1 250px",
                     }}
                   >
-                    <input
-                      type='checkbox'
-                      checked={selectedAddresses.includes(holder.address)}
-                      onChange={() => handleCheckboxChange(holder.address)}
-                    />
-                    <span>{holder.address}</span>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                        maxWidth: "100%",
+                      }}
+                    >
+                      <input
+                        type='checkbox'
+                        checked={selectedAddresses.includes(holder.address)}
+                        onChange={() => handleCheckboxChange(holder.address)}
+                      />
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "4px",
+                          maxWidth: "calc(100% - 24px)",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            wordBreak: "break-all",
+                            overflowWrap: "break-word",
+                          }}
+                        >
+                          {holder.address}
+                        </span>
+                        <span
+                          style={{
+                            color: theme.text.placeholder,
+                            fontSize: "12px",
+                          }}
+                        >
+                          {holder.amount}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <span>{holder.amount}</span>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
         <div style={{ marginTop: "20px" }}>
+          {accountValidationError && (
+            <div style={{ color: "red", marginBottom: "10px" }}>
+              {accountValidationError}
+            </div>
+          )}
           <button
             onClick={handleSend}
-            disabled={!!error || !amount || selectedAddresses.length === 0}
+            disabled={
+              !!error ||
+              !amount ||
+              selectedAddresses.length === 0 ||
+              selectedAddresses.length > 99 ||
+              isSubmitting
+            }
             style={{
               padding: "8px 16px",
               marginBottom: "20px",
               marginRight: "12px",
               backgroundColor:
-                !!error || !amount || selectedAddresses.length === 0
-                  ? "#CCCCCC"
-                  : "#0C1228",
-              color: "white",
+                !!error ||
+                !amount ||
+                selectedAddresses.length === 0 ||
+                selectedAddresses.length > 99 ||
+                isSubmitting
+                  ? theme.disabled
+                  : theme.primary,
+              color: theme.white,
               border: "none",
               borderRadius: "4px",
               cursor:
-                !!error || !amount || selectedAddresses.length === 0
+                !!error ||
+                !amount ||
+                selectedAddresses.length === 0 ||
+                selectedAddresses.length > 99 ||
+                isSubmitting
                   ? "not-allowed"
                   : "pointer",
+              width: "100px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
             }}
           >
-            配布する
+            {isSubmitting ? (
+              <>
+                <div className='loader' />
+                処理中...
+              </>
+            ) : (
+              "配布する"
+            )}
           </button>
         </div>
       </div>

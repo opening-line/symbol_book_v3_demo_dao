@@ -1,17 +1,22 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
+import { Config } from "../../utils/config"
 
 export const DaoPage: React.FC = () => {
   const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
   const [isDaoAccount, setIsDaoAccount] = useState<boolean>(false)
 
-  // 自分がDAOアカウントの連署者であるかどうかを確認
   useEffect(() => {
-    ;(async () => {
-      // TODO: DAOデータ取得APIに変更
-      const isDaoAccount = true
+    const fetchDaoData = async () => {
+      const response = await fetch(`${Config.API_HOST}/admin/get/${id}`).then(
+        (res) => res.json(),
+      )
+      const isDaoAccount = !!response.address
       setIsDaoAccount(isDaoAccount)
-    })()
+    }
+
+    fetchDaoData()
   }, [])
 
   return (
@@ -20,7 +25,7 @@ export const DaoPage: React.FC = () => {
       {!isDaoAccount ? (
         // DAOアカウントがない場合
         <button
-          onClick={() => navigate("/dao/create")}
+          onClick={() => navigate(`/dao/${id}/create`)}
           style={{
             padding: "10px 20px",
             backgroundColor: "#181F39",
@@ -41,7 +46,7 @@ export const DaoPage: React.FC = () => {
             サイドメニューから遷移する際にDAOあるかどうか判定して分岐させても良さそう？
           </p>
           <button
-            onClick={() => navigate("/dao/create")}
+            onClick={() => navigate(`/dao/${id}/create`)}
             style={{
               padding: "10px 20px",
               backgroundColor: "#181F39",

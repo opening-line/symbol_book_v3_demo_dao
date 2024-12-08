@@ -2,6 +2,7 @@ import React, { useState, ReactElement, useEffect } from "react"
 import SideMenu from "./SideMenu"
 import Header from "./Header"
 import { getActiveAddress, getActiveName, isAllowedSSS } from "sss-module"
+import { CreateDAOPage } from "../pages/DAO/Create"
 
 interface LayoutProps {
   children: ReactElement<any>
@@ -12,11 +13,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [address, setAddress] = useState<string>("")
   const [name, setName] = useState<string>("")
   const [isSSSLinked, setIsSSSLinked] = useState<boolean>(false)
+  const [id, setId] = useState<string>("")
 
   useEffect(() => {
-    // デバッグ用
-    // const isSSSLinked = false;
-
+    // TODO: DAO IDを取得する方法を検討
+    const id =
+      "4627107BAD5B345883ABC6551CEA3C7C7283C8B354E758F180AE91DFA0227CD7"
+    setId(id)
     const isSSSLinked = isAllowedSSS()
     const address = isSSSLinked ? getActiveAddress() : ""
     const name = isSSSLinked ? getActiveName() : "ゲスト"
@@ -58,12 +61,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       />
       <div style={contentWrapperStyle}>
         <SideMenu
-          address={address}
+          id={id}
+          sssAddress={address}
           isOpen={isMenuOpen}
           isSSSLinked={isSSSLinked}
         />
         <main style={mainContentStyle}>
-          {React.cloneElement(children as any, { username: name })}
+          {id ? (
+            React.cloneElement(children as any, { username: name })
+          ) : (
+            <CreateDAOPage />
+          )}
         </main>
       </div>
     </div>

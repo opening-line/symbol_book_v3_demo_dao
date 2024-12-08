@@ -1,39 +1,38 @@
-import React from "react"
-import { Config } from "../../utils/config"
+import { useEffect, useState } from "react"
 import { getActiveAddress, getActiveName, isAllowedSSS } from "sss-module"
+import { useTheme } from "../../components/ThemeContext"
+import { Config } from "../../utils/config"
 
 interface Mosaic {
   id: string
+  name?: string
   amount: string
 }
 
 export const HomePage: React.FC = () => {
-  const [username, setUsername] = React.useState<string>("")
-  // TODO: SSSと連携しているかどうかの判定がLayout.tsxと二重管理になってしまっている問題を解消する
-  const [isSSSLinked, setIsSSSLinked] = React.useState<boolean>(false)
-  const [mosaics, setMosaics] = React.useState<Mosaic[]>([])
+  const { theme } = useTheme()
+  const [username, setUsername] = useState<string>("")
+  const [isSSSLinked, setIsSSSLinked] = useState<boolean>(false)
+  const [mosaics, setMosaics] = useState<Mosaic[]>([])
 
-  React.useEffect(() => {
-    // デバッグ用
-    // const isSSSLinked = false;
-
+  useEffect(() => {
     const isSSSLinked = isAllowedSSS()
     const address = isSSSLinked ? getActiveAddress() : ""
     const name = isSSSLinked ? getActiveName() : "ゲスト"
     setIsSSSLinked(isSSSLinked)
     setUsername(name)
-
     if (!address) {
       setMosaics([])
       return
     }
-    ;(async () => {
+
+    const fetchMosaics = async () => {
       // アドレスを基に保有モザイク一覧を取得
       const response = await fetch(`${Config.API_HOST}/home/mosaics/${address}`)
       const data = await response.json()
-      console.log("mosaics", data)
       setMosaics(data)
-    })()
+    }
+    fetchMosaics()
   }, [])
 
   return (
@@ -43,7 +42,7 @@ export const HomePage: React.FC = () => {
         <div>
           <ul
             style={{
-              backgroundColor: "#FFFFFF",
+              backgroundColor: theme.white,
               listStyle: "none",
               padding: 0,
               margin: 0,
@@ -71,13 +70,15 @@ export const HomePage: React.FC = () => {
                 style={{
                   padding: "12px",
                   borderBottom:
-                    index === mosaics.length - 1 ? "none" : "1px solid #E0E0E0",
+                    index === mosaics.length - 1
+                      ? "none"
+                      : `1px solid ${theme.border}`,
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
                 }}
               >
-                <span>{mosaic.id}</span>
+                <span>{mosaic.name || mosaic.id}</span>
                 <span>{mosaic.amount}</span>
               </li>
             ))}

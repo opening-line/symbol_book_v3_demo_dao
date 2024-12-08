@@ -8,6 +8,8 @@ import { env } from "hono/adapter"
 import adminRoute from "./routes/admin"
 import gavarnanceRoute from "./routes/governance"
 import { cors } from "hono/cors"
+import adminRoute from "./routes/admin"
+import homeRoute from "./routes/home"
 // 環境変数を読み込む
 dotenv.config()
 
@@ -20,6 +22,8 @@ app.use(
 
 app.route("/admin", adminRoute)
 app.route("/gavarnance", gavarnanceRoute)
+app.route("/home", homeRoute)
+
 
 app.get("/", (c) => {
   return c.text("Hello Hono!")

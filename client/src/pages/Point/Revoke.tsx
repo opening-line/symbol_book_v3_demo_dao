@@ -1,17 +1,39 @@
 import { useEffect, useState } from "react"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
+import { useTheme } from "../../components/ThemeContext"
 import { Config } from "../../utils/config"
-import { useParams, useNavigate } from "react-router-dom"
 
 export const PointRevokePage: React.FC = () => {
-  const HEADER_HEIGHT = 60
-  const { mosaicId } = useParams<{ mosaicId: string }>()
+  const { theme } = useTheme()
+  const location = useLocation()
   const navigate = useNavigate()
+  const { id, mosaicId } = useParams<{ id: string; mosaicId: string }>()
+  const { name } = location.state as { balance: number; name: string }
   const [holders, setHolders] = useState<{ address: string; amount: number }[]>(
     [],
   )
   const [selectedAddresses, setSelectedAddresses] = useState<string[]>([])
   const [amount, setAmount] = useState<string>("")
   const [error, setError] = useState<string>("")
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+
+  useEffect(() => {
+    // ポイント保有者一覧を取得
+    const fetchHolders = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch(
+          `${Config.API_HOST}/admin/holders/${id}/mosaic/${mosaicId}`,
+        ).then((res) => res.json())
+        setHolders(response)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchHolders()
+  }, [mosaicId])
 
   const validateAmount = (value: string, addresses: string[]) => {
     if (value === "") {
@@ -70,31 +92,34 @@ export const PointRevokePage: React.FC = () => {
       alert("回収元のアドレスを選択してください")
       return
     }
-    // TODO: ポイント回収APIを呼び出す
-    console.log("回収元アドレス:", selectedAddresses)
+
+    setIsSubmitting(true)
+    fetch(`${Config.API_HOST}/admin/point/revoke`, {
+      method: "POST",
+      body: JSON.stringify({
+        id,
+        mosaicId,
+        sourceAddresses: selectedAddresses,
+        amount,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        alert(data.message)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => {
+        setIsSubmitting(false)
+      })
   }
-
-  useEffect(() => {
-    ;(async () => {
-      // TODO: ポイントモザイク保有者一覧取得APIに変更
-      // テスト用データ
-      const response = [
-        { address: "ユーザー1", amount: 1000 },
-        { address: "ユーザー2", amount: 500 },
-        { address: "ユーザー3", amount: 100 },
-      ]
-
-      // const response = await fetch(`${Config.API_HOST}/point/holders`);
-      setHolders(response)
-    })()
-  }, [])
 
   return (
     <div
       style={{
         display: "flex",
         gap: "24px",
-        minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
         overflow: "hidden",
       }}
     >
@@ -110,12 +135,12 @@ export const PointRevokePage: React.FC = () => {
           }}
         >
           <button
-            onClick={() => navigate("/point")}
+            onClick={() => navigate(`/dao/${id}/point`)}
             style={{
               padding: "16px 0px",
-              backgroundColor: "transparent",
+              backgroundColor: theme.transparent,
               border: "none",
-              color: "#0C1228",
+              color: theme.primary,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
@@ -129,8 +154,10 @@ export const PointRevokePage: React.FC = () => {
         <h1 style={{ margin: 0, marginBottom: "20px" }}>ポイント回収</h1>
 
         <label>
-          回収するポイントID：
-          <span style={{ fontWeight: "bold" }}>{mosaicId}</span>
+          回収するポイントモザイク：
+          <span style={{ fontWeight: "bold" }}>
+            {name === mosaicId ? mosaicId : `${name} (${mosaicId})`}
+          </span>
         </label>
         <div
           style={{
@@ -164,8 +191,8 @@ export const PointRevokePage: React.FC = () => {
               style={{
                 padding: "8px",
                 borderRadius: "4px",
-                backgroundColor: "#FFFFFF",
-                border: error ? "1px solid #F44336" : "none",
+                backgroundColor: theme.white,
+                border: error ? `1px solid ${theme.alert}` : "none",
                 width: "200px",
               }}
               min='1'
@@ -175,7 +202,7 @@ export const PointRevokePage: React.FC = () => {
               style={{
                 height: "16px",
                 fontSize: "12px",
-                color: "#F44336",
+                color: theme.alert,
               }}
             >
               {error}
@@ -186,7 +213,7 @@ export const PointRevokePage: React.FC = () => {
         <div>
           <div
             style={{
-              backgroundColor: "#FFFFFF",
+              backgroundColor: theme.white,
               padding: "12px",
               margin: "20px 0",
               borderRadius: "8px",
@@ -207,6 +234,7 @@ export const PointRevokePage: React.FC = () => {
                   type='checkbox'
                   checked={selectedAddresses.length === holders.length}
                   onChange={(e) => handleSelectAll(e.target.checked)}
+                  disabled={isLoading}
                 />
                 <h2
                   style={{
@@ -217,7 +245,7 @@ export const PointRevokePage: React.FC = () => {
                   ポイント保有者一覧
                 </h2>
               </div>
-              <span style={{ fontSize: "14px", color: "#666666" }}>
+              <span style={{ fontSize: "14px", color: theme.text.placeholder }}>
                 {selectedAddresses.length}件選択中
               </span>
             </div>
@@ -229,38 +257,85 @@ export const PointRevokePage: React.FC = () => {
                 gap: "12px",
               }}
             >
-              {holders.map((holder) => (
+              {isLoading ? (
                 <div
-                  key={holder.address}
                   style={{
-                    padding: "12px",
-                    border: "1px solid #E0E0E0",
-                    borderRadius: "4px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    width: "calc(33.33% - 8px)",
-                    minWidth: "auto",
-                    flex: "none",
+                    width: "100%",
+                    textAlign: "center",
+                    padding: "20px",
+                    color: theme.text.placeholder,
                   }}
                 >
+                  読み込み中...
+                </div>
+              ) : holders.length === 0 ? (
+                <div
+                  style={{
+                    width: "100%",
+                    textAlign: "center",
+                    padding: "20px",
+                    color: theme.text.placeholder,
+                  }}
+                >
+                  ポイント保有者がいません
+                </div>
+              ) : (
+                holders.map((holder) => (
                   <div
+                    key={holder.address}
                     style={{
+                      padding: "12px",
+                      border: `1px solid ${theme.border}`,
+                      borderRadius: "4px",
                       display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      width: "250px",
+                      flex: "1 1 250px",
                     }}
                   >
-                    <input
-                      type='checkbox'
-                      checked={selectedAddresses.includes(holder.address)}
-                      onChange={() => handleCheckboxChange(holder.address)}
-                    />
-                    <span>{holder.address}</span>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                        maxWidth: "100%",
+                      }}
+                    >
+                      <input
+                        type='checkbox'
+                        checked={selectedAddresses.includes(holder.address)}
+                        onChange={() => handleCheckboxChange(holder.address)}
+                      />
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "4px",
+                          maxWidth: "calc(100% - 24px)",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            wordBreak: "break-all",
+                            overflowWrap: "break-word",
+                          }}
+                        >
+                          {holder.address}
+                        </span>
+                        <span
+                          style={{
+                            color: theme.text.placeholder,
+                            fontSize: "12px",
+                          }}
+                        >
+                          {holder.amount}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <span>{holder.amount}</span>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -268,25 +343,48 @@ export const PointRevokePage: React.FC = () => {
         <div style={{ marginTop: "20px" }}>
           <button
             onClick={handleRevoke}
-            disabled={!!error || !amount || selectedAddresses.length === 0}
+            disabled={
+              !!error ||
+              !amount ||
+              selectedAddresses.length === 0 ||
+              isSubmitting
+            }
             style={{
               padding: "8px 16px",
               marginBottom: "20px",
               marginRight: "12px",
               backgroundColor:
-                !!error || !amount || selectedAddresses.length === 0
-                  ? "#CCCCCC"
-                  : "#0C1228",
-              color: "white",
+                !!error ||
+                !amount ||
+                selectedAddresses.length === 0 ||
+                isSubmitting
+                  ? theme.disabled
+                  : theme.primary,
+              color: theme.white,
               border: "none",
               borderRadius: "4px",
               cursor:
-                !!error || !amount || selectedAddresses.length === 0
+                !!error ||
+                !amount ||
+                selectedAddresses.length === 0 ||
+                isSubmitting
                   ? "not-allowed"
                   : "pointer",
+              width: "100px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
             }}
           >
-            回収する
+            {isSubmitting ? (
+              <>
+                <div className='loader' />
+                処理中...
+              </>
+            ) : (
+              "回収する"
+            )}
           </button>
         </div>
       </div>
