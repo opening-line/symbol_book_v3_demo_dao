@@ -3,23 +3,18 @@ import SideMenu from "./SideMenu"
 import Header from "./Header"
 import { getActiveAddress, getActiveName, isAllowedSSS } from "sss-module"
 import { CreateDAOPage } from "../pages/DAO/Create"
+import { Outlet, useParams } from "react-router"
 
-interface LayoutProps {
-  children: ReactElement<any>
-}
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+
+const Layout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(true)
   const [address, setAddress] = useState<string>("")
   const [name, setName] = useState<string>("")
   const [isSSSLinked, setIsSSSLinked] = useState<boolean>(false)
-  const [id, setId] = useState<string>("")
+  const {id} = useParams()
 
   useEffect(() => {
-    // TODO: DAO IDを取得する方法を検討
-    const id =
-      "4627107BAD5B345883ABC6551CEA3C7C7283C8B354E758F180AE91DFA0227CD7"
-    setId(id)
     const isSSSLinked = isAllowedSSS()
     const address = isSSSLinked ? getActiveAddress() : ""
     const name = isSSSLinked ? getActiveName() : "ゲスト"
@@ -52,6 +47,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     paddingLeft: "20px",
   }
 
+  if (!id) {
+    // TODO: 見た目変えただけでURLは変わってないので、URLを変える
+    return <CreateDAOPage />
+  }
+
   return (
     <div style={layoutStyle}>
       <Header
@@ -67,11 +67,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           isSSSLinked={isSSSLinked}
         />
         <main style={mainContentStyle}>
-          {id ? (
-            React.cloneElement(children as any, { username: name })
-          ) : (
-            <CreateDAOPage />
-          )}
+          <Outlet />
         </main>
       </div>
     </div>
