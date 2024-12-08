@@ -46,7 +46,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
       if (!id) return
 
       try {
-        // 自分がDAO管理者であるかどうかを確認
+        // 自分がDAO管理者��あるかどうかを確認
         const daoInfo: DaoInfo = await fetch(
           `${Config.API_HOST}/admin/get/${id}`,
         ).then((res) => res.json())
@@ -56,14 +56,14 @@ const SideMenu: React.FC<SideMenuProps> = ({
         // 特別会員限定モザイクを保有しているかどうかを確認
         const mosaics = await fetch(
           `${Config.API_HOST}/home/mosaics/${sssAddress}`,
-        )
-        const mosaicsData = await mosaics.json()
+        ).then((res) => res.json())
+
         const daoRewardMosaics = await fetch(
           `${Config.API_HOST}/admin/reward/${id}`,
-        )
-        const daoRewardMosaicsData = await daoRewardMosaics.json()
-        const hasLimitedMosaic = mosaicsData.some((mosaic: Mosaic) =>
-          daoRewardMosaicsData.includes(mosaic.id),
+        ).then((res) => res.json())
+
+        const hasLimitedMosaic = mosaics.some((mosaic: Mosaic) =>
+          daoRewardMosaics.includes(mosaic.id),
         )
         setHasLimitedMosaic(hasLimitedMosaic)
       } catch (error) {
@@ -95,6 +95,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
           path: `/dao/${id}/limited`,
           icon: <MdOutlineLock />,
           requiresSSS: true,
+          requiresPermission: true,
         },
         ...(isManagerAccount
           ? [
@@ -189,7 +190,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
         {menuItems.map((item) => {
           const isDisabled =
             (!isSSSLinked && item.requiresSSS) ||
-            (item.path === "/limited" && !hasLimitedMosaic && !isManagerAccount)
+            (item.requiresPermission && !hasLimitedMosaic && !isManagerAccount)
 
           return (
             <li key={item.text} style={menuItemStyle}>
@@ -198,7 +199,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
                 style={menuLinkStyle(
                   location.pathname === item.path,
                   hoveredItem === item.text,
-                  isDisabled,
+                  isDisabled ?? false,
                 )}
                 onMouseEnter={() => setHoveredItem(item.text)}
                 onMouseLeave={() => setHoveredItem(null)}
