@@ -57,14 +57,14 @@ export const getPointInfo = async (c: Context) => {
     )!.value.toUpperCase()
 
     // 全モザイクのメタデータを取得
-    const [govMosaicMdRes, ...pointMosaicsMdRes] = await Promise.all([
+    const [govTokenMdRes, ...pointMosaicsMdRes] = await Promise.all([
       getMetadataInfoByQuery(`targetId=${govTokenId}`),
       ...accountInfo.mosaics.map((mosaic: Mosaic) =>
         getMetadataInfoByQuery(`targetId=${mosaic.id}`),
       ),
     ])
 
-    const mosaicMetadatas = [govMosaicMdRes, ...pointMosaicsMdRes]
+    const mosaicMetadatas = [govTokenMdRes, ...pointMosaicsMdRes]
       .map((e: MetadataEntry[]) => {
         return e.map((e) => {
           return {
@@ -75,7 +75,7 @@ export const getPointInfo = async (c: Context) => {
       })
 
     // ポイントモザイク情報の取得
-    const [governanceMosaic, ...pointMosaics] = await Promise.all([
+    const [govToken, ...pointMosaics] = await Promise.all([
       fetchMosaicData({
         id: govTokenId,
         amount: accountInfo.mosaics.find(
@@ -90,7 +90,7 @@ export const getPointInfo = async (c: Context) => {
       }),
     ])
 
-    return c.json([governanceMosaic, ...pointMosaics.filter(Boolean)])
+    return c.json([govToken, ...pointMosaics.filter(Boolean)])
   } catch (error) {
     console.error("ポイント情報取得エラー:", error)
     return c.json({ message: "ポイント情報の取得に失敗しました。" }, 500)
