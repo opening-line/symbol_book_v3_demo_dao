@@ -9,6 +9,7 @@ import adminRoute from "./routes/admin"
 import gavarnanceRoute from "./routes/governance"
 import { cors } from "hono/cors"
 import homeRoute from "./routes/home"
+import limitedRoute from "./routes/limited"
 // 環境変数を読み込む
 dotenv.config()
 
@@ -22,6 +23,7 @@ app.use(
 app.route("/admin", adminRoute)
 app.route("/gavarnance", gavarnanceRoute)
 app.route("/home", homeRoute)
+app.route("/limited", limitedRoute)
 
 
 app.get("/", (c) => {

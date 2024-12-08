@@ -92,7 +92,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
         },
         {
           text: "特別会員限定",
-          path: "/limited",
+          path: `/dao/${id}/limited`,
           icon: <MdOutlineLock />,
           requiresSSS: true,
         },
