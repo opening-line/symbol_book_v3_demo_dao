@@ -22,6 +22,13 @@ interface Mosaic {
   amount: string
 }
 
+interface RewardMosaic {
+  id: string
+  maxSupply: string
+  balance: string
+  name: string
+}
+
 interface SideMenuProps {
   id: string
   sssAddress: string
@@ -46,11 +53,12 @@ const SideMenu: React.FC<SideMenuProps> = ({
       if (!id) return
 
       try {
-        // 自分がDAO管理者��あるかどうかを確認
+        // 自分がDAO管理者であるかどうかを確認
         const daoInfo: DaoInfo = await fetch(
           `${Config.API_HOST}/admin/get/${id}`,
         ).then((res) => res.json())
         const isManagerAccount = daoInfo?.cosignatory?.includes(sssAddress)
+        console.log("isManagerAccount", isManagerAccount)
         setIsManagerAccount(isManagerAccount)
 
         // 特別会員限定モザイクを保有しているかどうかを確認
@@ -58,13 +66,13 @@ const SideMenu: React.FC<SideMenuProps> = ({
           `${Config.API_HOST}/home/mosaics/${sssAddress}`,
         ).then((res) => res.json())
 
-        const daoRewardMosaics = await fetch(
+        const daoRewardMosaics: RewardMosaic[] = await fetch(
           `${Config.API_HOST}/admin/reward/${id}`,
         ).then((res) => res.json())
 
-        const hasLimitedMosaic = mosaics.some((mosaic: Mosaic) =>
-          daoRewardMosaics.includes(mosaic.id),
-        )
+        const hasLimitedMosaic = daoRewardMosaics.some((rewardMosaic: RewardMosaic) =>
+          mosaics.some((mosaic: Mosaic) => mosaic.id === rewardMosaic.id)
+        );
         setHasLimitedMosaic(hasLimitedMosaic)
       } catch (error) {
         console.error("権限チェック中にエラーが発生しました:", error)
