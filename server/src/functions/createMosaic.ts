@@ -28,7 +28,6 @@ export const createMosaic = (
     (flags.restrictable ? models.MosaicFlags.RESTRICTABLE.value : 0) |
     (flags.revokable ? models.MosaicFlags.REVOKABLE.value : 0)
 
-  // モザイク定義トランザクションの作成
   const mosaicDefinitionDescriptor =
     new descriptors.MosaicDefinitionTransactionV1Descriptor(
       new models.MosaicId(mosaicId), // モザイクID
@@ -38,7 +37,6 @@ export const createMosaic = (
       0, // divisibility(過分性、小数点以下の桁数)
     )
 
-  // モザイク供給量変更トランザクションの作成
   const mosaicSupplyChangeDescriptor =
     new descriptors.MosaicSupplyChangeTransactionV1Descriptor(
       new models.UnresolvedMosaicId(mosaicId), // モザイクID
@@ -73,11 +71,10 @@ export const createPointMosaic = async (
     restrictable: false,
     revokable: true,
   }
-  // モザイク定義トランザクションの作成
   const { mosaicDefinitionDescriptor, mosaicSupplyChangeDescriptor } =
     createMosaic(mosaicId, nonce, amount, flags)
 
-  // metadataでmosaicNameを定義
+  // metadataでnameにmosaicNameを定義
   const configureMosaicNameMetadataDescriptor = await configureMosaicMetadata(
     "name",
     mosaicName,
@@ -86,7 +83,7 @@ export const createPointMosaic = async (
     address,
   )
 
-  // metadataでtype: pointを定義
+  // metadataでtypeにpointを定義
   const configureMosaicTypeMetadataDescriptor = await configureMosaicMetadata(
     "type",
     "point",
@@ -126,11 +123,10 @@ export const createRewardMosaic = async (
     restrictable: false,
     revokable: false,
   }
-  // モザイク定義トランザクションの作成
   const { mosaicDefinitionDescriptor, mosaicSupplyChangeDescriptor } =
     createMosaic(mosaicId, nonce, amount, flags)
 
-  // metadataでmosaicNameを定義
+  // metadataでnameにmosaicNameを定義
   const configureMosaicNameMetadataDescriptor = await configureMosaicMetadata(
     "name",
     mosaicName,
@@ -139,7 +135,7 @@ export const createRewardMosaic = async (
     address,
   )
 
-  // metadataでtype: rewardを定義
+  // metadataでtypeにrewardを定義
   const configureMosaicTypeMetadataDescriptor = await configureMosaicMetadata(
     "type",
     "reward",
