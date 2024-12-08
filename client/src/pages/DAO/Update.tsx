@@ -13,7 +13,7 @@ export const UpdateDAOPage: React.FC = () => {
   const handleRemoveSelectedAdmins = () => {
     console.log({ selectedAdmins })
     fetch(`${Config.API_HOST}/admin/delete`, {
-      method: "POST",
+      method: "PUT",
       body: JSON.stringify({
         daoId: id,
         addresses: selectedAdmins,
@@ -22,7 +22,7 @@ export const UpdateDAOPage: React.FC = () => {
   }
   const handleAddAdmin = () => {
     fetch(`${Config.API_HOST}/admin/add`, {
-      method: "POST",
+      method: "PUT",
       body: JSON.stringify({
         daoId: id,
         addresses: [newAdmin],
