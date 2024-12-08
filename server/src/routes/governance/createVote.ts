@@ -19,9 +19,9 @@ import { METADATA_KEYS } from "../../utils/metadataKeys"
 import { decordHexAddress } from "../../utils/decordHexAddress"
 import { createAccountMetadata } from "../../functions/createAccountMetadata"
 import { createDummy } from "../../functions/createDummy"
-import { anounceBonded } from "../../functions/anounceBonded"
+import { announceBonded } from "../../functions/announceBonded"
 import { createHashLock } from "../../functions/createHashLock"
-import { anounceTransaction } from "../../functions/anounceTransaction"
+import { announceTransaction } from "../../functions/announceTransaction"
 import { signTransaction } from "../../functions/signTransaction"
 
 export const createVote = async (c: Context) => {
@@ -159,7 +159,7 @@ export const createVote = async (c: Context) => {
     Config.DEADLINE_SECONDS,
   )
 
-  const announcedTx = await anounceTransaction(masterAccount, tx)
+  const announcedTx = await announceTransaction(masterAccount, tx)
 
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
@@ -214,14 +214,14 @@ export const createVote = async (c: Context) => {
     Config.DEADLINE_SECONDS,
   )
 
-  const announcedHashLockTx = await anounceTransaction(
+  const announcedHashLockTx = await announceTransaction(
     masterAccount,
     hashLockTransaction,
   )
 
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  anounceBonded(
+  announceBonded(
     announcedHashLockTx.hash.toString(),
     signedBonded.jsonPayload,
   ).catch(() => {

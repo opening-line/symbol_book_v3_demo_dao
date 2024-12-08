@@ -6,8 +6,8 @@ import { createDummy } from "../../functions/createDummy"
 import { env } from "hono/adapter"
 import { deleteMultisig } from "../../functions/deleteMultisig"
 import { createHashLock } from "../../functions/createHashLock"
-import { anounceBonded } from "../../functions/anounceBonded"
-import { anounceTransaction } from "../../functions/anounceTransaction"
+import { announceBonded } from "../../functions/announceBonded"
+import { announceTransaction } from "../../functions/announceTransaction"
 import { signTransaction } from "../../functions/signTransaction"
 
 export const deleteAdmin = async (c: Context) => {
@@ -68,14 +68,14 @@ export const deleteAdmin = async (c: Context) => {
     Config.DEADLINE_SECONDS,
   )
 
-  const announcedHashLockTx = await anounceTransaction(
+  const announcedHashLockTx = await announceTransaction(
     masterAccount,
     hashLockTransaction,
   )
 
   // await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  anounceBonded(
+  announceBonded(
     announcedHashLockTx.hash.toString(),
     signedBonded.jsonPayload,
   ).catch(() => {
