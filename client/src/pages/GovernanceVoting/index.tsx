@@ -3,6 +3,7 @@ import { useParams } from "react-router"
 import { Config } from "../../utils/config"
 import { PublicKey, utils } from "symbol-sdk"
 import {
+  Address,
   models,
   Network,
   SymbolFacade,
@@ -24,6 +25,14 @@ type Vote = {
   version: string
 }
 
+type Acc = {
+  address: string
+  mosaics: {
+    id: string
+    amount: number
+  }[]
+}
+
 type Metadata = { key: string; value: string }
 export const GovernanceVotingPage: React.FC = () => {
   const { id } = useParams()
@@ -35,6 +44,7 @@ export const GovernanceVotingPage: React.FC = () => {
   const [index, setIndex] = useState(-1)
 
   const [votes, setVotes] = useState<Vote[]>([])
+  const [voteAccounts, setVoteAccounts] = useState<Acc[]>([])
   const [voteMosaics, setVoteMosaics] = useState<
     {
       id: string
@@ -50,10 +60,10 @@ export const GovernanceVotingPage: React.FC = () => {
   >([])
 
   useEffect(() => {
+    const facade = new SymbolFacade(Config.NETWORK)
     fetch(`${Config.API_HOST}/admin/get/${id}`)
       .then((res) => res.json())
-      .then((data) => {
-        console.log(data)
+      .then(async (data) => {
         const d = data.metadata.map((md: Metadata) => {
           return {
             key: parseInt(md.key),
@@ -87,6 +97,33 @@ export const GovernanceVotingPage: React.FC = () => {
 
             console.log(messages)
 
+            fetch(`${Config.NODE_URL}/accounts`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                publicKeys: [d[0].value, d[1].value, d[2].value, d[3].value],
+              }),
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                console.log(data[0].account)
+                const a = data.map((d: any) => {
+                  return {
+                    address: Address.fromDecodedAddressHexString(d.account.address).toString(),
+                    mosaics: d.account.mosaics.map((m: any) => {
+                      return {
+                        id: m.id,
+                        amount: m.amount,
+                      }
+                    })
+                  }
+                })
+                console.log(a)
+                setVoteAccounts(a)
+              })
+
             fetch(`${Config.NODE_URL}/accounts/${getActiveAddress()}`)
               .then((res) => res.json())
               .then((data) => {
@@ -103,7 +140,7 @@ export const GovernanceVotingPage: React.FC = () => {
                 console.log({ mosaics })
                 setVoteMosaics(mosaics)
               })
-
+              console.log({messages})
             setVotes(messages)
           })
       })
@@ -187,7 +224,7 @@ export const GovernanceVotingPage: React.FC = () => {
   return (
     <div style={{ padding: "20px", paddingRight: "40px" }}>
       <h2>Create Vote</h2>
-<div style={{ marginBottom: "20px" }}>
+      <div style={{ marginBottom: "20px" }}>
         <input
           type='text'
           value={title}
@@ -247,20 +284,48 @@ export const GovernanceVotingPage: React.FC = () => {
             (mosaic) =>
               mosaic.id === BigInt(vote.token).toString(16).toUpperCase(),
           )
+          const facade = new SymbolFacade(Config.NETWORK)
+          const a = voteAccounts.find(acc => acc.address === new SymbolPublicAccount(facade, new PublicKey(metadatas[0].value)).address.toString()) 
+          const b = voteAccounts.find(acc => acc.address === new SymbolPublicAccount(facade, new PublicKey(metadatas[1].value)).address.toString())
+          const c = voteAccounts.find(acc => acc.address === new SymbolPublicAccount(facade, new PublicKey(metadatas[2].value)).address.toString())
+          const d = voteAccounts.find(acc => acc.address === new SymbolPublicAccount(facade, new PublicKey(metadatas[3].value)).address.toString())
+
+          const aa = a?.mosaics.find(m => m.id === BigInt(vote.token).toString(16).toUpperCase())?.amount
+          const bb = b?.mosaics.find(m => m.id === BigInt(vote.token).toString(16).toUpperCase())?.amount
+          const cc = c?.mosaics.find(m => m.id === BigInt(vote.token).toString(16).toUpperCase())?.amount
+          const dd = d?.mosaics.find(m => m.id === BigInt(vote.token).toString(16).toUpperCase())?.amount
           return (
-            <div
-              key={vote.token}
-              style={{
-                padding: "10px",
-                border: "1px solid #ddd",
-                marginBottom: "10px",
-                cursor: "pointer",
-                backgroundColor: hasMosaic ? "#e0f7fa" : "transparent",
-              }}
-              onClick={() => setIndex(hasMosaic ? i : -1)}
-            >
-              <p>{vote.title}</p>
-            </div>
+  <div
+    key={vote.token}
+    style={{
+      padding: "10px",
+      border: "1px solid #ddd",
+      marginBottom: "10px",
+      cursor: "pointer",
+      backgroundColor: hasMosaic ? "#e0f7fa" : "transparent",
+    }}
+    onClick={() => setIndex(hasMosaic ? i : -1)}
+  >
+    <p>{vote.title}</p>
+    <div>
+      <div>{metadatas[0].value}</div>
+      <div>
+          <div style={{ display: "flex", justifyContent: 'space-between' }}>
+            <span>A: {vote.a}</span> {a && aa !== undefined && (<span>{aa}票</span>)}
+          </div>
+        
+          <div>
+            <span>B: {vote.b}</span> {b && bb !== undefined && (<span>{bb}票</span>)}
+          </div>
+          <div>
+            <span>C: {vote.c}</span> {c && cc !== undefined && (<span>{cc}票</span>)}
+          </div>
+          <div>
+            <span>D: {vote.d}</span> {d && dd !== undefined && (<span>{dd}票</span>)}
+          </div>
+      </div>
+    </div>
+  </div>
           )
         })}
       </div>
