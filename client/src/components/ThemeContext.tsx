@@ -1,6 +1,11 @@
 import { createContext, useContext, useState, useEffect } from "react"
 import { getActiveAddress, isAllowedSSS } from "sss-module"
-import { ThemePresetKey, UserTheme, defaultTheme, themePresets } from "../styles/theme/theme"
+import {
+  ThemePresetKey,
+  UserTheme,
+  defaultTheme,
+  themePresets,
+} from "../styles/theme/theme"
 import { Config } from "../utils/config"
 
 type ThemeContextType = {
@@ -21,16 +26,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         const isSSSLinked = isAllowedSSS()
         const address = isSSSLinked ? getActiveAddress() : ""
-        const response = await fetch(`${Config.API_HOST}/limited/theme`, {
-          method: "GET",
-          body: JSON.stringify({ address }),
-        })
-        const userThemeName = await response.json()
-
-        const isValidTheme = (theme: ThemePresetKey) => {
-          return theme in themePresets
-        }
-        setUserTheme(isValidTheme(userThemeName) ? userThemeName : 'default')
+        const response = await fetch(
+          `${Config.API_HOST}/limited/theme/${address}`,
+          {
+            method: "GET",
+          },
+        ).then((res) => res.json())
+        const userThemeName: ThemePresetKey = response.theme
+        setUserTheme(userThemeName)
       } catch (error) {
         setTheme(defaultTheme)
       }
@@ -44,7 +47,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   const setUserTheme = (userThemeName: ThemePresetKey) => {
-    const userTheme = themePresets[userThemeName]
+    const userTheme = themePresets[userThemeName] || themePresets.default
     setTheme({
       ...defaultTheme,
       primary: userTheme.primary,

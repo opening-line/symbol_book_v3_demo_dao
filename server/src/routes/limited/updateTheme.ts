@@ -1,7 +1,7 @@
 import type { Context } from "hono"
 import { env } from "hono/adapter"
-import { PrivateKey, utils } from "symbol-sdk"
-import { descriptors, models, SymbolFacade } from "symbol-sdk/symbol"
+import { PrivateKey, PublicKey, utils } from "symbol-sdk"
+import { descriptors, models, SymbolFacade, SymbolPublicAccount } from "symbol-sdk/symbol"
 import { configureAccountMetadata } from "../../functions/configureMetadata"
 import { createDummy } from "../../functions/createDummy"
 import { Config } from "../../utils/config"
@@ -11,21 +11,21 @@ export const updateTheme = async (c: Context) => {
   const ENV = env<{ PRIVATE_KEY: string }>(c)
 
   // テーマ名を取得
-  const { address, themeName } = (await c.req.json()) as { address: string; themeName: string }
+  const { publicKey, themeName } = (await c.req.json()) as { publicKey: string; themeName: string }
   const facade = new SymbolFacade(Config.NETWORK)
+  const userAccount = new SymbolPublicAccount(facade, new PublicKey(publicKey))
   const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
-
+  
   const accountMetadataDes = await configureAccountMetadata(
     "theme",
     themeName,
-    address,
-    address,
+    userAccount.address.toString(),
+    userAccount.address.toString(),
   )
-  console.log("accountMetadataDes", accountMetadataDes)
 
   const accountMetadataTx = facade.createEmbeddedTransactionFromTypedDescriptor(
     accountMetadataDes,
-    masterAccount.publicKey,
+    userAccount.publicKey,
   )
   const dummy = createDummy(masterAccount.address.toString())
   const dummyTx = facade.createEmbeddedTransactionFromTypedDescriptor(
@@ -34,7 +34,7 @@ export const updateTheme = async (c: Context) => {
   )
   const innerTxs = [accountMetadataTx, dummyTx]
   const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
-  console.log("txHash", txHash)
+
   const aggregateDes = new descriptors.AggregateCompleteTransactionV2Descriptor(
     txHash,
     innerTxs,

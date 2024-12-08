@@ -21,8 +21,7 @@ const getThemeNameFromMetadata = (metadata: MetadataEntry[]) => {
 }
 
 export const getTheme = async (c: Context) => {
-  const { address } = (await c.req.json()) as { address: string }
-
+  const address = c.req.param("address")
   const accountMetadata = await getMetadataInfo(`targetAddress=${address}`)
   const theme = getThemeNameFromMetadata(accountMetadata)
 
