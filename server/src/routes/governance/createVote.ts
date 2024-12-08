@@ -72,7 +72,7 @@ export const createVote = async (c: Context) => {
   const tokenId = pickMetadata(
     metadatas,
     METADATA_KEYS.GOVERNANCE_TOKEN_ID,
-  ).value
+  )!.value
   // TODO: ガバナンストークンの所持量を取得
   const tokenHolders = await getMosaicHolders(tokenId)
 

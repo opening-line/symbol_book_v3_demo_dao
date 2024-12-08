@@ -37,7 +37,7 @@ export const getHolders = async (c: Context) => {
       value: decodeMetadataValue(e.metadataEntry.value),
     })),
     METADATA_KEYS.GOVERNANCE_TOKEN_ID,
-  ).value.toUpperCase()
+  )!.value.toUpperCase()
   const allDaoMembers = await getMosaicHolders(governanceMosaicId)
 
   // DAOアカウントを除外

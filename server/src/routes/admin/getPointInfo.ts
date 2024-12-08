@@ -92,7 +92,7 @@ export const getPointInfo = async (c: Context) => {
         value: decodeMetadataValue(e.metadataEntry.value),
       })),
       METADATA_KEYS.GOVERNANCE_TOKEN_ID,
-    ).value.toUpperCase()
+    )!.value.toUpperCase()
 
     // 全モザイクのメタデータを一括取得
     const mosaicMetadatas = await Promise.all([
