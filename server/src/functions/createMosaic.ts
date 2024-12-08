@@ -8,6 +8,14 @@ interface MosaicFlags {
   revokable: boolean
 }
 
+/**
+ * モザイクの作成
+ * @param mosaicId モザイクID
+ * @param nonce モザイクナンス
+ * @param amount 供給量
+ * @param flags モザイク設定
+ * @returns モザイク定義トランザクションディスクリプタとモザイク供給量変更トランザクションディスクリプタ
+ */
 export const createMosaic = (
   mosaicId: bigint,
   nonce: number,
@@ -41,38 +49,16 @@ export const createMosaic = (
   return { mosaicDefinitionDescriptor, mosaicSupplyChangeDescriptor }
 }
 
-export const createGovToken = (
-  mosaicId: bigint,
-  nonce: number,
-  amount: number,
-  supplyMutable: boolean,
-  mosaicName: string,
-  address: string,
-) => {
-  const flags: MosaicFlags = {
-    supplyMutable: supplyMutable,
-    transferable: true,
-    restrictable: false,
-    revokable: true,
-  }
-  // モザイク定義トランザクションの作成
-  const mosaicDefinitionDescriptor = createMosaic(
-    mosaicId,
-    nonce,
-    amount,
-    flags,
-  )
-  // metadataでmosaicNameを定義
-  const configureMosaicMetadataDescriptor = configureMosaicMetadata(
-    "name",
-    mosaicName,
-    mosaicId.toString(),
-    true,
-    address,
-  )
-  return { mosaicDefinitionDescriptor, configureMosaicMetadataDescriptor }
-}
-
+/**
+ * ポイントモザイクの作成
+ * @param mosaicId モザイクID
+ * @param nonce モザイクナンス
+ * @param amount 供給量
+ * @param supplyMutable 供給量変更可否
+ * @param mosaicName モザイク名
+ * @param address モザイク作成者アドレス
+ * @returns モザイク定義トランザクションディスクリプタとモザイク供給量変更トランザクションディスクリプタ
+ */
 export const createPointMosaic = async (
   mosaicId: bigint,
   nonce: number,
@@ -116,6 +102,16 @@ export const createPointMosaic = async (
   }
 }
 
+/**
+ * 特典モザイクの作成
+ * @param mosaicId モザイクID
+ * @param nonce モザイクナンス
+ * @param amount 供給量
+ * @param supplyMutable 供給量変更可否
+ * @param mosaicName モザイク名
+ * @param address モザイク作成者アドレス
+ * @returns モザイク定義トランザクションディスクリプタとモザイク供給量変更トランザクションディスクリプタ
+ */
 export const createRewardMosaic = async (
   mosaicId: bigint,
   nonce: number,

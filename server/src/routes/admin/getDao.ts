@@ -4,7 +4,7 @@ import { Config } from "../../utils/config"
 import { PublicKey, utils } from "symbol-sdk"
 import { getMultisigInfo } from "../../info/getMultisigInfo"
 import { getMetadataInfoByQuery } from "../../info/getMetadataInfoByQuery"
-import { decordHexAddress } from "../../functions/decordHexAddress"
+import { decordHexAddress } from "../../utils/decordHexAddress"
 
 export const getDao = async (c: Context) => {
   const id = c.req.param("id")

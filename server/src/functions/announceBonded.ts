@@ -1,5 +1,10 @@
 import { Config } from "../utils/config"
 
+/**
+ * ボンデッドトランザクションのアナウンス
+ * @param txHash トランザクションハッシュ
+ * @param bondedPayload ペイロード
+ */
 export const announceBonded = async (txHash: string, bondedPayload: string) => {
   return new Promise(async (resolve, reject) => {
     for (let i = 0; i < 100; i++) {
@@ -12,7 +17,7 @@ export const announceBonded = async (txHash: string, bondedPayload: string) => {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: bondedPayload,
-        }).then((res) => resolve(res.json()))
+        }).then(() => resolve({}))
       }
     }
     reject()

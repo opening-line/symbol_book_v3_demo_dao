@@ -8,7 +8,14 @@ import {
 import { getMetadataInfoByQuery } from "../info/getMetadataInfoByQuery"
 import { getMosaicInfo } from "../info/getMosaicInfo"
 
-// アカウントメタデータの設定
+/**
+ * アカウントメタデータの設定
+ * @param metadataKey メタデータキー
+ * @param metadataValue メタデータ値
+ * @param sourceAddress メタデータ設定を実行するアドレス
+ * @param targetAddress メタデータ設定先アドレス
+ * @returns アカウントメタデータトランザクションディスクリプタ
+ */
 export const configureAccountMetadata = async (
   metadataKey: string,
   metadataValue: string,
@@ -53,7 +60,15 @@ export const configureAccountMetadata = async (
   }
 }
 
-// モザイクメタデータの設定
+/**
+ * モザイクメタデータの設定
+ * @param metadataKey メタデータキー
+ * @param metadataValue メタデータ値
+ * @param targetMosaicId メタデータ設定先モザイクID
+ * @param isCreate モザイク新規作成フラグ
+ * @param mosaicCreatorAddress モザイク作成者アドレス
+ * @returns モザイクメタデータトランザクションディスクリプタ
+ */
 export const configureMosaicMetadata = async (
   metadataKey: string,
   metadataValue: string,

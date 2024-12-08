@@ -16,8 +16,8 @@ import { getMosaicHolders } from "../../info/getAccountInfo"
 import { getMetadataInfoByQuery } from "../../info/getMetadataInfoByQuery"
 import { pickMetadata } from "../../functions/pickMetadata"
 import { METADATA_KEYS } from "../../utils/metadataKeys"
-import { decordHexAddress } from "../../functions/decordHexAddress"
-import { createMetadata } from "../../functions/createMetadata"
+import { decordHexAddress } from "../../utils/decordHexAddress"
+import { createAccountMetadata } from "../../functions/createAccountMetadata"
 import { createDummy } from "../../functions/createDummy"
 import { anounceBonded } from "../../functions/anounceBonded"
 import { createHashLock } from "../../functions/createHashLock"
@@ -166,7 +166,7 @@ export const createVote = async (c: Context) => {
   const dummyDes = createDummy(daoAccount.address.toString())
 
   const textEncoder = new TextEncoder()
-  const metadataDes = createMetadata(
+  const metadataDes = createAccountMetadata(
     daoAccount.address,
     BigInt(100 + mdRes.length - 7), // 100 + metadata length - default metadata
     metadataUpdateValue(

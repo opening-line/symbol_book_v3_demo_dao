@@ -13,7 +13,7 @@ import { createMosaic } from "../../functions/createMosaic"
 import { addMultisig } from "../../functions/addMultisig"
 import { METADATA_KEYS } from "../../utils/metadataKeys"
 import { createMosaicId } from "../../functions/createMosaicId"
-import { createMetadata } from "../../functions/createMetadata"
+import { createAccountMetadata } from "../../functions/createAccountMetadata"
 import { models } from "symbol-sdk/symbol"
 import { signTransaction } from "../../functions/signTransaction"
 
@@ -113,7 +113,7 @@ export const createDao = async (c: Context) => {
   const textEncoder = new TextEncoder()
 
   const metadataTxs = metadatas.map((m) =>
-    createMetadata(
+    createAccountMetadata(
       daoAccount.address,
       m.key,
       metadataUpdateValue(textEncoder.encode(""), textEncoder.encode(m.value)),
