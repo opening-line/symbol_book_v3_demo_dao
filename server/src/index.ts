@@ -25,7 +25,6 @@ app.route("/gavarnance", gavarnanceRoute)
 app.route("/home", homeRoute)
 app.route("/limited", limitedRoute)
 
-
 app.get("/", (c) => {
   return c.text("Hello Hono!")
 })

@@ -90,10 +90,7 @@ export const createPoint = async (c: Context) => {
     Config.DEADLINE_SECONDS,
   )
 
-  const announcedHashLock = await announceTransaction(
-    masterAccount,
-    hashLockTx,
-  )
+  const announcedHashLock = await announceTransaction(masterAccount, hashLockTx)
   await announceBonded(
     announcedHashLock.hash.toString(),
     signedBonded.jsonPayload,
@@ -101,5 +98,7 @@ export const createPoint = async (c: Context) => {
     console.error("hash lock error")
   })
 
-  return c.json({ message: `ポイントモザイクの作成を実施しました。他の管理者による承認をお待ちください。` })
+  return c.json({
+    message: `ポイントモザイクの作成を実施しました。他の管理者による承認をお待ちください。`,
+  })
 }

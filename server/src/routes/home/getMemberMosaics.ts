@@ -13,22 +13,28 @@ interface MetadataEntry {
 }
 
 // メタデータ関連のユーティリティ関数
-const generateMetadataKey = (key: string) => metadataGenerateKey(key).toString(16).toUpperCase()
-const decodeMetadataValue = (value: string) => new TextDecoder().decode(Buffer.from(value, 'hex'))
-const encodeValue = (value: string) => Buffer.from(new TextEncoder().encode(value)).toString('hex').toUpperCase()
+const generateMetadataKey = (key: string) =>
+  metadataGenerateKey(key).toString(16).toUpperCase()
+const decodeMetadataValue = (value: string) =>
+  new TextDecoder().decode(Buffer.from(value, "hex"))
+const encodeValue = (value: string) =>
+  Buffer.from(new TextEncoder().encode(value)).toString("hex").toUpperCase()
 
 const getNameFromMetadata = (mosaicId: string, metadata: MetadataEntry[]) => {
   const nameMetadata = metadata.find(
-    (e: MetadataEntry) => e.metadataEntry.scopedMetadataKey === generateMetadataKey("name")
+    (e: MetadataEntry) =>
+      e.metadataEntry.scopedMetadataKey === generateMetadataKey("name"),
   )
-  return nameMetadata ? decodeMetadataValue(nameMetadata.metadataEntry.value) : mosaicId
+  return nameMetadata
+    ? decodeMetadataValue(nameMetadata.metadataEntry.value)
+    : mosaicId
 }
 
 const isPointMosaicType = (metadata: MetadataEntry[]) => {
   return metadata.some(
     (e: MetadataEntry) =>
       e.metadataEntry.scopedMetadataKey === generateMetadataKey("type") &&
-      e.metadataEntry.value === encodeValue("point")
+      e.metadataEntry.value === encodeValue("point"),
   )
 }
 
@@ -36,7 +42,7 @@ const isRewardMosaicType = (metadata: MetadataEntry[]) => {
   return metadata.some(
     (e: MetadataEntry) =>
       e.metadataEntry.scopedMetadataKey === generateMetadataKey("type") &&
-      e.metadataEntry.value === encodeValue("reward")
+      e.metadataEntry.value === encodeValue("reward"),
   )
 }
 
@@ -54,7 +60,10 @@ export const getMemberMosaics = async (c: Context) => {
 
         return {
           id: mosaic.id,
-          name: isPoint || isReward ? getNameFromMetadata(mosaic.id, metadata) : null,
+          name:
+            isPoint || isReward
+              ? getNameFromMetadata(mosaic.id, metadata)
+              : null,
           amount: convertToMosaicActualAmount(
             Number(mosaic.amount),
             mosaicInfo.divisibility,

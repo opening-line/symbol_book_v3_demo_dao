@@ -29,22 +29,28 @@ interface MetadataEntry {
 }
 
 // メタデータ関連のユーティリティ関数
-const generateMetadataKey = (key: string) => metadataGenerateKey(key).toString(16).toUpperCase()
-const decodeMetadataValue = (value: string) => new TextDecoder().decode(Buffer.from(value, 'hex'))
-const encodeValue = (value: string) => Buffer.from(new TextEncoder().encode(value)).toString('hex').toUpperCase()
+const generateMetadataKey = (key: string) =>
+  metadataGenerateKey(key).toString(16).toUpperCase()
+const decodeMetadataValue = (value: string) =>
+  new TextDecoder().decode(Buffer.from(value, "hex"))
+const encodeValue = (value: string) =>
+  Buffer.from(new TextEncoder().encode(value)).toString("hex").toUpperCase()
 
 const getNameFromMetadata = (mosaicId: string, metadata: MetadataEntry[]) => {
   const nameMetadata = metadata.find(
-    (e: MetadataEntry) => e.metadataEntry.scopedMetadataKey === generateMetadataKey("name")
+    (e: MetadataEntry) =>
+      e.metadataEntry.scopedMetadataKey === generateMetadataKey("name"),
   )
-  return nameMetadata ? decodeMetadataValue(nameMetadata.metadataEntry.value) : mosaicId
+  return nameMetadata
+    ? decodeMetadataValue(nameMetadata.metadataEntry.value)
+    : mosaicId
 }
 
 const isPointMosaicType = (metadata: MetadataEntry[]) => {
   return metadata.some(
     (e: MetadataEntry) =>
       e.metadataEntry.scopedMetadataKey === generateMetadataKey("type") &&
-      e.metadataEntry.value === encodeValue("point")
+      e.metadataEntry.value === encodeValue("point"),
   )
 }
 
@@ -76,29 +82,34 @@ export const getPointInfo = async (c: Context) => {
     // アカウント情報とメタデータの取得
     const accountInfo = await getAccountInfo(address)
     const accountMetadata = await getMetadataInfo(`targetAddress=${address}`)
-    
+
     // ガバナンストークンIDの取得
     const governanceMosaicId = pickMetadata(
       accountMetadata.map((e: MetadataEntry) => ({
         key: e.metadataEntry.scopedMetadataKey,
-        value: decodeMetadataValue(e.metadataEntry.value)
+        value: decodeMetadataValue(e.metadataEntry.value),
       })),
-      METADATA_KEYS.GOVERNANCE_TOKEN_ID
+      METADATA_KEYS.GOVERNANCE_TOKEN_ID,
     ).value.toUpperCase()
 
     // 全モザイクのメタデータを一括取得
     const mosaicMetadatas = await Promise.all([
       getMetadataInfo(`targetId=${governanceMosaicId}`),
-      ...accountInfo.mosaics.map((mosaic: Mosaic) => getMetadataInfo(`targetId=${mosaic.id}`))
+      ...accountInfo.mosaics.map((mosaic: Mosaic) =>
+        getMetadataInfo(`targetId=${mosaic.id}`),
+      ),
     ])
 
     // ガバナンストークンの処理
     const governanceMosaic = {
       ...(await fetchMosaicData({
         id: governanceMosaicId,
-        amount: accountInfo.mosaics.find((mosaic: Mosaic) => mosaic.id === governanceMosaicId)?.amount || "0"
+        amount:
+          accountInfo.mosaics.find(
+            (mosaic: Mosaic) => mosaic.id === governanceMosaicId,
+          )?.amount || "0",
       })),
-      name: getNameFromMetadata(governanceMosaicId, mosaicMetadatas[0])
+      name: getNameFromMetadata(governanceMosaicId, mosaicMetadatas[0]),
     }
 
     // ポイントモザイクの処理
@@ -112,20 +123,23 @@ export const getPointInfo = async (c: Context) => {
 
           return {
             ...(await fetchMosaicData(mosaic)),
-            name: getNameFromMetadata(mosaic.id, metadata)
+            name: getNameFromMetadata(mosaic.id, metadata),
           }
         } catch (error) {
           console.error(`メタデータ取得エラー: ${mosaic.id}`, error)
           return null
         }
-      })
+      }),
     )
 
     return c.json([governanceMosaic, ...pointMosaics.filter(Boolean)])
   } catch (error) {
-    console.error('ポイント情報取得エラー:', error)
-    return c.json({
-      message: "ポイント情報の取得に失敗しました",
-    }, 500)
+    console.error("ポイント情報取得エラー:", error)
+    return c.json(
+      {
+        message: "ポイント情報の取得に失敗しました",
+      },
+      500,
+    )
   }
 }

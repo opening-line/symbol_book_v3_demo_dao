@@ -1,7 +1,12 @@
 import type { Context } from "hono"
 import { env } from "hono/adapter"
 import { PrivateKey, PublicKey, utils } from "symbol-sdk"
-import { descriptors, models, SymbolFacade, SymbolPublicAccount } from "symbol-sdk/symbol"
+import {
+  descriptors,
+  models,
+  SymbolFacade,
+  SymbolPublicAccount,
+} from "symbol-sdk/symbol"
 import { configureAccountMetadata } from "../../functions/configureMetadata"
 import { createDummy } from "../../functions/createDummy"
 import { Config } from "../../utils/config"
@@ -11,11 +16,14 @@ export const updateTheme = async (c: Context) => {
   const ENV = env<{ PRIVATE_KEY: string }>(c)
 
   // テーマ名を取得
-  const { publicKey, themeName } = (await c.req.json()) as { publicKey: string; themeName: string }
+  const { publicKey, themeName } = (await c.req.json()) as {
+    publicKey: string
+    themeName: string
+  }
   const facade = new SymbolFacade(Config.NETWORK)
   const userAccount = new SymbolPublicAccount(facade, new PublicKey(publicKey))
   const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
-  
+
   const accountMetadataDes = await configureAccountMetadata(
     "theme",
     themeName,

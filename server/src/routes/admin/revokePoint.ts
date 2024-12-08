@@ -16,23 +16,18 @@ import { Config } from "../../utils/config"
 export const revokePoint = async (c: Context) => {
   const ENV = env<{ PRIVATE_KEY: string }>(c)
 
-  const { id, mosaicId, sourceAddresses, amount } =
-    (await c.req.json()) as {
-      id: string
-      mosaicId: string
-      sourceAddresses: string[]
-      amount: string
-    }
+  const { id, mosaicId, sourceAddresses, amount } = (await c.req.json()) as {
+    id: string
+    mosaicId: string
+    sourceAddresses: string[]
+    amount: string
+  }
 
   const facade = new SymbolFacade(Config.NETWORK)
   const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
   const daoAccount = facade.createPublicAccount(new PublicKey(id))
 
-  const revokeDes = revokeMosaic(
-    mosaicId,
-    sourceAddresses,
-    Number(amount),
-  )
+  const revokeDes = revokeMosaic(mosaicId, sourceAddresses, Number(amount))
   const revokeTxs = revokeDes.map((des) =>
     facade.createEmbeddedTransactionFromTypedDescriptor(
       des,
@@ -72,10 +67,7 @@ export const revokePoint = async (c: Context) => {
     Config.DEADLINE_SECONDS,
   )
 
-  const announcedHashLock = await announceTransaction(
-    masterAccount,
-    hashLockTx,
-  )
+  const announcedHashLock = await announceTransaction(masterAccount, hashLockTx)
   await announceBonded(
     announcedHashLock.hash.toString(),
     signedBonded.jsonPayload,
@@ -83,5 +75,7 @@ export const revokePoint = async (c: Context) => {
     console.error("hash lock error")
   })
 
-  return c.json({ message: `ポイントモザイクの回収を実施しました。他の管理者による承認をお待ちください。` })
+  return c.json({
+    message: `ポイントモザイクの回収を実施しました。他の管理者による承認をお待ちください。`,
+  })
 }

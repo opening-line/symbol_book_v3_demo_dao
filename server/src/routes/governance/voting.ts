@@ -1,25 +1,19 @@
-import type { Context } from "hono";
-import { transferMosaic } from "../../functions/transfer";
-import { Address, descriptors, models, SymbolFacade } from "symbol-sdk/symbol";
-import { createDummy } from "../../functions/createDummy";
-import { PrivateKey, PublicKey, utils } from "symbol-sdk";
-import { Config } from "../../utils/config";
-import { env } from "hono/adapter";
-import { signTransaction } from "../../functions/signTransaction";
+import type { Context } from "hono"
+import { transferMosaic } from "../../functions/transfer"
+import { Address, descriptors, models, SymbolFacade } from "symbol-sdk/symbol"
+import { createDummy } from "../../functions/createDummy"
+import { PrivateKey, PublicKey, utils } from "symbol-sdk"
+import { Config } from "../../utils/config"
+import { env } from "hono/adapter"
+import { signTransaction } from "../../functions/signTransaction"
 
 export const voting = async (c: Context) => {
-  const {
-    daoId,
-    token,
-    publicKey,
-    userKey,
-    amount,
-  } = (await c.req.json()) as {
-    daoId: string;
-    token: string;
-    publicKey: string;
-    userKey: string;
-    amount: number;
+  const { daoId, token, publicKey, userKey, amount } = (await c.req.json()) as {
+    daoId: string
+    token: string
+    publicKey: string
+    userKey: string
+    amount: number
   }
 
   const ENV = env<{ PRIVATE_KEY: string }>(c)
@@ -29,7 +23,6 @@ export const voting = async (c: Context) => {
   const userAccount = facade.createPublicAccount(new PublicKey(userKey))
 
   const voteAccount = facade.createPublicAccount(new PublicKey(publicKey))
-
 
   const transferDes = transferMosaic(
     voteAccount.address,
@@ -42,12 +35,12 @@ export const voting = async (c: Context) => {
   const innerTxs = [
     facade.createEmbeddedTransactionFromTypedDescriptor(
       transferDes,
-      userAccount.publicKey
+      userAccount.publicKey,
     ),
     facade.createEmbeddedTransactionFromTypedDescriptor(
       dummyDes,
-      masterAccount.publicKey
-    ) 
+      masterAccount.publicKey,
+    ),
   ]
   const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
   const aggregateDes = new descriptors.AggregateCompleteTransactionV2Descriptor(

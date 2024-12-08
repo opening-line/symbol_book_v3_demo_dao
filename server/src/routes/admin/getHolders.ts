@@ -14,7 +14,8 @@ interface MetadataEntry {
   }
 }
 
-const decodeMetadataValue = (value: string) => new TextDecoder().decode(Buffer.from(value, 'hex'))
+const decodeMetadataValue = (value: string) =>
+  new TextDecoder().decode(Buffer.from(value, "hex"))
 
 /**
  * 対象モザイクを保有しているDAOメンバーの一覧を取得
@@ -31,23 +32,26 @@ export const getHolders = async (c: Context) => {
   const governanceMosaicId = pickMetadata(
     accountMetadata.map((e: MetadataEntry) => ({
       key: e.metadataEntry.scopedMetadataKey,
-      value: decodeMetadataValue(e.metadataEntry.value)
+      value: decodeMetadataValue(e.metadataEntry.value),
     })),
-    METADATA_KEYS.GOVERNANCE_TOKEN_ID
+    METADATA_KEYS.GOVERNANCE_TOKEN_ID,
   ).value.toUpperCase()
   const allDaoMembers = await getMosaicHolders(`mosaicId=${governanceMosaicId}`)
-  
+
   // DAOアカウントを除外
-  const daoMembers = allDaoMembers.filter((holder: {
-    account: {
-      address: string
-    }
-  }) => {
-    const holderAddress = new Address(
-      new models.UnresolvedAddress(utils.hexToUint8(holder.account.address)).bytes
-    ).toString()
-    return holderAddress !== address
-  })
+  const daoMembers = allDaoMembers.filter(
+    (holder: {
+      account: {
+        address: string
+      }
+    }) => {
+      const holderAddress = new Address(
+        new models.UnresolvedAddress(utils.hexToUint8(holder.account.address))
+          .bytes,
+      ).toString()
+      return holderAddress !== address
+    },
+  )
 
   const res = daoMembers.map(
     (holder: {
@@ -60,7 +64,8 @@ export const getHolders = async (c: Context) => {
         (mosaic: { id: string; amount: string }) => mosaic.id === mosaicId,
       )?.amount
       const address = new Address(
-        new models.UnresolvedAddress(utils.hexToUint8(holder.account.address)).bytes,
+        new models.UnresolvedAddress(utils.hexToUint8(holder.account.address))
+          .bytes,
       ).toString()
       return {
         address,

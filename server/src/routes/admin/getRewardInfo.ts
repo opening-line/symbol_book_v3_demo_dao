@@ -27,22 +27,28 @@ interface MetadataEntry {
 }
 
 // メタデータ関連のユーティリティ関数
-const generateMetadataKey = (key: string) => metadataGenerateKey(key).toString(16).toUpperCase()
-const decodeMetadataValue = (value: string) => new TextDecoder().decode(Buffer.from(value, 'hex'))
-const encodeValue = (value: string) => Buffer.from(new TextEncoder().encode(value)).toString('hex').toUpperCase()
+const generateMetadataKey = (key: string) =>
+  metadataGenerateKey(key).toString(16).toUpperCase()
+const decodeMetadataValue = (value: string) =>
+  new TextDecoder().decode(Buffer.from(value, "hex"))
+const encodeValue = (value: string) =>
+  Buffer.from(new TextEncoder().encode(value)).toString("hex").toUpperCase()
 
 const getNameFromMetadata = (mosaicId: string, metadata: MetadataEntry[]) => {
   const nameMetadata = metadata.find(
-    (e: MetadataEntry) => e.metadataEntry.scopedMetadataKey === generateMetadataKey("name")
+    (e: MetadataEntry) =>
+      e.metadataEntry.scopedMetadataKey === generateMetadataKey("name"),
   )
-  return nameMetadata ? decodeMetadataValue(nameMetadata.metadataEntry.value) : mosaicId
+  return nameMetadata
+    ? decodeMetadataValue(nameMetadata.metadataEntry.value)
+    : mosaicId
 }
 
 const isRewardMosaicType = (metadata: MetadataEntry[]) => {
   return metadata.some(
     (e: MetadataEntry) =>
       e.metadataEntry.scopedMetadataKey === generateMetadataKey("type") &&
-      e.metadataEntry.value === encodeValue("reward")
+      e.metadataEntry.value === encodeValue("reward"),
   )
 }
 
@@ -76,7 +82,9 @@ export const getRewardInfo = async (c: Context) => {
 
     // 全モザイクのメタデータを一括取得
     const mosaicMetadatas = await Promise.all([
-      ...accountInfo.mosaics.map((mosaic: Mosaic) => getMetadataInfo(`targetId=${mosaic.id}`))
+      ...accountInfo.mosaics.map((mosaic: Mosaic) =>
+        getMetadataInfo(`targetId=${mosaic.id}`),
+      ),
     ])
 
     // 特典モザイクの処理
@@ -90,20 +98,23 @@ export const getRewardInfo = async (c: Context) => {
 
           return {
             ...(await fetchMosaicData(mosaic)),
-            name: getNameFromMetadata(mosaic.id, metadata)
+            name: getNameFromMetadata(mosaic.id, metadata),
           }
         } catch (error) {
           console.error(`メタデータ取得エラー: ${mosaic.id}`, error)
           return null
         }
-      })
+      }),
     )
 
     return c.json(rewardMosaics.filter(Boolean))
   } catch (error) {
-    console.error('特典情報取得エラー:', error)
-    return c.json({
-      message: "特典情報の取得に失敗しました",
-    }, 500)
+    console.error("特典情報取得エラー:", error)
+    return c.json(
+      {
+        message: "特典情報の取得に失敗しました",
+      },
+      500,
+    )
   }
 }

@@ -1,7 +1,13 @@
 import type { Context } from "hono"
 import { createMosaicId } from "../../functions/createMosaicId"
 import { PrivateKey, PublicKey } from "symbol-sdk"
-import { Address, SymbolFacade, descriptors, metadataUpdateValue, models } from "symbol-sdk/symbol"
+import {
+  Address,
+  SymbolFacade,
+  descriptors,
+  metadataUpdateValue,
+  models,
+} from "symbol-sdk/symbol"
 import { Config } from "../../utils/config"
 import { messaging, transferMosaic } from "../../functions/transfer"
 import { env } from "hono/adapter"
@@ -62,7 +68,6 @@ export const createVote = async (c: Context) => {
       }
     },
   )
-
 
   const tokenId = pickMetadata(
     metadatas,
@@ -164,7 +169,10 @@ export const createVote = async (c: Context) => {
   const metadataDes = createMetadata(
     daoAccount.address,
     BigInt(100 + mdRes.length - 7), // 100 + metadata length - default metadata
-    metadataUpdateValue(textEncoder.encode(""), textEncoder.encode(announcedTx.hash.toString()))
+    metadataUpdateValue(
+      textEncoder.encode(""),
+      textEncoder.encode(announcedTx.hash.toString()),
+    ),
   )
 
   const inTxs = [

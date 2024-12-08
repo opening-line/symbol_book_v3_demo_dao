@@ -81,7 +81,7 @@ export const configureMosaicMetadata = async (
         metadataType: "1",
       })
       const existingMosaicMetadataInfo = await getMetadataInfo(query.toString())
-      
+
       // 既に登録済みの場合は差分データを作成
       if (existingMosaicMetadataInfo.length > 0) {
         valueSizeDelta -= existingMosaicMetadataInfo[0].metadataEntry.valueSize
@@ -91,7 +91,7 @@ export const configureMosaicMetadata = async (
         )
       }
     }
-    
+
     // モザイクメタデータ登録トランザクションの作成
     const mosaicMetadataTransactionDescriptor =
       new descriptors.MosaicMetadataTransactionV1Descriptor(

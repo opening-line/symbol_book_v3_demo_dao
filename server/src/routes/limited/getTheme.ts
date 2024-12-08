@@ -10,14 +10,19 @@ interface MetadataEntry {
 }
 
 // メタデータ関連のユーティリティ関数
-const generateMetadataKey = (key: string) => metadataGenerateKey(key).toString(16).toUpperCase()
-const decodeMetadataValue = (value: string) => new TextDecoder().decode(Buffer.from(value, 'hex'))
+const generateMetadataKey = (key: string) =>
+  metadataGenerateKey(key).toString(16).toUpperCase()
+const decodeMetadataValue = (value: string) =>
+  new TextDecoder().decode(Buffer.from(value, "hex"))
 
 const getThemeNameFromMetadata = (metadata: MetadataEntry[]) => {
   const themeMetadata = metadata.find(
-    (e: MetadataEntry) => e.metadataEntry.scopedMetadataKey === generateMetadataKey("theme")
+    (e: MetadataEntry) =>
+      e.metadataEntry.scopedMetadataKey === generateMetadataKey("theme"),
   )
-  return themeMetadata ? decodeMetadataValue(themeMetadata.metadataEntry.value) : "default"
+  return themeMetadata
+    ? decodeMetadataValue(themeMetadata.metadataEntry.value)
+    : "default"
 }
 
 export const getTheme = async (c: Context) => {

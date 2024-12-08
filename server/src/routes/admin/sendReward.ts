@@ -16,13 +16,14 @@ import { Config } from "../../utils/config"
 export const sendReward = async (c: Context) => {
   const ENV = env<{ PRIVATE_KEY: string }>(c)
 
-  const { id, mosaicId, recipientsAddresses, amount, message } = (await c.req.json()) as {
-    id: string
-    mosaicId: string
-    recipientsAddresses: string[]
-    amount: string
-    message: string
-  }
+  const { id, mosaicId, recipientsAddresses, amount, message } =
+    (await c.req.json()) as {
+      id: string
+      mosaicId: string
+      recipientsAddresses: string[]
+      amount: string
+      message: string
+    }
 
   const facade = new SymbolFacade(Config.NETWORK)
   const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
@@ -75,11 +76,7 @@ export const sendReward = async (c: Context) => {
     Config.DEADLINE_SECONDS,
   )
 
-
-  const announcedHashLock = await announceTransaction(
-    masterAccount,
-    hashLockTx,
-  )
+  const announcedHashLock = await announceTransaction(masterAccount, hashLockTx)
   await announceBonded(
     announcedHashLock.hash.toString(),
     signedBonded.jsonPayload,
@@ -87,5 +84,7 @@ export const sendReward = async (c: Context) => {
     console.error("hash lock error")
   })
 
-  return c.json({ message: `特典モザイクの配布を実施しました。他の管理者による承認をお待ちください。` })
+  return c.json({
+    message: `特典モザイクの配布を実施しました。他の管理者による承認をお待ちください。`,
+  })
 }
