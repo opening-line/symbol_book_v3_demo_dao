@@ -1,36 +1,31 @@
 import type { Context } from "hono"
 import { metadataGenerateKey } from "symbol-sdk/symbol"
+import { pickMetadata } from "../../functions/pickMetadata"
 import { getMetadataInfoByQuery } from "../../info/getMetadataInfoByQuery"
+import { decodeMetadataValue } from "../../utils/metadataUtils"
 
-interface MetadataEntry {
+type MetadataEntry = {
   metadataEntry: {
     scopedMetadataKey: string
     value: string
   }
 }
 
-// メタデータ関連のユーティリティ関数
-const generateMetadataKey = (key: string) =>
-  metadataGenerateKey(key).toString(16).toUpperCase()
-const decodeMetadataValue = (value: string) =>
-  new TextDecoder().decode(Buffer.from(value, "hex"))
-
-const getThemeNameFromMetadata = (metadata: MetadataEntry[]) => {
-  const themeMetadata = metadata.find(
-    (e: MetadataEntry) =>
-      e.metadataEntry.scopedMetadataKey === generateMetadataKey("theme"),
-  )
-  return themeMetadata
-    ? decodeMetadataValue(themeMetadata.metadataEntry.value)
-    : "default"
-}
-
+/**
+ * テーマ名を取得する
+ */
 export const getTheme = async (c: Context) => {
   const address = c.req.param("address")
-  const accountMetadata = await getMetadataInfoByQuery(
-    `targetAddress=${address}`,
+  const mdRes = await getMetadataInfoByQuery(`targetAddress=${address}`)
+  const metadatas = mdRes.map(
+    (e: MetadataEntry) => {
+      return {
+        key: BigInt(`0x${e.metadataEntry.scopedMetadataKey}`).toString(),
+        value: decodeMetadataValue(e.metadataEntry.value),
+      }
+    },
   )
-  const theme = getThemeNameFromMetadata(accountMetadata)
+  const theme = pickMetadata(metadatas, metadataGenerateKey("theme"))?.value
 
   return c.json({ theme })
 }

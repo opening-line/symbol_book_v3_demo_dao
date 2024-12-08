@@ -20,6 +20,7 @@ export const updateTheme = async (c: Context) => {
     publicKey: string
     themeName: string
   }
+
   const facade = new SymbolFacade(Config.NETWORK)
   const userAccount = new SymbolPublicAccount(facade, new PublicKey(publicKey))
   const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
@@ -35,6 +36,8 @@ export const updateTheme = async (c: Context) => {
     accountMetadataDes,
     userAccount.publicKey,
   )
+
+  // 手数料代替トランザクションの作成
   const dummy = createDummy(masterAccount.address.toString())
   const dummyTx = facade.createEmbeddedTransactionFromTypedDescriptor(
     dummy,
