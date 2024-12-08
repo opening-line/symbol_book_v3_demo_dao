@@ -5,7 +5,7 @@ import { Config } from "../utils/config"
  * @param query 検索条件
  * @returns メタデータ情報
  */
-export const getMetadataInfo = async (query: string) => {
+export const getMetadataInfoByQuery = async (query: string) => {
   return await fetch(new URL(`/metadata?${query}`, Config.NODE_URL), {
     method: "GET",
     headers: {

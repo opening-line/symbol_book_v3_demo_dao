@@ -13,7 +13,7 @@ import { messaging, transferMosaic } from "../../functions/transfer"
 import { env } from "hono/adapter"
 import { createMosaic } from "../../functions/createMosaic"
 import { getMosaicHolders } from "../../info/getAccountInfo"
-import { getMetadataInfo } from "../../info/getMetadataInfo"
+import { getMetadataInfoByQuery } from "../../info/getMetadataInfoByQuery"
 import { pickMetadata } from "../../functions/pickMetadata"
 import { METADATA_KEYS } from "../../utils/metadataKeys"
 import { decordHexAddress } from "../../functions/decordHexAddress"
@@ -55,7 +55,7 @@ export const createVote = async (c: Context) => {
   const indexDes = messaging(daoAccount.address, JSON.stringify(indexMessage))
 
   // TODO: ガバナンストークンのIDを取得
-  const mdRes = await getMetadataInfo(
+  const mdRes = await getMetadataInfoByQuery(
     `targetAddress=${daoAccount.address.toString()}`,
   )
   const metadatas = mdRes.map(
@@ -74,7 +74,7 @@ export const createVote = async (c: Context) => {
     METADATA_KEYS.GOVERNANCE_TOKEN_ID,
   ).value
   // TODO: ガバナンストークンの所持量を取得
-  const tokenHolders = await getMosaicHolders(`mosaicId=${tokenId}`)
+  const tokenHolders = await getMosaicHolders(tokenId)
 
   const data = tokenHolders
     .map((e: any) => {

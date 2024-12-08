@@ -1,6 +1,6 @@
 import type { Context } from "hono"
 import { getAccountInfo } from "../../info/getAccountInfo"
-import { getMetadataInfo } from "../../info/getMetadataInfo"
+import { getMetadataInfoByQuery } from "../../info/getMetadataInfoByQuery"
 import { getMosaicInfo } from "../../info/getMosaicInfo"
 import { convertToMosaicActualAmount } from "../../utils/mosaicUtils"
 import { metadataGenerateKey } from "symbol-sdk/symbol"
@@ -54,7 +54,7 @@ export const getMemberMosaics = async (c: Context) => {
     const mosaics = await Promise.all(
       res.mosaics.map(async (mosaic: { id: string; amount: string }) => {
         const mosaicInfo = await getMosaicInfo(mosaic.id)
-        const metadata = await getMetadataInfo(`targetId=${mosaic.id}`)
+        const metadata = await getMetadataInfoByQuery(`targetId=${mosaic.id}`)
         const isPoint = isPointMosaicType(metadata)
         const isReward = isRewardMosaicType(metadata)
 

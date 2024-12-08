@@ -1,6 +1,6 @@
 import type { Context } from "hono"
 import { metadataGenerateKey } from "symbol-sdk/symbol"
-import { getMetadataInfo } from "../../info/getMetadataInfo"
+import { getMetadataInfoByQuery } from "../../info/getMetadataInfoByQuery"
 
 interface MetadataEntry {
   metadataEntry: {
@@ -27,7 +27,7 @@ const getThemeNameFromMetadata = (metadata: MetadataEntry[]) => {
 
 export const getTheme = async (c: Context) => {
   const address = c.req.param("address")
-  const accountMetadata = await getMetadataInfo(`targetAddress=${address}`)
+  const accountMetadata = await getMetadataInfoByQuery(`targetAddress=${address}`)
   const theme = getThemeNameFromMetadata(accountMetadata)
 
   return c.json({ theme })

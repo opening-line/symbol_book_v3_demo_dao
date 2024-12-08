@@ -19,8 +19,8 @@ export const getAccountInfo = async (accountId: string) => {
  * @param query 検索条件
  * @returns 特定モザイクを所有するアカウント一覧
  */
-export const getMosaicHolders = async (query: string) => {
-  return await fetch(new URL(`/accounts?${query}`, Config.NODE_URL), {
+export const getMosaicHolders = async (mosaicId: string) => {
+  return await fetch(new URL(`/accounts?mosaicId=${mosaicId}`, Config.NODE_URL), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

@@ -5,7 +5,7 @@ import {
   metadataUpdateValue,
   models,
 } from "symbol-sdk/symbol"
-import { getMetadataInfo } from "../info/getMetadataInfo"
+import { getMetadataInfoByQuery } from "../info/getMetadataInfoByQuery"
 import { getMosaicInfo } from "../info/getMosaicInfo"
 
 // アカウントメタデータの設定
@@ -27,7 +27,7 @@ export const configureAccountMetadata = async (
       scopedMetadataKey: key.toString(16).toUpperCase(),
       metadataType: "0",
     })
-    const existingAccountMetadataInfo = await getMetadataInfo(query.toString())
+    const existingAccountMetadataInfo = await getMetadataInfoByQuery(query.toString())
 
     // 既に登録済みの場合は差分データを作成
     if (existingAccountMetadataInfo.length > 0) {
@@ -80,7 +80,7 @@ export const configureMosaicMetadata = async (
         scopedMetadataKey: key.toString(16).toUpperCase(),
         metadataType: "1",
       })
-      const existingMosaicMetadataInfo = await getMetadataInfo(query.toString())
+      const existingMosaicMetadataInfo = await getMetadataInfoByQuery(query.toString())
 
       // 既に登録済みの場合は差分データを作成
       if (existingMosaicMetadataInfo.length > 0) {

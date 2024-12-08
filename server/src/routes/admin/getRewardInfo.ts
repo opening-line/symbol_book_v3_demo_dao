@@ -2,7 +2,7 @@ import type { Context } from "hono"
 import { PublicKey } from "symbol-sdk"
 import { metadataGenerateKey, SymbolFacade } from "symbol-sdk/symbol"
 import { getAccountInfo } from "../../info/getAccountInfo"
-import { getMetadataInfo } from "../../info/getMetadataInfo"
+import { getMetadataInfoByQuery } from "../../info/getMetadataInfoByQuery"
 import { getMosaicInfo } from "../../info/getMosaicInfo"
 import { Config } from "../../utils/config"
 import { convertToMosaicActualAmount } from "../../utils/mosaicUtils"
@@ -83,7 +83,7 @@ export const getRewardInfo = async (c: Context) => {
     // 全モザイクのメタデータを一括取得
     const mosaicMetadatas = await Promise.all([
       ...accountInfo.mosaics.map((mosaic: Mosaic) =>
-        getMetadataInfo(`targetId=${mosaic.id}`),
+        getMetadataInfoByQuery(`targetId=${mosaic.id}`),
       ),
     ])
 

@@ -3,7 +3,7 @@ import { Address, models, SymbolFacade } from "symbol-sdk/symbol"
 import { Config } from "../../utils/config"
 import { PublicKey, utils } from "symbol-sdk"
 import { getMultisigInfo } from "../../info/getMultisigInfo"
-import { getMetadataInfo } from "../../info/getMetadataInfo"
+import { getMetadataInfoByQuery } from "../../info/getMetadataInfoByQuery"
 import { decordHexAddress } from "../../functions/decordHexAddress"
 
 export const getDao = async (c: Context) => {
@@ -11,7 +11,7 @@ export const getDao = async (c: Context) => {
   const facade = new SymbolFacade(Config.NETWORK)
   const daoAccount = facade.createPublicAccount(new PublicKey(id))
   const address = daoAccount.address
-  const mdRes = await getMetadataInfo(`targetAddress=${address.toString()}`)
+  const mdRes = await getMetadataInfoByQuery(`targetAddress=${address.toString()}`)
   const msRes = await getMultisigInfo(address.toString())
 
   const textDecoder = new TextDecoder()

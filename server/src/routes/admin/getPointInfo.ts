@@ -3,7 +3,7 @@ import { PublicKey } from "symbol-sdk"
 import { metadataGenerateKey, SymbolFacade } from "symbol-sdk/symbol"
 import { pickMetadata } from "../../functions/pickMetadata"
 import { getAccountInfo } from "../../info/getAccountInfo"
-import { getMetadataInfo } from "../../info/getMetadataInfo"
+import { getMetadataInfoByQuery } from "../../info/getMetadataInfoByQuery"
 import { getMosaicInfo } from "../../info/getMosaicInfo"
 import { Config } from "../../utils/config"
 import { METADATA_KEYS } from "../../utils/metadataKeys"
@@ -81,7 +81,7 @@ export const getPointInfo = async (c: Context) => {
 
     // アカウント情報とメタデータの取得
     const accountInfo = await getAccountInfo(address)
-    const accountMetadata = await getMetadataInfo(`targetAddress=${address}`)
+    const accountMetadata = await getMetadataInfoByQuery(`targetAddress=${address}`)
 
     // ガバナンストークンIDの取得
     const governanceMosaicId = pickMetadata(
@@ -94,9 +94,9 @@ export const getPointInfo = async (c: Context) => {
 
     // 全モザイクのメタデータを一括取得
     const mosaicMetadatas = await Promise.all([
-      getMetadataInfo(`targetId=${governanceMosaicId}`),
+      getMetadataInfoByQuery(`targetId=${governanceMosaicId}`),
       ...accountInfo.mosaics.map((mosaic: Mosaic) =>
-        getMetadataInfo(`targetId=${mosaic.id}`),
+        getMetadataInfoByQuery(`targetId=${mosaic.id}`),
       ),
     ])
 

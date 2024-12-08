@@ -3,7 +3,7 @@ import { getMosaicHolders } from "../../info/getAccountInfo"
 import { Address, models, SymbolFacade } from "symbol-sdk/symbol"
 import { PublicKey, utils } from "symbol-sdk"
 import { pickMetadata } from "../../functions/pickMetadata"
-import { getMetadataInfo } from "../../info/getMetadataInfo"
+import { getMetadataInfoByQuery } from "../../info/getMetadataInfoByQuery"
 import { Config } from "../../utils/config"
 import { METADATA_KEYS } from "../../utils/metadataKeys"
 
@@ -26,7 +26,7 @@ export const getHolders = async (c: Context) => {
   const facade = new SymbolFacade(Config.NETWORK)
   const daoAccount = facade.createPublicAccount(new PublicKey(id))
   const address = daoAccount.address.toString()
-  const accountMetadata = await getMetadataInfo(`targetAddress=${address}`)
+  const accountMetadata = await getMetadataInfoByQuery(`targetAddress=${address}`)
 
   // ガバナンストークンIDの取得
   const governanceMosaicId = pickMetadata(
@@ -36,7 +36,7 @@ export const getHolders = async (c: Context) => {
     })),
     METADATA_KEYS.GOVERNANCE_TOKEN_ID,
   ).value.toUpperCase()
-  const allDaoMembers = await getMosaicHolders(`mosaicId=${governanceMosaicId}`)
+  const allDaoMembers = await getMosaicHolders(governanceMosaicId)
 
   // DAOアカウントを除外
   const daoMembers = allDaoMembers.filter(
