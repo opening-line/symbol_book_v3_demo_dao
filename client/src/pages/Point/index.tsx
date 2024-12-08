@@ -124,7 +124,7 @@ export const PointPage: React.FC = () => {
                   alignItems: "center",
                 }}
               >
-                <span>{mosaic.name}</span>
+                <span>{mosaic.name || mosaic.id}</span>
                 <span>
                   {mosaic.balance.toLocaleString()}/
                   {mosaic.maxSupply.toLocaleString()}
