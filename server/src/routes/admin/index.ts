@@ -1,5 +1,5 @@
 import { Hono } from "hono"
-import { createAdmin } from "./createAdmin"
+import { createDao } from "./createDao"
 import { addAdmin } from "./addAdmin"
 import { deleteAdmin } from "./deleteAdmin"
 import { getDao } from "./getDao"
@@ -16,7 +16,7 @@ const adminRoute = new Hono()
 
 adminRoute.get("/get/:id", getDao)
 adminRoute.post("/send", sendReward)
-adminRoute.post("/new", createAdmin)
+adminRoute.post("/new", createDao)
 adminRoute.post("/add", addAdmin)
 adminRoute.post("/delete", deleteAdmin)
 adminRoute.get("/reward/:id", getRewardInfo)
