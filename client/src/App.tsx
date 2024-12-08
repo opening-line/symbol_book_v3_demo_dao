@@ -37,8 +37,8 @@ function App() {
               path='/dao/:id/reward/send/:mosaicId'
               element={<RewardSendPage />}
             />
-            <Route path='/dao/:id/point' element={<PointPage />} />
             <Route path='/dao/:id/point/create' element={<PointCreatePage />} />
+            <Route path='/dao/:id/point' element={<PointPage />} />
             <Route
               path='/dao/:id/point/send/:mosaicId'
               element={<PointSendPage />}
