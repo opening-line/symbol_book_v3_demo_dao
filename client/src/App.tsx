@@ -19,28 +19,25 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
-          <Routes>
-            <Route path='/dao/create' element={<CreateDAOPage />} />
-            <Route path='/dao/:id' element={<Layout />}>
-              <Route path='' element={<HomePage />} />
-              <Route path='update' element={<UpdateDAOPage />} />
-              <Route path='reward' element={<RewardPage />} />
-              <Route path='governance' element={<GovernanceVotingPage />} />
-              <Route path='reward/create' element={<RewardCreatePage />} />
-              <Route
-                path='reward/send/:mosaicId'
-                element={<RewardSendPage />}
-              />
-              <Route path='point' element={<PointPage />} />
-              <Route path='point/create' element={<PointCreatePage />} />
-              <Route path='point/send/:mosaicId' element={<PointSendPage />} />
-              <Route
-                path='point/revoke/:mosaicId'
-                element={<PointRevokePage />}
-              />
+        <Routes>
+          <Route path='/dao/create' element={<CreateDAOPage />} />
+          <Route path='/dao/:id' element={<Layout />}>
+            <Route path='' element={<HomePage />} />
+            <Route path='update' element={<UpdateDAOPage />} />
+            <Route path='reward' element={<RewardPage />} />
+            <Route path='governance' element={<GovernanceVotingPage />} />
+            <Route path='reward/create' element={<RewardCreatePage />} />
+            <Route path='reward/send/:mosaicId' element={<RewardSendPage />} />
+            <Route path='point' element={<PointPage />} />
+            <Route path='point/create' element={<PointCreatePage />} />
+            <Route path='point/send/:mosaicId' element={<PointSendPage />} />
+            <Route
+              path='point/revoke/:mosaicId'
+              element={<PointRevokePage />}
+            />
             <Route path='limited' element={<LimitedMemberPage />} />
-            </Route>
-          </Routes>
+          </Route>
+        </Routes>
       </Router>
     </ThemeProvider>
   )

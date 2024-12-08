@@ -1,7 +1,11 @@
 import { useState } from "react"
-import { getActiveAddress, requestSignCosignatureTransaction, setTransactionByPayload } from "sss-module"
+import {
+  getActivePublicKey,
+  requestSignCosignatureTransaction,
+  setTransactionByPayload,
+} from "sss-module"
 import { utils } from "symbol-sdk"
-import { models, SymbolFacade } from "symbol-sdk/symbol"
+import { models } from "symbol-sdk/symbol"
 import { useTheme } from "../../components/ThemeContext"
 import { themePresets } from "../../styles/theme/theme"
 import { Config } from "../../utils/config"
@@ -21,12 +25,13 @@ export const LimitedMemberPage: React.FC = () => {
 
   // テーマを保存する処理
   const handleSaveTheme = async () => {
-    console.log("handleSaveTheme")
     const { payload } = await fetch(`${Config.API_HOST}/limited/theme/update`, {
       method: "PUT",
-      body: JSON.stringify({ address: getActiveAddress(), theme: selectedTheme }),
+      body: JSON.stringify({
+        publicKey: getActivePublicKey(),
+        themeName: selectedTheme,
+      }),
     }).then((res) => res.json())
-    console.log(payload)
 
     const tx = models.AggregateCompleteTransactionV2.deserialize(
       utils.hexToUint8(payload),
@@ -37,25 +42,18 @@ export const LimitedMemberPage: React.FC = () => {
 
     const cosignature = new models.Cosignature()
     cosignature.signature.bytes = utils.hexToUint8(cosignedTx.signature)
-    cosignature.signerPublicKey.bytes = utils.hexToUint8(cosignedTx.signerPublicKey)
+    cosignature.signerPublicKey.bytes = utils.hexToUint8(
+      cosignedTx.signerPublicKey,
+    )
     tx.cosignatures.push(cosignature)
 
     const jsonPayload2 = `{"payload":"${utils.uint8ToHex(tx.serialize())}"}`
 
-    const facade = new SymbolFacade(Config.NETWORK)
-    const sendRes = await fetch(new URL("/transactions", Config.NODE_URL), {
+    await fetch(new URL("/transactions", Config.NODE_URL), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: jsonPayload2,
-    }).then((res) => res.json())
-    console.log(sendRes)
-
-    const hash = facade.hashTransaction(tx)
-
-    const statusRes = await fetch(
-      new URL("/transactionStatus/" + hash, Config.NODE_URL),
-    ).then((res) => res.json())
-    console.log(statusRes)
+    })
   }
 
   return (

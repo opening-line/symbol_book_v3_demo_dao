@@ -31,7 +31,9 @@ export const HomePage: React.FC = () => {
     const fetchMosaics = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`${Config.API_HOST}/home/mosaics/${address}`)
+        const response = await fetch(
+          `${Config.API_HOST}/home/mosaics/${address}`,
+        )
         const data = await response.json()
         setMosaics(data)
       } catch (error) {

@@ -55,21 +55,46 @@ export const UpdateDAOPage: React.FC = () => {
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th style={{ border: "1px solid #ddd", padding: "8px", textAlign: 'left', width: '100px' }}>Select</th>
-              <th style={{ border: "1px solid #ddd", padding: "8px", textAlign: 'left' }}>Admin Address</th>
+              <th
+                style={{
+                  border: "1px solid #ddd",
+                  padding: "8px",
+                  textAlign: "left",
+                  width: "100px",
+                }}
+              >
+                Select
+              </th>
+              <th
+                style={{
+                  border: "1px solid #ddd",
+                  padding: "8px",
+                  textAlign: "left",
+                }}
+              >
+                Admin Address
+              </th>
             </tr>
           </thead>
           <tbody>
             {admins.map((admin) => (
               <tr key={admin}>
-                <td style={{ border: "1px solid #ddd", padding: "8px", textAlign: "left" }}>
+                <td
+                  style={{
+                    border: "1px solid #ddd",
+                    padding: "8px",
+                    textAlign: "left",
+                  }}
+                >
                   <input
                     type='checkbox'
                     checked={selectedAdmins.includes(admin)}
                     onChange={() => handleSelectAdmin(admin)}
                   />
                 </td>
-                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{admin}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                  {admin}
+                </td>
               </tr>
             ))}
           </tbody>

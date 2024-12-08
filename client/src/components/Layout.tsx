@@ -1,18 +1,16 @@
-import React, { useState, ReactElement, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import SideMenu from "./SideMenu"
 import Header from "./Header"
 import { getActiveAddress, getActiveName, isAllowedSSS } from "sss-module"
 import { CreateDAOPage } from "../pages/DAO/Create"
 import { Outlet, useParams } from "react-router"
 
-
-
 const Layout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(true)
   const [address, setAddress] = useState<string>("")
   const [name, setName] = useState<string>("")
   const [isSSSLinked, setIsSSSLinked] = useState<boolean>(false)
-  const {id} = useParams()
+  const { id } = useParams()
 
   useEffect(() => {
     const isSSSLinked = isAllowedSSS()
