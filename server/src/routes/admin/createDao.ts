@@ -18,7 +18,7 @@ import { models } from "symbol-sdk/symbol"
 import { signTransaction } from "../../functions/signTransaction"
 
 // TODO: rename CreateDao
-export const createAdmin = async (c: Context) => {
+export const createDao = async (c: Context) => {
   // TODO: 準備
   const ENV = env<{ PRIVATE_KEY: string }>(c)
   const facade = new SymbolFacade(Config.NETWORK)
