@@ -5,7 +5,6 @@ import Layout from "./components/Layout"
 import { HomePage } from "./pages/Home"
 import { GovernanceVotingPage } from "./pages/GovernanceVoting"
 import { LimitedMemberPage } from "./pages/Limited"
-import { DaoPage } from "./pages/DAO"
 import { CreateDAOPage } from "./pages/DAO/Create"
 import { UpdateDAOPage } from "./pages/DAO/Update"
 import { RewardPage } from "./pages/Reward"
@@ -25,7 +24,6 @@ function App() {
             <Route path='/' element={<HomePage />} />
             <Route path='/governance' element={<GovernanceVotingPage />} />
             <Route path='/limited' element={<LimitedMemberPage />} />
-            <Route path='/dao/:id' element={<DaoPage />} />
             <Route path='/dao/create' element={<CreateDAOPage />} />
             <Route path='/dao/:id/update' element={<UpdateDAOPage />} />
             <Route path='/dao/:id/reward' element={<RewardPage />} />
