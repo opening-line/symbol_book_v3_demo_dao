@@ -26,7 +26,9 @@ export const getHolders = async (c: Context) => {
   const facade = new SymbolFacade(Config.NETWORK)
   const daoAccount = facade.createPublicAccount(new PublicKey(id))
   const address = daoAccount.address.toString()
-  const accountMetadata = await getMetadataInfoByQuery(`targetAddress=${address}`)
+  const accountMetadata = await getMetadataInfoByQuery(
+    `targetAddress=${address}`,
+  )
 
   // ガバナンストークンIDの取得
   const governanceMosaicId = pickMetadata(

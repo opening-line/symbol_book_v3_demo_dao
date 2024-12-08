@@ -34,7 +34,9 @@ export const configureAccountMetadata = async (
       scopedMetadataKey: key.toString(16).toUpperCase(),
       metadataType: "0",
     })
-    const existingAccountMetadataInfo = await getMetadataInfoByQuery(query.toString())
+    const existingAccountMetadataInfo = await getMetadataInfoByQuery(
+      query.toString(),
+    )
 
     // 既に登録済みの場合は差分データを作成
     if (existingAccountMetadataInfo.length > 0) {
@@ -95,7 +97,9 @@ export const configureMosaicMetadata = async (
         scopedMetadataKey: key.toString(16).toUpperCase(),
         metadataType: "1",
       })
-      const existingMosaicMetadataInfo = await getMetadataInfoByQuery(query.toString())
+      const existingMosaicMetadataInfo = await getMetadataInfoByQuery(
+        query.toString(),
+      )
 
       // 既に登録済みの場合は差分データを作成
       if (existingMosaicMetadataInfo.length > 0) {

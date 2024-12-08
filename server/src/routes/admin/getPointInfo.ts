@@ -81,7 +81,9 @@ export const getPointInfo = async (c: Context) => {
 
     // アカウント情報とメタデータの取得
     const accountInfo = await getAccountInfo(address)
-    const accountMetadata = await getMetadataInfoByQuery(`targetAddress=${address}`)
+    const accountMetadata = await getMetadataInfoByQuery(
+      `targetAddress=${address}`,
+    )
 
     // ガバナンストークンIDの取得
     const governanceMosaicId = pickMetadata(
