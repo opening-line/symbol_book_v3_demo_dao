@@ -4,12 +4,12 @@ import { PrivateKey, PublicKey } from "symbol-sdk"
 import { descriptors, models, SymbolFacade } from "symbol-sdk/symbol"
 import { announceBonded } from "../../functions/announceBonded"
 import { announceTransaction } from "../../functions/announceTransaction"
-import { createDummy } from "../../functions/createDummy"
 import { createHashLock } from "../../functions/createHashLock"
 import { createMosaicId } from "../../functions/createMosaicId"
 import { createRewardMosaic } from "../../functions/createMosaic"
 import { signTransaction } from "../../functions/signTransaction"
 import { Config } from "../../utils/config"
+import { transferXym } from "../../functions/transfer"
 
 export const createReward = async (c: Context) => {
   const ENV = env<{ PRIVATE_KEY: string }>(c)
@@ -57,12 +57,12 @@ export const createReward = async (c: Context) => {
     ),
   )
 
-  const dummy = createDummy(daoAccount.address.toString())
-  const dummyTx = facade.createEmbeddedTransactionFromTypedDescriptor(
-    dummy,
+  const feeTransferDes = transferXym(daoAccount.address, 50n * 1000000n)
+  const feeTx = facade.createEmbeddedTransactionFromTypedDescriptor(
+    feeTransferDes,
     masterAccount.publicKey,
   )
-  const innerTxs = [...mosaicCreateTxs, dummyTx]
+  const innerTxs = [feeTx, ...mosaicCreateTxs]
   const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
   const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
     txHash,
