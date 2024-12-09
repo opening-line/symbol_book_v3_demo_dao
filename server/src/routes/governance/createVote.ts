@@ -31,6 +31,9 @@ type MetadataEntry = {
   }
 }
 
+/**
+ * 投票情報の作成
+ */
 export const createVote = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)

@@ -7,6 +7,9 @@ import { signTransaction } from "../../functions/signTransaction"
 import { transferMosaic } from "../../functions/transfer"
 import { Config } from "../../utils/config"
 
+/**
+ * 投票実施
+ */
 export const voting = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)
