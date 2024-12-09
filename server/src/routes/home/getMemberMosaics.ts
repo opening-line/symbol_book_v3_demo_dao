@@ -16,6 +16,9 @@ type MetadataEntry = {
   }
 }
 
+/**
+ * メンバーが保有するモザイク一覧取得
+ */
 export const getMemberMosaics = async (c: Context) => {
   try {
     const address = c.req.param("address")
