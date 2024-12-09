@@ -11,6 +11,9 @@ import { signTransaction } from "../../functions/signTransaction"
 import { transferXym } from "../../functions/transfer"
 import { Config } from "../../utils/config"
 
+/**
+ * 特典モザイクの作成
+ */
 export const createReward = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)

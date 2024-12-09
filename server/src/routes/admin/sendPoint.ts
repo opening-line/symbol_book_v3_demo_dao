@@ -10,6 +10,9 @@ import { signTransaction } from "../../functions/signTransaction"
 import { transfer } from "../../functions/transfer"
 import { Config } from "../../utils/config"
 
+/**
+ * ポイントモザイクを配布する
+ */
 export const sendPoint = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)

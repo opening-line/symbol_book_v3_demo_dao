@@ -10,6 +10,9 @@ import { createHashLock } from "../../functions/createHashLock"
 import { signTransaction } from "../../functions/signTransaction"
 import { Config } from "../../utils/config"
 
+/**
+ * DAO管理者アカウントの追加
+ */
 export const addAdmin = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)

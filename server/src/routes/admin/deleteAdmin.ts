@@ -10,6 +10,9 @@ import { deleteMultisig } from "../../functions/deleteMultisig"
 import { signTransaction } from "../../functions/signTransaction"
 import { Config } from "../../utils/config"
 
+/**
+ * DAO管理者アカウントの削除
+ */
 export const deleteAdmin = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)

@@ -11,6 +11,9 @@ import { signTransaction } from "../../functions/signTransaction"
 import { transferXym } from "../../functions/transfer"
 import { Config } from "../../utils/config"
 
+/**
+ * ポイントモザイクの作成
+ */
 export const createPoint = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)

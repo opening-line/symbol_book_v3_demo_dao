@@ -10,6 +10,9 @@ import { signTransaction } from "../../functions/signTransaction"
 import { transfer } from "../../functions/transfer"
 import { Config } from "../../utils/config"
 
+/**
+ * 特典モザイクを配布する
+ */
 export const sendReward = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)

@@ -17,6 +17,9 @@ import { signTransaction } from "../../functions/signTransaction"
 import { transferXym } from "../../functions/transfer"
 import { Config } from "../../utils/config"
 
+/**
+ * DAOの作成
+ */
 export const createDao = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)

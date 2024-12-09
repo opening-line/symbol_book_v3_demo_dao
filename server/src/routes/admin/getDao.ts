@@ -6,6 +6,9 @@ import { getMultisigInfo } from "../../info/getMultisigInfo"
 import { Config } from "../../utils/config"
 import { decordHexAddress } from "../../utils/decordHexAddress"
 
+/**
+ * DAOデータの取得
+ */
 export const getDao = async (c: Context) => {
   try {
     const id = c.req.param("id")
