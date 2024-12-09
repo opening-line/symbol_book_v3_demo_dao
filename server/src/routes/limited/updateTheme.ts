@@ -12,6 +12,9 @@ import { createDummy } from "../../functions/createDummy"
 import { Config } from "../../utils/config"
 import { signTransaction } from "../../functions/signTransaction"
 
+/**
+ * テーマの更新
+ */
 export const updateTheme = async (c: Context) => {
   const ENV = env<{ PRIVATE_KEY: string }>(c)
 
