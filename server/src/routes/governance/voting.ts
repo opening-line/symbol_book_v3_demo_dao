@@ -1,74 +1,78 @@
-import type { Context } from "hono";
-import { transferMosaic } from "../../functions/transfer";
-import { Address, descriptors, models, SymbolFacade } from "symbol-sdk/symbol";
-import { createDummy } from "../../functions/createDummy";
-import { PrivateKey, PublicKey, utils } from "symbol-sdk";
-import { Config } from "../../utils/config";
-import { env } from "hono/adapter";
-import { signTransaction } from "../../functions/signTransaction";
+import type { Context } from "hono"
+import { env } from "hono/adapter"
+import { PrivateKey, PublicKey, utils } from "symbol-sdk"
+import { descriptors, models, SymbolFacade } from "symbol-sdk/symbol"
+import { createDummy } from "../../functions/createDummy"
+import { signTransaction } from "../../functions/signTransaction"
+import { transferMosaic } from "../../functions/transfer"
+import { Config } from "../../utils/config"
 
+/**
+ * 投票実施
+ */
 export const voting = async (c: Context) => {
-  const {
-    daoId,
-    token,
-    publicKey,
-    userKey,
-    amount,
-  } = (await c.req.json()) as {
-    daoId: string;
-    token: string;
-    publicKey: string;
-    userKey: string;
-    amount: number;
-  }
+  try {
+    const ENV = env<{ PRIVATE_KEY: string }>(c)
 
-  const ENV = env<{ PRIVATE_KEY: string }>(c)
-  const facade = new SymbolFacade(Config.NETWORK)
-  const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
-  const daoAccount = facade.createPublicAccount(new PublicKey(daoId))
-  const userAccount = facade.createPublicAccount(new PublicKey(userKey))
+    const { daoId, token, publicKey, userKey, amount } = (await c.req.json()) as {
+      daoId: string
+      token: string
+      publicKey: string
+      userKey: string
+      amount: number
+    }
 
-  const voteAccount = facade.createPublicAccount(new PublicKey(publicKey))
+    const facade = new SymbolFacade(Config.NETWORK)
+    const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
+    const daoAccount = facade.createPublicAccount(new PublicKey(daoId))
+    const userAccount = facade.createPublicAccount(new PublicKey(userKey))
+    const voteAccount = facade.createPublicAccount(new PublicKey(publicKey))
 
+    // 投票
+    const voteDes = transferMosaic(
+      voteAccount.address,
+      BigInt(token),
+      BigInt(amount),
+    )
+    const voteTransaction = facade.createEmbeddedTransactionFromTypedDescriptor(
+      voteDes,
+      userAccount.publicKey,
+    )
 
-  const transferDes = transferMosaic(
-    voteAccount.address,
-    BigInt(token),
-    BigInt(amount),
-  )
-
-  const dummyDes = createDummy(daoAccount.address.toString())
-
-  const innerTxs = [
-    facade.createEmbeddedTransactionFromTypedDescriptor(
-      transferDes,
-      userAccount.publicKey
-    ),
-    facade.createEmbeddedTransactionFromTypedDescriptor(
+    // 手数料代替トランザクションの作成
+    const dummyDes = createDummy(daoAccount.address.toString())
+    const dummyTransaction = facade.createEmbeddedTransactionFromTypedDescriptor(
       dummyDes,
-      masterAccount.publicKey
-    ) 
-  ]
-  const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
-  const aggregateDes = new descriptors.AggregateCompleteTransactionV2Descriptor(
-    txHash,
-    innerTxs,
-  )
-  const tx = models.AggregateCompleteTransactionV2.deserialize(
-    facade
-      .createTransactionFromTypedDescriptor(
-        aggregateDes,
-        masterAccount.publicKey,
-        Config.FEE_MULTIPLIER,
-        Config.DEADLINE_SECONDS,
-      )
-      .serialize(),
-  )
+      masterAccount.publicKey,
+    )
 
-  signTransaction(masterAccount, tx)
+    // アグリゲート
+    const innerTxs = [voteTransaction, dummyTransaction]
+    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
+    const aggregateDes = new descriptors.AggregateCompleteTransactionV2Descriptor(
+      txHash,
+      innerTxs,
+    )
+    const tx = models.AggregateCompleteTransactionV2.deserialize(
+      facade
+        .createTransactionFromTypedDescriptor(
+          aggregateDes,
+          masterAccount.publicKey,
+          Config.FEE_MULTIPLIER,
+          Config.DEADLINE_SECONDS,
+        )
+        .serialize(),
+    )
 
-  return c.json({
-    payload: utils.uint8ToHex(tx.serialize()),
-    daoId: daoAccount.publicKey.toString(),
-  })
+    // 署名
+    signTransaction(masterAccount, tx)
+
+    return c.json({
+      payload: utils.uint8ToHex(tx.serialize()),
+      daoId: daoAccount.publicKey.toString(),
+    })
+  } catch (error) {
+    console.error("投票エラー:", error)
+    return c.json({ message: "投票データの作成に失敗しました。" }, 500)
+  }
 }

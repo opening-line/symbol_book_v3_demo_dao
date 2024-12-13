@@ -1,9 +1,9 @@
 import type { Context } from "hono"
-import { getMosaicHolders } from "../../info/getAccountInfo"
-import { Address, models, SymbolFacade } from "symbol-sdk/symbol"
 import { PublicKey, utils } from "symbol-sdk"
+import { Address, models, SymbolFacade } from "symbol-sdk/symbol"
 import { pickMetadata } from "../../functions/pickMetadata"
-import { getMetadataInfo } from "../../info/getMetadataInfo"
+import { getMosaicHolders } from "../../info/getAccountInfo"
+import { getMetadataInfoByQuery } from "../../info/getMetadataInfoByQuery"
 import { Config } from "../../utils/config"
 import { METADATA_KEYS } from "../../utils/metadataKeys"
 
@@ -14,60 +14,81 @@ interface MetadataEntry {
   }
 }
 
-const decodeMetadataValue = (value: string) => new TextDecoder().decode(Buffer.from(value, 'hex'))
-
 /**
  * 対象モザイクを保有しているDAOメンバーの一覧を取得
  */
 export const getHolders = async (c: Context) => {
-  const mosaicId = c.req.param("mosaicId")
-  const id = c.req.param("id")
-  const facade = new SymbolFacade(Config.NETWORK)
-  const daoAccount = facade.createPublicAccount(new PublicKey(id))
-  const address = daoAccount.address.toString()
-  const accountMetadata = await getMetadataInfo(`targetAddress=${address}`)
+  try {
+    const id = c.req.param("id")
+    const mosaicId = c.req.param("mosaicId")
 
-  // ガバナンストークンIDの取得
-  const governanceMosaicId = pickMetadata(
-    accountMetadata.map((e: MetadataEntry) => ({
-      key: e.metadataEntry.scopedMetadataKey,
-      value: decodeMetadataValue(e.metadataEntry.value)
-    })),
-    METADATA_KEYS.GOVERNANCE_TOKEN_ID
-  ).value.toUpperCase()
-  const allDaoMembers = await getMosaicHolders(`mosaicId=${governanceMosaicId}`)
-  
-  // DAOアカウントを除外
-  const daoMembers = allDaoMembers.filter((holder: {
-    account: {
-      address: string
-    }
-  }) => {
-    const holderAddress = new Address(
-      new models.UnresolvedAddress(utils.hexToUint8(holder.account.address)).bytes
-    ).toString()
-    return holderAddress !== address
-  })
+    const textDecoder = new TextDecoder()
+    const facade = new SymbolFacade(Config.NETWORK)
+    const daoAccount = facade.createPublicAccount(new PublicKey(id))
+    const address = daoAccount.address.toString()
 
-  const res = daoMembers.map(
-    (holder: {
-      account: {
-        address: string
-        mosaics: { id: string; amount: string }[]
-      }
-    }) => {
-      const amount = holder.account.mosaics.find(
-        (mosaic: { id: string; amount: string }) => mosaic.id === mosaicId,
-      )?.amount
-      const address = new Address(
-        new models.UnresolvedAddress(utils.hexToUint8(holder.account.address)).bytes,
-      ).toString()
+    // アカウントメタデータの取得
+    const accountMdRes = await getMetadataInfoByQuery(
+      `targetAddress=${address}`,
+    )
+    const accountMetadatas = accountMdRes.map((e: MetadataEntry) => {
       return {
-        address,
-        amount: amount || "0",
+        key: e.metadataEntry.scopedMetadataKey,
+        value: textDecoder.decode(
+          Uint8Array.from(Buffer.from(e.metadataEntry.value, "hex")),
+        ),
       }
-    },
-  )
+    })
 
-  return c.json(res)
+    // ガバナンストークンIDの取得
+    const govTokenId = pickMetadata(
+      accountMetadatas,
+      METADATA_KEYS.GOVERNANCE_TOKEN_ID,
+    )!.value.toUpperCase()
+
+    // 対象モザイクを保有しているDAOメンバーの一覧を取得
+    const allDaoMembers = await getMosaicHolders(govTokenId)
+
+    // DAOアカウントを除外
+    const daoMembers = allDaoMembers.filter(
+      (holder: {
+        account: {
+          address: string
+        }
+      }) => {
+        const holderAddress = new Address(
+          new models.UnresolvedAddress(utils.hexToUint8(holder.account.address))
+            .bytes,
+        ).toString()
+        return holderAddress !== address
+      },
+    )
+
+    const res = daoMembers.map(
+      (holder: {
+        account: {
+          address: string
+          mosaics: { id: string; amount: string }[]
+        }
+      }) => {
+        const address = new Address(
+          new models.UnresolvedAddress(utils.hexToUint8(holder.account.address))
+            .bytes,
+        ).toString()
+        const amount = holder.account.mosaics.find(
+          (mosaic: { id: string; amount: string }) => mosaic.id === mosaicId,
+        )?.amount
+
+        return {
+          address,
+          amount: amount || "0",
+        }
+      },
+    )
+
+    return c.json(res)
+  } catch (error) {
+    console.error("DAOメンバー取得エラー:", error)
+    return c.json({ message: "DAOメンバーの取得に失敗しました。" }, 500)
+  }
 }

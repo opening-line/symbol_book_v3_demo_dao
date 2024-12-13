@@ -2,6 +2,12 @@ import { type models, type SymbolAccount } from "symbol-sdk/symbol"
 import { signTransaction } from "./signTransaction"
 import { Config } from "../utils/config"
 
+/**
+ * トランザクションのアナウンス
+ * @param account アカウント
+ * @param transaction トランザクション
+ * @returns トランザクションハッシュとペイロード
+ */
 export const announceTransaction = async (
   account: SymbolAccount,
   transaction: models.Transaction,

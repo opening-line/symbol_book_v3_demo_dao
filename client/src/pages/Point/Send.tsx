@@ -20,6 +20,9 @@ export const PointSendPage: React.FC = () => {
     useState<string>("")
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [manualAddress, setManualAddress] = useState<string>("")
+  const [manualAddressError, setManualAddressError] = useState<string>("")
+  const [manualAddresses, setManualAddresses] = useState<string[]>([])
 
   useEffect(() => {
     // ポイント保有者一覧を取得
@@ -129,6 +132,29 @@ export const PointSendPage: React.FC = () => {
       .finally(() => {
         setIsSubmitting(false)
       })
+  }
+
+  const handleManualAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setManualAddress(value)
+    setManualAddressError("")
+  }
+
+  const handleAddManualAddress = () => {
+    if (!manualAddress) {
+      setManualAddressError("アドレスを入力してください")
+      return
+    }
+    
+    // アドレスが既に選択されているか確認
+    if (selectedAddresses.includes(manualAddress) || manualAddresses.includes(manualAddress)) {
+      setManualAddressError("このアドレスは既に追加されています")
+      return
+    }
+
+    setManualAddresses(prev => [...prev, manualAddress])
+    setSelectedAddresses(prev => [...prev, manualAddress])
+    setManualAddress("")
   }
 
   return (
@@ -268,6 +294,69 @@ export const PointSendPage: React.FC = () => {
             style={{
               backgroundColor: theme.white,
               padding: "12px",
+              margin: "0 0 20px 0",
+              borderRadius: "8px",
+            }}
+          >
+            <h2
+              style={{
+                margin: "0 0 12px 0",
+                fontSize: "16px",
+              }}
+            >
+              アドレスを手動で追加
+            </h2>
+            <div
+              style={{
+                display: "flex",
+                gap: "8px",
+                alignItems: "flex-start",
+              }}
+            >
+              <input
+                type='text'
+                value={manualAddress}
+                onChange={handleManualAddressChange}
+                placeholder='アドレスを入力'
+                style={{
+                  padding: "8px",
+                  borderRadius: "4px",
+                  backgroundColor: theme.white,
+                  border: manualAddressError ? `1px solid ${theme.alert}` : `1px solid ${theme.border}`,
+                  flex: 1,
+                }}
+              />
+              <button
+                onClick={handleAddManualAddress}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: theme.primary,
+                  color: theme.white,
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                追加
+              </button>
+            </div>
+            {manualAddressError && (
+              <div
+                style={{
+                  color: theme.alert,
+                  fontSize: "12px",
+                  marginTop: "4px",
+                }}
+              >
+                {manualAddressError}
+              </div>
+            )}
+          </div>
+
+          <div
+            style={{
+              backgroundColor: theme.white,
+              padding: "12px",
               margin: 0,
               borderRadius: "8px",
             }}
@@ -285,7 +374,7 @@ export const PointSendPage: React.FC = () => {
               >
                 <input
                   type='checkbox'
-                  checked={selectedAddresses.length === holders.length}
+                  checked={selectedAddresses.length === (holders.length + manualAddresses.length)}
                   onChange={(e) => handleSelectAll(e.target.checked)}
                   disabled={isLoading}
                 />
@@ -310,6 +399,63 @@ export const PointSendPage: React.FC = () => {
                 gap: "12px",
               }}
             >
+              {manualAddresses.map((address) => (
+                <div
+                  key={`manual-${address}`}
+                  style={{
+                    padding: "12px",
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: "4px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    width: "250px",
+                    flex: "1 1 250px",
+                    backgroundColor: theme.background
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      maxWidth: "100%",
+                    }}
+                  >
+                    <input
+                      type='checkbox'
+                      checked={selectedAddresses.includes(address)}
+                      onChange={() => handleCheckboxChange(address)}
+                    />
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "4px",
+                        maxWidth: "calc(100% - 24px)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          wordBreak: "break-all",
+                          overflowWrap: "break-word",
+                        }}
+                      >
+                        {address}
+                      </span>
+                      <span
+                        style={{
+                          color: theme.text.placeholder,
+                          fontSize: "12px",
+                        }}
+                      >
+                        手動追加
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
               {isLoading ? (
                 <div
                   style={{
@@ -321,7 +467,7 @@ export const PointSendPage: React.FC = () => {
                 >
                   読み込み中...
                 </div>
-              ) : holders.length === 0 ? (
+              ) : holders.length === 0 && manualAddresses.length === 0 ? (
                 <div
                   style={{
                     width: "100%",

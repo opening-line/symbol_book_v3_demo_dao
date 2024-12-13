@@ -14,6 +14,7 @@ export const HomePage: React.FC = () => {
   const [username, setUsername] = useState<string>("")
   const [isSSSLinked, setIsSSSLinked] = useState<boolean>(false)
   const [mosaics, setMosaics] = useState<Mosaic[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const isSSSLinked = isAllowedSSS()
@@ -23,14 +24,23 @@ export const HomePage: React.FC = () => {
     setUsername(name)
     if (!address) {
       setMosaics([])
+      setLoading(false)
       return
     }
 
     const fetchMosaics = async () => {
-      // アドレスを基に保有モザイク一覧を取得
-      const response = await fetch(`${Config.API_HOST}/home/mosaics/${address}`)
-      const data = await response.json()
-      setMosaics(data)
+      try {
+        setLoading(true)
+        const response = await fetch(
+          `${Config.API_HOST}/home/mosaics/${address}`,
+        )
+        const data = await response.json()
+        setMosaics(data)
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setLoading(false)
+      }
     }
     fetchMosaics()
   }, [])
@@ -64,24 +74,35 @@ export const HomePage: React.FC = () => {
                 保有モザイク
               </h2>
             </li>
-            {mosaics.map((mosaic, index) => (
+            {loading ? (
               <li
-                key={mosaic.id}
                 style={{
-                  padding: "12px",
-                  borderBottom:
-                    index === mosaics.length - 1
-                      ? "none"
-                      : `1px solid ${theme.border}`,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
+                  padding: "24px",
+                  textAlign: "center",
                 }}
               >
-                <span>{mosaic.name || mosaic.id}</span>
-                <span>{mosaic.amount}</span>
+                <div>読み込み中...</div>
               </li>
-            ))}
+            ) : (
+              mosaics.map((mosaic, index) => (
+                <li
+                  key={mosaic.id}
+                  style={{
+                    padding: "12px",
+                    borderBottom:
+                      index === mosaics.length - 1
+                        ? "none"
+                        : `1px solid ${theme.border}`,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <span>{mosaic.name || mosaic.id}</span>
+                  <span>{mosaic.amount}</span>
+                </li>
+              ))
+            )}
           </ul>
         </div>
       ) : (

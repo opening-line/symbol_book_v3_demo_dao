@@ -2,6 +2,11 @@ import type { Hash256 } from "symbol-sdk"
 import { descriptors, models } from "symbol-sdk/symbol"
 import { Config } from "../utils/config"
 
+/**
+ * ハッシュロックトランザクションの作成
+ * @param txHash トランザクションハッシュ
+ * @returns ハッシュロックトランザクションディスクリプタ
+ */
 export const createHashLock = (txHash: Hash256) => {
   return new descriptors.HashLockTransactionV1Descriptor(
     new descriptors.UnresolvedMosaicDescriptor(

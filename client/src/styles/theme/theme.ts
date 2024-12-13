@@ -31,3 +31,43 @@ export const defaultTheme: UserTheme = {
   white: "#FFFFFF",
   transparent: "transparent",
 }
+
+export const themePresets = {
+  default: {
+    primary: defaultTheme.primary,
+    secondary: defaultTheme.secondary,
+    active: defaultTheme.text.active,
+  },
+  mustard: {
+    primary: "#CDA74A",
+    secondary: "#E2BD5D",
+    active: "#715859",
+  },
+  pink: {
+    primary: "#E99891",
+    secondary: "#4D4D4D",
+    active: "#EDD2D0",
+  },
+  red: {
+    primary: "#DC2E29",
+    secondary: "#D46B43",
+    active: "#5E3C00",
+  },
+  purple: {
+    primary: "#625A81",
+    secondary: "#8E5568",
+    active: "#D58B6D",
+  },
+  green: {
+    primary: "#545b30",
+    secondary: "#668068",
+    active: "#DFDAC8",
+  },
+  brown: {
+    primary: "#132439",
+    secondary: "#BE842E",
+    active: "#0F5154",
+  },
+}
+
+export type ThemePresetKey = keyof typeof themePresets

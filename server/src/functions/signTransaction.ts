@@ -5,6 +5,12 @@ import {
 } from "symbol-sdk/symbol"
 import { Config } from "../utils/config"
 
+/**
+ * トランザクションの署名
+ * @param account 署名者アカウント
+ * @param transaction 署名対象トランザクション
+ * @returns 署名されたトランザクションハッシュとペイロード
+ */
 export const signTransaction = (
   account: SymbolAccount,
   transaction: models.Transaction,

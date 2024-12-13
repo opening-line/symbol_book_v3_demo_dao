@@ -1,47 +1,17 @@
-import { useTheme } from "../../components/ThemeContext"
 import { useState } from "react"
-import { defaultTheme } from "../../styles/theme/theme"
+import {
+  getActivePublicKey,
+  requestSignCosignatureTransaction,
+  setTransactionByPayload,
+} from "sss-module"
+import { utils } from "symbol-sdk"
+import { models } from "symbol-sdk/symbol"
+import { useTheme } from "../../components/ThemeContext"
+import { themePresets } from "../../styles/theme/theme"
+import { Config } from "../../utils/config"
 
 export const LimitedMemberPage: React.FC = () => {
   const { theme, updateTheme } = useTheme()
-  // テーマプリセットを定義
-  const themePresets = {
-    default: {
-      primary: defaultTheme.primary,
-      secondary: defaultTheme.secondary,
-      active: defaultTheme.text.active,
-    },
-    mustard: {
-      primary: "#CDA74A",
-      secondary: "#E2BD5D",
-      active: "#715859",
-    },
-    pink: {
-      primary: "#E99891",
-      secondary: "#4D4D4D",
-      active: "#EDD2D0",
-    },
-    red: {
-      primary: "#DC2E29",
-      secondary: "#D46B43",
-      active: "#5E3C00",
-    },
-    purple: {
-      primary: "#625A81",
-      secondary: "#8E5568",
-      active: "#D58B6D",
-    },
-    green: {
-      primary: "#545b30",
-      secondary: "#668068",
-      active: "#DFDAC8",
-    },
-    brown: {
-      primary: "#132439",
-      secondary: "#BE842E",
-      active: "#0F5154",
-    },
-  } as const
 
   // presetNameの型を定義
   type ThemePresetKey = keyof typeof themePresets
@@ -50,29 +20,40 @@ export const LimitedMemberPage: React.FC = () => {
   // テーマ選択時の処理
   const handleThemeSelect = (presetName: ThemePresetKey) => {
     setSelectedTheme(presetName)
-
-    if (presetName === "default") {
-      updateTheme({
-        ...defaultTheme,
-      })
-    } else {
-      const preset = themePresets[presetName]
-      updateTheme({
-        ...theme,
-        primary: preset.primary,
-        secondary: preset.secondary,
-        text: {
-          ...theme.text,
-          active: preset.active,
-        },
-      })
-    }
+    updateTheme(presetName)
   }
 
   // テーマを保存する処理
-  const handleSaveTheme = () => {
-    setSelectedTheme("default")
-    updateTheme(defaultTheme)
+  const handleSaveTheme = async () => {
+    const { payload } = await fetch(`${Config.API_HOST}/limited/theme/update`, {
+      method: "PUT",
+      body: JSON.stringify({
+        publicKey: getActivePublicKey(),
+        themeName: selectedTheme,
+      }),
+    }).then((res) => res.json())
+
+    const tx = models.AggregateCompleteTransactionV2.deserialize(
+      utils.hexToUint8(payload),
+    )
+    setTransactionByPayload(payload)
+
+    const cosignedTx = await requestSignCosignatureTransaction()
+
+    const cosignature = new models.Cosignature()
+    cosignature.signature.bytes = utils.hexToUint8(cosignedTx.signature)
+    cosignature.signerPublicKey.bytes = utils.hexToUint8(
+      cosignedTx.signerPublicKey,
+    )
+    tx.cosignatures.push(cosignature)
+
+    const jsonPayload2 = `{"payload":"${utils.uint8ToHex(tx.serialize())}"}`
+
+    await fetch(new URL("/transactions", Config.NODE_URL), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: jsonPayload2,
+    })
   }
 
   return (

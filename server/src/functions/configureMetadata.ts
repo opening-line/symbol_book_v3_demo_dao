@@ -1,3 +1,4 @@
+import { utils } from "symbol-sdk"
 import {
   Address,
   descriptors,
@@ -5,10 +6,17 @@ import {
   metadataUpdateValue,
   models,
 } from "symbol-sdk/symbol"
-import { getMetadataInfo } from "../info/getMetadataInfo"
+import { getMetadataInfoByQuery } from "../info/getMetadataInfoByQuery"
 import { getMosaicInfo } from "../info/getMosaicInfo"
 
-// アカウントメタデータの設定
+/**
+ * アカウントメタデータの設定
+ * @param metadataKey メタデータキー
+ * @param metadataValue メタデータ値
+ * @param sourceAddress メタデータ設定を実行するアドレス
+ * @param targetAddress メタデータ設定先アドレス
+ * @returns アカウントメタデータトランザクションディスクリプタ
+ */
 export const configureAccountMetadata = async (
   metadataKey: string,
   metadataValue: string,
@@ -18,8 +26,8 @@ export const configureAccountMetadata = async (
   try {
     // キーと値の設定
     const key = metadataGenerateKey(metadataKey)
-    let value = new TextEncoder().encode(metadataValue)
-    let valueSizeDelta = value.length
+    const targetValue = new TextEncoder().encode(metadataValue)
+    const targetValueSizeDelta = targetValue.length
     // 対象アカウントの既存メタデータ値を取得
     const query = new URLSearchParams({
       targetAddress: targetAddress,
@@ -27,22 +35,25 @@ export const configureAccountMetadata = async (
       scopedMetadataKey: key.toString(16).toUpperCase(),
       metadataType: "0",
     })
-    const existingAccountMetadataInfo = await getMetadataInfo(query.toString())
+    const existingAccountMetadataInfo = await getMetadataInfoByQuery(
+      query.toString(),
+    )
 
-    // 既に登録済みの場合は差分データを作成
-    if (existingAccountMetadataInfo.length > 0) {
-      valueSizeDelta -= existingAccountMetadataInfo[0].metadata.valueSizeDelta
-      value = metadataUpdateValue(
-        existingAccountMetadataInfo[0].metadata.value,
-        value,
-      )
-    }
+    const isExists = existingAccountMetadataInfo.length > 0
+
+    const preData = existingAccountMetadataInfo[0]?.metadataEntry
+    const preValueSizeDelta = isExists ? preData.valueSize : 0
+    const value = metadataUpdateValue(
+      isExists ? utils.hexToUint8(preData.value) : undefined,
+      targetValue,
+    )
+
     // アカウントメタデータ登録トランザクションの作成
     const accountMetadataTransactionDescriptor =
       new descriptors.AccountMetadataTransactionV1Descriptor(
         new Address(targetAddress),
         key,
-        valueSizeDelta,
+        targetValueSizeDelta - preValueSizeDelta,
         value,
       )
 
@@ -53,7 +64,15 @@ export const configureAccountMetadata = async (
   }
 }
 
-// モザイクメタデータの設定
+/**
+ * モザイクメタデータの設定
+ * @param metadataKey メタデータキー
+ * @param metadataValue メタデータ値
+ * @param targetMosaicId メタデータ設定先モザイクID
+ * @param isCreate モザイク新規作成フラグ
+ * @param mosaicCreatorAddress モザイク作成者アドレス
+ * @returns モザイクメタデータトランザクションディスクリプタ
+ */
 export const configureMosaicMetadata = async (
   metadataKey: string,
   metadataValue: string,
@@ -80,8 +99,10 @@ export const configureMosaicMetadata = async (
         scopedMetadataKey: key.toString(16).toUpperCase(),
         metadataType: "1",
       })
-      const existingMosaicMetadataInfo = await getMetadataInfo(query.toString())
-      
+      const existingMosaicMetadataInfo = await getMetadataInfoByQuery(
+        query.toString(),
+      )
+
       // 既に登録済みの場合は差分データを作成
       if (existingMosaicMetadataInfo.length > 0) {
         valueSizeDelta -= existingMosaicMetadataInfo[0].metadataEntry.valueSize
@@ -91,7 +112,7 @@ export const configureMosaicMetadata = async (
         )
       }
     }
-    
+
     // モザイクメタデータ登録トランザクションの作成
     const mosaicMetadataTransactionDescriptor =
       new descriptors.MosaicMetadataTransactionV1Descriptor(

@@ -2,12 +2,12 @@ type Metadata = {
   key: string
   value: string
 }
-export const pickMetadata = (metadatas: Metadata[], key: bigint) => {
-  return metadatas.filter((md: Metadata) => {
-    try {
-      return BigInt(md.key) === key
-    } catch {
-      return false
-    }
-  })[0]
-}
+
+/**
+ * メタデータの取得
+ * @param metadatas メタデータ
+ * @param key メタデータキー
+ * @returns メタデータが存在するかどうか
+ */
+export const pickMetadata = (metadatas: Metadata[], key: bigint) =>
+  metadatas.find((metadata) => BigInt(metadata.key) === key)
