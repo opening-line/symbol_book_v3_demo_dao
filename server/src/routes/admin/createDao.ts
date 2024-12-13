@@ -34,16 +34,6 @@ export const createDao = async (c: Context) => {
     const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
     const ownerAccount = facade.createPublicAccount(new PublicKey(ownerPublicKey))
 
-    if (daoName === undefined || daoName === "") {
-      return c.json({ message: "daoName is required" }, 400)
-    }
-    if (ownerPublicKey === undefined || ownerPublicKey === "") {
-      return c.json({ message: "ownerPublicKey is required" }, 400)
-    }
-    if (ownerPublicKey.length !== 64) {
-      return c.json({ message: "ownerPublicKey is invalid" }, 400)
-    }
-
     // DAO アカウントの生成
     const daoAccount = generateAccount()
 
