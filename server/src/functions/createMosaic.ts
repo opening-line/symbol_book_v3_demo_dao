@@ -34,7 +34,7 @@ export const createMosaic = (
       new models.BlockDuration(0n), // 有効期限
       new models.MosaicNonce(nonce), // モザイクナンス
       new models.MosaicFlags(mosaicFlagsValue), // モザイク設定
-      0, // divisibility(過分性、小数点以下の桁数)
+      0, // divisibility(可分性、小数点以下の桁数)
     )
 
   const mosaicSupplyChangeDescriptor =
