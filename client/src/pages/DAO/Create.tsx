@@ -1,5 +1,5 @@
 import { utils } from "symbol-sdk"
-import { Address, models, Network, SymbolFacade } from "symbol-sdk/symbol"
+import { models, Network, SymbolFacade } from "symbol-sdk/symbol"
 
 import {
   setTransactionByPayload,
@@ -10,7 +10,7 @@ import { useState } from "react"
 import { Config } from "../../utils/config"
 
 export const CreateDAOPage: React.FC = () => {
-  const [name, setName] = useState("")
+  const [name, setName] = useState<string>("")
   const sign = async () => {
     const ownerPublicKey = getActivePublicKey()
 

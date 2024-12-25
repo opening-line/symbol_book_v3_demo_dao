@@ -36,12 +36,12 @@ type Acc = {
 type Metadata = { key: string; value: string }
 export const GovernanceVotingPage: React.FC = () => {
   const { id } = useParams()
-  const [title, setTitle] = useState("")
-  const [voteA, setVoteA] = useState("")
-  const [voteB, setVoteB] = useState("")
-  const [voteC, setVoteC] = useState("")
-  const [voteD, setVoteD] = useState("")
-  const [index, setIndex] = useState(-1)
+  const [title, setTitle] = useState<string>("")
+  const [voteA, setVoteA] = useState<string>("")
+  const [voteB, setVoteB] = useState<string>("")
+  const [voteC, setVoteC] = useState<string>("")
+  const [voteD, setVoteD] = useState<string>("")
+  const [index, setIndex] = useState<number>(-1)
 
   const [votes, setVotes] = useState<Vote[]>([])
   const [voteAccounts, setVoteAccounts] = useState<Acc[]>([])

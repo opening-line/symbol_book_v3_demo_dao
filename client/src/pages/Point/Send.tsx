@@ -134,7 +134,9 @@ export const PointSendPage: React.FC = () => {
       })
   }
 
-  const handleManualAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleManualAddressChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const value = e.target.value
     setManualAddress(value)
     setManualAddressError("")
@@ -145,15 +147,18 @@ export const PointSendPage: React.FC = () => {
       setManualAddressError("アドレスを入力してください")
       return
     }
-    
+
     // アドレスが既に選択されているか確認
-    if (selectedAddresses.includes(manualAddress) || manualAddresses.includes(manualAddress)) {
+    if (
+      selectedAddresses.includes(manualAddress) ||
+      manualAddresses.includes(manualAddress)
+    ) {
       setManualAddressError("このアドレスは既に追加されています")
       return
     }
 
-    setManualAddresses(prev => [...prev, manualAddress])
-    setSelectedAddresses(prev => [...prev, manualAddress])
+    setManualAddresses((prev) => [...prev, manualAddress])
+    setSelectedAddresses((prev) => [...prev, manualAddress])
     setManualAddress("")
   }
 
@@ -322,7 +327,9 @@ export const PointSendPage: React.FC = () => {
                   padding: "8px",
                   borderRadius: "4px",
                   backgroundColor: theme.white,
-                  border: manualAddressError ? `1px solid ${theme.alert}` : `1px solid ${theme.border}`,
+                  border: manualAddressError
+                    ? `1px solid ${theme.alert}`
+                    : `1px solid ${theme.border}`,
                   flex: 1,
                 }}
               />
@@ -374,7 +381,10 @@ export const PointSendPage: React.FC = () => {
               >
                 <input
                   type='checkbox'
-                  checked={selectedAddresses.length === (holders.length + manualAddresses.length)}
+                  checked={
+                    selectedAddresses.length ===
+                    holders.length + manualAddresses.length
+                  }
                   onChange={(e) => handleSelectAll(e.target.checked)}
                   disabled={isLoading}
                 />
@@ -411,7 +421,7 @@ export const PointSendPage: React.FC = () => {
                     alignItems: "flex-start",
                     width: "250px",
                     flex: "1 1 250px",
-                    backgroundColor: theme.background
+                    backgroundColor: theme.background,
                   }}
                 >
                   <div
