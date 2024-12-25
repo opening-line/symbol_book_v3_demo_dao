@@ -27,10 +27,10 @@ type MetadataEntry = {
  */
 export const getRewardInfo = async (c: Context) => {
   try {
-    const id = c.req.param("id")
+    const daoId = c.req.param("daoId")
 
     const facade = new SymbolFacade(Config.NETWORK)
-    const daoAccount = facade.createPublicAccount(new PublicKey(id))
+    const daoAccount = facade.createPublicAccount(new PublicKey(daoId))
     const address = daoAccount.address.toString()
 
     // アカウント情報の取得

@@ -17,8 +17,8 @@ export const revokePoint = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)
 
-    const { id, mosaicId, sourceAddresses, amount } = (await c.req.json()) as {
-      id: string
+    const { daoId, mosaicId, sourceAddresses, amount } = (await c.req.json()) as {
+      daoId: string
       mosaicId: string
       sourceAddresses: string[]
       amount: string
@@ -26,7 +26,7 @@ export const revokePoint = async (c: Context) => {
 
     const facade = new SymbolFacade(Config.NETWORK)
     const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
-    const daoAccount = facade.createPublicAccount(new PublicKey(id))
+    const daoAccount = facade.createPublicAccount(new PublicKey(daoId))
 
     // ポイントモザイクの回収
     const revokeDes = revokeMosaic(mosaicId, sourceAddresses, Number(amount))
