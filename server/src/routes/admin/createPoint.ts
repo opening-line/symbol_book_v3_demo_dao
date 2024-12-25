@@ -18,15 +18,15 @@ export const createPoint = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)
 
-    const { id, mosaicName, amount } = (await c.req.json()) as {
-      id: string
+    const { daoId, mosaicName, amount } = (await c.req.json()) as {
+      daoId: string
       mosaicName: string
       amount: string
     }
 
     const facade = new SymbolFacade(Config.NETWORK)
     const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
-    const daoAccount = facade.createPublicAccount(new PublicKey(id))
+    const daoAccount = facade.createPublicAccount(new PublicKey(daoId))
     const mosaicIdInfo = createMosaicId(daoAccount.address)
 
     // 50XYMをDAOアカウントに入金

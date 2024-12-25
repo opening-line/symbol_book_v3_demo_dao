@@ -29,11 +29,11 @@ type MetadataEntry = {
  */
 export const getPointInfo = async (c: Context) => {
   try {
-    const id = c.req.param("id")
+    const daoId = c.req.param("id")
 
     const textDecoder = new TextDecoder()
     const facade = new SymbolFacade(Config.NETWORK)
-    const daoAccount = facade.createPublicAccount(new PublicKey(id))
+    const daoAccount = facade.createPublicAccount(new PublicKey(daoId))
     const address = daoAccount.address.toString()
 
     // アカウント情報とメタデータの取得

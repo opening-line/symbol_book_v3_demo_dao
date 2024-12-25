@@ -16,7 +16,7 @@ export const RewardCreatePage: React.FC = () => {
     setIsSubmitting(true)
     fetch(`${Config.API_HOST}/admin/reward/create`, {
       method: "POST",
-      body: JSON.stringify({ id, mosaicName: name, amount }),
+      body: JSON.stringify({ daoId: id, mosaicName: name, amount }),
     })
       .then((res) => res.json())
       .then((data) => {

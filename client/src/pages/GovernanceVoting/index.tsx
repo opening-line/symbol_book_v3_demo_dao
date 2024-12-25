@@ -60,7 +60,6 @@ export const GovernanceVotingPage: React.FC = () => {
   >([])
 
   useEffect(() => {
-    const facade = new SymbolFacade(Config.NETWORK)
     fetch(`${Config.API_HOST}/admin/get/${id}`)
       .then((res) => res.json())
       .then(async (data) => {

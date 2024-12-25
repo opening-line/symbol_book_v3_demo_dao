@@ -116,7 +116,7 @@ export const RewardSendPage: React.FC = () => {
     fetch(`${Config.API_HOST}/admin/reward/send`, {
       method: "POST",
       body: JSON.stringify({
-        id,
+        daoId: id,
         mosaicId,
         recipientsAddresses: selectedAddresses,
         amount,

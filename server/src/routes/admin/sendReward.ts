@@ -17,9 +17,9 @@ export const sendReward = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)
 
-    const { id, mosaicId, recipientsAddresses, amount, message } =
+    const { daoId, mosaicId, recipientsAddresses, amount, message } =
       (await c.req.json()) as {
-        id: string
+        daoId: string
         mosaicId: string
         recipientsAddresses: string[]
         amount: string
@@ -28,7 +28,7 @@ export const sendReward = async (c: Context) => {
 
     const facade = new SymbolFacade(Config.NETWORK)
     const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
-    const daoAccount = facade.createPublicAccount(new PublicKey(id))
+    const daoAccount = facade.createPublicAccount(new PublicKey(daoId))
 
     // 複数のtransferTransactionを生成
     const transferTxs = recipientsAddresses.map((address) => {

@@ -97,7 +97,7 @@ export const PointRevokePage: React.FC = () => {
     fetch(`${Config.API_HOST}/admin/point/revoke`, {
       method: "POST",
       body: JSON.stringify({
-        id,
+        daoId: id,
         mosaicId,
         sourceAddresses: selectedAddresses,
         amount,
