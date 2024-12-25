@@ -66,7 +66,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
         console.log(daoRewardMosaics)
 
         const hasLimitedMosaic = mosaics.some((mosaic: Mosaic) =>
-          daoRewardMosaics.map((m: {id: string}) => m.id).includes(mosaic.id),
+          daoRewardMosaics.map((m: { id: string }) => m.id).includes(mosaic.id),
         )
         setHasLimitedMosaic(hasLimitedMosaic)
       } catch (error) {

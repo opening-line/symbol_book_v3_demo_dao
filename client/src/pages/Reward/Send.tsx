@@ -100,7 +100,10 @@ export const RewardSendPage: React.FC = () => {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      const allAddresses = [...holders.map(holder => holder.address), ...manualAddresses]
+      const allAddresses = [
+        ...holders.map((holder) => holder.address),
+        ...manualAddresses,
+      ]
       setSelectedAddresses(allAddresses)
     } else {
       setSelectedAddresses([])
@@ -135,7 +138,9 @@ export const RewardSendPage: React.FC = () => {
       })
   }
 
-  const handleManualAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleManualAddressChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const value = e.target.value
     setManualAddress(value)
     setManualAddressError("")
@@ -146,14 +151,17 @@ export const RewardSendPage: React.FC = () => {
       setManualAddressError("アドレスを入力してください")
       return
     }
-    
-    if (selectedAddresses.includes(manualAddress) || manualAddresses.includes(manualAddress)) {
+
+    if (
+      selectedAddresses.includes(manualAddress) ||
+      manualAddresses.includes(manualAddress)
+    ) {
       setManualAddressError("このアドレスは既に追加されています")
       return
     }
 
-    setManualAddresses(prev => [...prev, manualAddress])
-    setSelectedAddresses(prev => [...prev, manualAddress])
+    setManualAddresses((prev) => [...prev, manualAddress])
+    setSelectedAddresses((prev) => [...prev, manualAddress])
     setManualAddress("")
   }
 
@@ -295,24 +303,28 @@ export const RewardSendPage: React.FC = () => {
               backgroundColor: theme.white,
               padding: "12px",
               margin: "0 0 20px 0",
-              borderRadius: "8px"
+              borderRadius: "8px",
             }}
           >
             <h2 style={{ margin: "0 0 12px 0", fontSize: "16px" }}>
               アドレスを手動で追加
             </h2>
-            <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
+            <div
+              style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}
+            >
               <input
-                type="text"
+                type='text'
                 value={manualAddress}
                 onChange={handleManualAddressChange}
-                placeholder="アドレスを入力"
+                placeholder='アドレスを入力'
                 style={{
                   padding: "8px",
                   borderRadius: "4px",
                   backgroundColor: theme.white,
-                  border: manualAddressError ? `1px solid ${theme.alert}` : `1px solid ${theme.border}`,
-                  flex: 1
+                  border: manualAddressError
+                    ? `1px solid ${theme.alert}`
+                    : `1px solid ${theme.border}`,
+                  flex: 1,
                 }}
               />
               <button
@@ -323,14 +335,20 @@ export const RewardSendPage: React.FC = () => {
                   color: theme.white,
                   border: "none",
                   borderRadius: "4px",
-                  cursor: "pointer"
+                  cursor: "pointer",
                 }}
               >
                 追加
               </button>
             </div>
             {manualAddressError && (
-              <div style={{ color: theme.alert, fontSize: "12px", marginTop: "4px" }}>
+              <div
+                style={{
+                  color: theme.alert,
+                  fontSize: "12px",
+                  marginTop: "4px",
+                }}
+              >
                 {manualAddressError}
               </div>
             )}
@@ -341,7 +359,7 @@ export const RewardSendPage: React.FC = () => {
               backgroundColor: theme.white,
               padding: "12px",
               margin: 0,
-              borderRadius: "8px"
+              borderRadius: "8px",
             }}
           >
             <div
@@ -349,26 +367,29 @@ export const RewardSendPage: React.FC = () => {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: "12px"
+                marginBottom: "12px",
               }}
             >
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "8px"
+                  gap: "8px",
                 }}
               >
                 <input
-                  type="checkbox"
-                  checked={selectedAddresses.length === (holders.length + manualAddresses.length)}
+                  type='checkbox'
+                  checked={
+                    selectedAddresses.length ===
+                    holders.length + manualAddresses.length
+                  }
                   onChange={(e) => handleSelectAll(e.target.checked)}
                   disabled={isLoading}
                 />
                 <h2
                   style={{
                     margin: 0,
-                    fontSize: "16px"
+                    fontSize: "16px",
                   }}
                 >
                   特典保有者一覧
@@ -377,7 +398,7 @@ export const RewardSendPage: React.FC = () => {
               <span
                 style={{
                   fontSize: "14px",
-                  color: theme.text.placeholder
+                  color: theme.text.placeholder,
                 }}
               >
                 {selectedAddresses.length}件選択中
@@ -388,7 +409,7 @@ export const RewardSendPage: React.FC = () => {
               style={{
                 display: "flex",
                 flexWrap: "wrap",
-                gap: "12px"
+                gap: "12px",
               }}
             >
               {manualAddresses.map((address) => (
@@ -403,18 +424,18 @@ export const RewardSendPage: React.FC = () => {
                     alignItems: "flex-start",
                     width: "250px",
                     flex: "1 1 250px",
-                    backgroundColor: theme.background
+                    backgroundColor: theme.background,
                   }}
                 >
                   <div
                     style={{
                       display: "flex",
                       gap: "8px",
-                      maxWidth: "100%"
+                      maxWidth: "100%",
                     }}
                   >
                     <input
-                      type="checkbox"
+                      type='checkbox'
                       checked={selectedAddresses.includes(address)}
                       onChange={() => handleCheckboxChange(address)}
                     />
@@ -423,14 +444,14 @@ export const RewardSendPage: React.FC = () => {
                         display: "flex",
                         flexDirection: "column",
                         gap: "4px",
-                        maxWidth: "calc(100% - 24px)"
+                        maxWidth: "calc(100% - 24px)",
                       }}
                     >
                       <span
                         style={{
                           fontSize: "12px",
                           wordBreak: "break-all",
-                          overflowWrap: "break-word"
+                          overflowWrap: "break-word",
                         }}
                       >
                         {address}
@@ -438,7 +459,7 @@ export const RewardSendPage: React.FC = () => {
                       <span
                         style={{
                           color: theme.text.placeholder,
-                          fontSize: "12px"
+                          fontSize: "12px",
                         }}
                       >
                         手動追加
@@ -454,7 +475,7 @@ export const RewardSendPage: React.FC = () => {
                     width: "100%",
                     textAlign: "center",
                     padding: "20px",
-                    color: theme.text.placeholder
+                    color: theme.text.placeholder,
                   }}
                 >
                   読み込み中...
@@ -465,7 +486,7 @@ export const RewardSendPage: React.FC = () => {
                     width: "100%",
                     textAlign: "center",
                     padding: "20px",
-                    color: theme.text.placeholder
+                    color: theme.text.placeholder,
                   }}
                 >
                   特典保有者がいません
