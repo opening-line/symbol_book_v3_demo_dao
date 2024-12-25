@@ -8,7 +8,7 @@ export const UpdateDAOPage: React.FC = () => {
 
   const { id } = useParams()
 
-  const [newAdmin, setNewAdmin] = useState("")
+  const [newAdmin, setNewAdmin] = useState<string>("")
 
   const handleRemoveSelectedAdmins = () => {
     console.log({ selectedAdmins })

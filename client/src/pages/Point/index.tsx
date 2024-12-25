@@ -14,7 +14,7 @@ export const PointPage: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const [mosaics, setMosaics] = useState<Mosaic[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const fetchPointMosaics = async () => {

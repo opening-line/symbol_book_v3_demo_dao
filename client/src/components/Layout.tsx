@@ -6,7 +6,7 @@ import { CreateDAOPage } from "../pages/DAO/Create"
 import { Outlet, useParams } from "react-router"
 
 const Layout: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(true)
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(true)
   const [address, setAddress] = useState<string>("")
   const [name, setName] = useState<string>("")
   const [isSSSLinked, setIsSSSLinked] = useState<boolean>(false)
