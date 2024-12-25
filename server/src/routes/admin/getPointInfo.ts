@@ -29,7 +29,7 @@ type MetadataEntry = {
  */
 export const getPointInfo = async (c: Context) => {
   try {
-    const daoId = c.req.param("daoId")
+    const daoId = c.req.param("id")
 
     const textDecoder = new TextDecoder()
     const facade = new SymbolFacade(Config.NETWORK)
