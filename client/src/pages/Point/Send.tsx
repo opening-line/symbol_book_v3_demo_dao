@@ -115,7 +115,7 @@ export const PointSendPage: React.FC = () => {
     fetch(`${Config.API_HOST}/admin/point/send`, {
       method: "POST",
       body: JSON.stringify({
-        id,
+        daoId: id,
         mosaicId,
         recipientsAddresses: selectedAddresses,
         amount,
