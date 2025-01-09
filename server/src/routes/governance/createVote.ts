@@ -153,30 +153,30 @@ export const createVote = async (c: Context) => {
       }),
     ]
 
-    // アグリゲート
-    const innerTransactions = txs.map((tx) =>
+    // アグリゲートトランザクションの作成
+    const voteCreateInnerTxs = txs.map((tx) =>
       facade.createEmbeddedTransactionFromTypedDescriptor(
         tx.transaction,
         tx.signer,
       ),
     )
-    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTransactions)
-    const aggregateDes = new descriptors.AggregateCompleteTransactionV2Descriptor(
-      txHash,
-      innerTransactions,
+    const voteCreateTxHash = SymbolFacade.hashEmbeddedTransactions(voteCreateInnerTxs)
+    const voteCreateAggregateDes = new descriptors.AggregateCompleteTransactionV2Descriptor(
+      voteCreateTxHash,
+      voteCreateInnerTxs,
     )
-    const tx = facade.createTransactionFromTypedDescriptor(
-      aggregateDes,
+    const voteCreateBondedTx = facade.createTransactionFromTypedDescriptor(
+      voteCreateAggregateDes,
       masterAccount.publicKey,
       Config.FEE_MULTIPLIER,
       Config.DEADLINE_SECONDS,
     )
 
     // アナウンス
-    const announcedTx = await announceTransaction(masterAccount, tx)
+    const announcedTx = await announceTransaction(masterAccount, voteCreateBondedTx)
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    // ダミー
+    // 手数料代替トランザクションの作成
     const dummyDes = createDummy(daoAccount.address.toString())
 
     const metadataDes = createAccountMetadata(
@@ -188,8 +188,8 @@ export const createVote = async (c: Context) => {
       ),
     )
 
-    // アグリゲート
-    const inTxs = [
+    // アグリゲートトランザクションの作成
+    const innerTxs = [
       facade.createEmbeddedTransactionFromTypedDescriptor(
         dummyDes,
         masterAccount.publicKey,
@@ -199,15 +199,15 @@ export const createVote = async (c: Context) => {
         daoAccount.publicKey,
       ),
     ]
-    const agtxHash = SymbolFacade.hashEmbeddedTransactions(inTxs)
-    const agDes = new descriptors.AggregateBondedTransactionV2Descriptor(
-      agtxHash,
-      inTxs,
+    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
+    const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
+      txHash,
+      innerTxs,
     )
-    const bondedTx = models.AggregateBondedTransactionV2.deserialize(
+    const metadataCreateBondedTx = models.AggregateBondedTransactionV2.deserialize(
       facade
         .createTransactionFromTypedDescriptor(
-          agDes,
+          aggregateDes,
           masterAccount.publicKey,
           Config.FEE_MULTIPLIER,
           Config.DEADLINE_SECONDS,
@@ -216,12 +216,12 @@ export const createVote = async (c: Context) => {
     )
 
     // 署名
-    const signedBonded = signTransaction(masterAccount, bondedTx)
+    const signedBondedTx = signTransaction(masterAccount, metadataCreateBondedTx)
 
-    // HashLock
-    const hashLock = createHashLock(signedBonded.hash)
+    // ハッシュロックトランザクションの作成
+    const hashLockDes = createHashLock(signedBondedTx.hash)
     const hashLockTransaction = facade.createTransactionFromTypedDescriptor(
-      hashLock,
+      hashLockDes,
       masterAccount.publicKey,
       Config.FEE_MULTIPLIER,
       Config.DEADLINE_SECONDS,
@@ -235,7 +235,7 @@ export const createVote = async (c: Context) => {
 
     await announceBonded(
       announcedHashLockTx.hash.toString(),
-      signedBonded.jsonPayload,
+      signedBondedTx.jsonPayload,
     ).catch(() => {
       console.error("hash lock error")
     })

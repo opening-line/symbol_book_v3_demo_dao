@@ -46,16 +46,18 @@ export const sendPoint = async (c: Context) => {
     })
 
     // 手数料代替トランザクションの作成
-    const dummy = createDummy(daoAccount.address.toString())
-    const dummyTransaction = facade.createEmbeddedTransactionFromTypedDescriptor(
-      dummy,
+    const dummyDes = createDummy(daoAccount.address.toString())
+    const dummyTx = facade.createEmbeddedTransactionFromTypedDescriptor(
+      dummyDes,
       masterAccount.publicKey,
     )
-    const innerTx = [...transferTxs, dummyTransaction]
-    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTx)
+
+    // アグリゲートトランザクションの作成
+    const innerTxs = [...transferTxs, dummyTx]
+    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
     const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
       txHash,
-      innerTx,
+      innerTxs,
     )
     const mosaicSendBondedTx = models.AggregateBondedTransactionV2.deserialize(
       facade
@@ -68,20 +70,26 @@ export const sendPoint = async (c: Context) => {
         .serialize(),
     )
 
-    const signedBonded = signTransaction(masterAccount, mosaicSendBondedTx)
+    // 署名
+    const signedBondedTx = signTransaction(masterAccount, mosaicSendBondedTx)
 
-    const hashLock = createHashLock(signedBonded.hash)
+    // ハッシュロックトランザクションの作成
+    const hashLockDes = createHashLock(signedBondedTx.hash)
     const hashLockTx = facade.createTransactionFromTypedDescriptor(
-      hashLock,
+      hashLockDes,
       masterAccount.publicKey,
       Config.FEE_MULTIPLIER,
       Config.DEADLINE_SECONDS,
     )
 
-    const announcedHashLock = await announceTransaction(masterAccount, hashLockTx)
+    const announcedHashLockTx = await announceTransaction(
+      masterAccount,
+      hashLockTx,
+    )
+
     await announceBonded(
-      announcedHashLock.hash.toString(),
-      signedBonded.jsonPayload,
+      announcedHashLockTx.hash.toString(),
+      signedBondedTx.jsonPayload,
     ).catch(() => {
       console.error("hash lock error")
     })

@@ -57,7 +57,7 @@ export const createDao = async (c: Context) => {
     )
 
     // DAOアカウントをマルチシグに変換
-    const daoAccountMultisig = addMultisig([ownerAccount.address])
+    const daoAccountMultisigDes = addMultisig([ownerAccount.address])
 
     // 投票箱アカウントの生成
     const voteAccounts = [
@@ -116,7 +116,7 @@ export const createDao = async (c: Context) => {
         signer: daoAccount.publicKey,
       },
       {
-        transaction: daoAccountMultisig,
+        transaction: daoAccountMultisigDes,
         signer: daoAccount.publicKey,
       },
       ...metadataTxs.map((tx) => ({
@@ -125,19 +125,19 @@ export const createDao = async (c: Context) => {
       })),
     ]
     
-    // アグリゲート
-    const innerTransactions = txs.map((tx) =>
+    // アグリゲートトランザクションの作成
+    const innerTxs = txs.map((tx) =>
       facade.createEmbeddedTransactionFromTypedDescriptor(
         tx.transaction,
         tx.signer,
       ),
     )
-    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTransactions)
+    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
     const aggregateDes = new descriptors.AggregateCompleteTransactionV2Descriptor(
       txHash,
-      innerTransactions,
+      innerTxs,
     )
-    const tx = models.AggregateCompleteTransactionV2.deserialize(
+    const daoCreateBondedTx = models.AggregateCompleteTransactionV2.deserialize(
       facade
         .createTransactionFromTypedDescriptor(
           aggregateDes,
@@ -149,15 +149,15 @@ export const createDao = async (c: Context) => {
     )
 
     // 署名
-    signTransaction(masterAccount, tx)
+    signTransaction(masterAccount, daoCreateBondedTx)
 
     // DAOアカウントで連署名
-    const cosign = facade.cosignTransaction(daoAccount.keyPair, tx)
+    const cosign = facade.cosignTransaction(daoAccount.keyPair, daoCreateBondedTx)
 
-    tx.cosignatures.push(cosign)
+    daoCreateBondedTx.cosignatures.push(cosign)
 
     return c.json({
-      payload: utils.uint8ToHex(tx.serialize()),
+      payload: utils.uint8ToHex(daoCreateBondedTx.serialize()),
       daoId: daoAccount.publicKey.toString(),
     })
   } catch (error) {

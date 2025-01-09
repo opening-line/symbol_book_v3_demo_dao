@@ -38,18 +38,18 @@ export const revokePoint = async (c: Context) => {
     )
 
     // 手数料代替トランザクションの作成
-    const dummy = createDummy(daoAccount.address.toString())
+    const dummyDes = createDummy(daoAccount.address.toString())
     const dummyTx = facade.createEmbeddedTransactionFromTypedDescriptor(
-      dummy,
+      dummyDes,
       masterAccount.publicKey,
     )
-    const innerTx = [...revokeTxs, dummyTx]
 
-    // アグリゲート
-    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTx)
+    // アグリゲートトランザクションの作成
+    const innerTxs = [...revokeTxs, dummyTx]
+    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
     const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
       txHash,
-      innerTx,
+      innerTxs,
     )
     const mosaicRevokeBondedTx = models.AggregateBondedTransactionV2.deserialize(
       facade
@@ -63,12 +63,12 @@ export const revokePoint = async (c: Context) => {
     )
 
     // 署名
-    const signedBonded = signTransaction(masterAccount, mosaicRevokeBondedTx)
+    const signedBondedTx = signTransaction(masterAccount, mosaicRevokeBondedTx)
 
-    // HashLock
-    const hashLock = createHashLock(signedBonded.hash)
+    // ハッシュロックトランザクションの作成
+    const hashLockDes = createHashLock(signedBondedTx.hash)
     const hashLockTx = facade.createTransactionFromTypedDescriptor(
-      hashLock,
+      hashLockDes,
       masterAccount.publicKey,
       Config.FEE_MULTIPLIER,
       Config.DEADLINE_SECONDS,
@@ -81,7 +81,7 @@ export const revokePoint = async (c: Context) => {
 
     await announceBonded(
       announcedHashLockTx.hash.toString(),
-      signedBonded.jsonPayload,
+      signedBondedTx.jsonPayload,
     ).catch(() => {
       console.error("hash lock error")
     })

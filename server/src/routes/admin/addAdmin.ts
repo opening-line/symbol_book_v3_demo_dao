@@ -28,28 +28,28 @@ export const addAdmin = async (c: Context) => {
 
     // DAO管理者アカウントの追加
     const newAdmins = addresses.map((address) => new Address(address))
-    const daoAccountMultisig = addMultisig(newAdmins)
-    const multisigTransaction =
+    const daoAccountMultisigDes = addMultisig(newAdmins)
+    const multisigTx =
       facade.createEmbeddedTransactionFromTypedDescriptor(
-        daoAccountMultisig,
+        daoAccountMultisigDes,
         daoAccount.publicKey,
       )
 
     // 手数料代替トランザクションの作成
-    const dummy = createDummy(daoAccount.address.toString())
-    const dummyTransaction = facade.createEmbeddedTransactionFromTypedDescriptor(
-      dummy,
+    const dummyDes = createDummy(daoAccount.address.toString())
+    const dummyTx = facade.createEmbeddedTransactionFromTypedDescriptor(
+      dummyDes,
       masterAccount.publicKey,
     )
     
-    // アグリゲート
-    const innerTransactions = [multisigTransaction, dummyTransaction]
-    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTransactions)
+    // アグリゲートトランザクションの作成
+    const innerTxs = [multisigTx, dummyTx]
+    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
     const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
       txHash,
-      innerTransactions,
+      innerTxs,
     )
-    const tx = models.AggregateBondedTransactionV2.deserialize(
+    const adminAddBondedTx = models.AggregateBondedTransactionV2.deserialize(
       facade
         .createTransactionFromTypedDescriptor(
           aggregateDes,
@@ -61,12 +61,12 @@ export const addAdmin = async (c: Context) => {
     )
 
     // 署名
-    const signedBonded = signTransaction(masterAccount, tx)
+    const signedBondedTx = signTransaction(masterAccount, adminAddBondedTx)
 
-    // HashLock
-    const hashLock = createHashLock(signedBonded.hash)
-    const hashLockTransaction = facade.createTransactionFromTypedDescriptor(
-      hashLock,
+    // ハッシュロックトランザクションの作成
+    const hashLockDes = createHashLock(signedBondedTx.hash)
+    const hashLockTx = facade.createTransactionFromTypedDescriptor(
+      hashLockDes,
       masterAccount.publicKey,
       Config.FEE_MULTIPLIER,
       Config.DEADLINE_SECONDS,
@@ -74,12 +74,12 @@ export const addAdmin = async (c: Context) => {
 
     const announcedHashLockTx = await announceTransaction(
       masterAccount,
-      hashLockTransaction,
+      hashLockTx,
     )
 
     await announceBonded(
       announcedHashLockTx.hash.toString(),
-      signedBonded.jsonPayload,
+      signedBondedTx.jsonPayload,
     ).catch(() => {
       console.error("hash lock error")
     })

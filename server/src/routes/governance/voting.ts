@@ -34,26 +34,26 @@ export const voting = async (c: Context) => {
       BigInt(token),
       BigInt(amount),
     )
-    const voteTransaction = facade.createEmbeddedTransactionFromTypedDescriptor(
+    const voteTx = facade.createEmbeddedTransactionFromTypedDescriptor(
       voteDes,
       userAccount.publicKey,
     )
 
     // 手数料代替トランザクションの作成
     const dummyDes = createDummy(daoAccount.address.toString())
-    const dummyTransaction = facade.createEmbeddedTransactionFromTypedDescriptor(
+    const dummyTx = facade.createEmbeddedTransactionFromTypedDescriptor(
       dummyDes,
       masterAccount.publicKey,
     )
 
-    // アグリゲート
-    const innerTxs = [voteTransaction, dummyTransaction]
+    // アグリゲートトランザクションの作成
+    const innerTxs = [voteTx, dummyTx]
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
     const aggregateDes = new descriptors.AggregateCompleteTransactionV2Descriptor(
       txHash,
       innerTxs,
     )
-    const tx = models.AggregateCompleteTransactionV2.deserialize(
+    const votingTx = models.AggregateCompleteTransactionV2.deserialize(
       facade
         .createTransactionFromTypedDescriptor(
           aggregateDes,
@@ -65,10 +65,10 @@ export const voting = async (c: Context) => {
     )
 
     // 署名
-    signTransaction(masterAccount, tx)
+    signTransaction(masterAccount, votingTx)
 
     return c.json({
-      payload: utils.uint8ToHex(tx.serialize()),
+      payload: utils.uint8ToHex(votingTx.serialize()),
       daoId: daoAccount.publicKey.toString(),
     })
   } catch (error) {
