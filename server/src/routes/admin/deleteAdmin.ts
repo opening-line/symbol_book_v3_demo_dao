@@ -29,11 +29,10 @@ export const deleteAdmin = async (c: Context) => {
     // DAO管理者アカウントの削除
     const deleteAdmins = addresses.map((address) => new Address(address))
     const daoAccountMultisigDes = deleteMultisig(deleteAdmins)
-    const multisigTx =
-      facade.createEmbeddedTransactionFromTypedDescriptor(
-        daoAccountMultisigDes,
-        daoAccount.publicKey,
-      )
+    const multisigTx = facade.createEmbeddedTransactionFromTypedDescriptor(
+      daoAccountMultisigDes,
+      daoAccount.publicKey,
+    )
 
     // 手数料代替トランザクションの作成
     const dummyDes = createDummy(daoAccount.address.toString())
@@ -41,7 +40,7 @@ export const deleteAdmin = async (c: Context) => {
       dummyDes,
       masterAccount.publicKey,
     )
-    
+
     // アグリゲートトランザクションの作成
     const innerTxs = [multisigTx, dummyTx]
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)

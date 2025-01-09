@@ -43,7 +43,10 @@ export const checkMetadataType = (metadata: Metadata[], type: string) => {
  * @param mosaicId モザイクID
  * @returns モザイク名
  */
-export const getNameFromMetadata = (metadatas: Metadata[], mosaicId: string) => {
+export const getNameFromMetadata = (
+  metadatas: Metadata[],
+  mosaicId: string,
+) => {
   const nameMetadata = pickMetadata(metadatas, metadataGenerateKey("name"))
   return nameMetadata ? nameMetadata.value : mosaicId
 }

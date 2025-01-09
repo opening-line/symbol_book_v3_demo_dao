@@ -77,16 +77,17 @@ export const createReward = async (c: Context) => {
       txHash,
       innerTxs,
     )
-    const mosaicCreateBondedTx = models.AggregateBondedTransactionV2.deserialize(
-      facade
-        .createTransactionFromTypedDescriptor(
-          aggregateDes,
-          masterAccount.publicKey,
-          Config.FEE_MULTIPLIER,
-          Config.DEADLINE_SECONDS,
-        )
-        .serialize(),
-    )
+    const mosaicCreateBondedTx =
+      models.AggregateBondedTransactionV2.deserialize(
+        facade
+          .createTransactionFromTypedDescriptor(
+            aggregateDes,
+            masterAccount.publicKey,
+            Config.FEE_MULTIPLIER,
+            Config.DEADLINE_SECONDS,
+          )
+          .serialize(),
+      )
 
     // 署名
     const signedBondedTx = signTransaction(masterAccount, mosaicCreateBondedTx)

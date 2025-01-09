@@ -32,7 +32,9 @@ export const createDao = async (c: Context) => {
     const textEncoder = new TextEncoder()
     const facade = new SymbolFacade(Config.NETWORK)
     const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
-    const ownerAccount = facade.createPublicAccount(new PublicKey(ownerPublicKey))
+    const ownerAccount = facade.createPublicAccount(
+      new PublicKey(ownerPublicKey),
+    )
 
     // DAO アカウントの生成
     const daoAccount = generateAccount()
@@ -99,7 +101,10 @@ export const createDao = async (c: Context) => {
       createAccountMetadata(
         daoAccount.address,
         m.key,
-        metadataUpdateValue(textEncoder.encode(""), textEncoder.encode(m.value)),
+        metadataUpdateValue(
+          textEncoder.encode(""),
+          textEncoder.encode(m.value),
+        ),
       ),
     )
     const txs = [
@@ -124,7 +129,7 @@ export const createDao = async (c: Context) => {
         signer: masterAccount.publicKey,
       })),
     ]
-    
+
     // アグリゲートトランザクションの作成
     const innerTxs = txs.map((tx) =>
       facade.createEmbeddedTransactionFromTypedDescriptor(
@@ -133,10 +138,8 @@ export const createDao = async (c: Context) => {
       ),
     )
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
-    const aggregateDes = new descriptors.AggregateCompleteTransactionV2Descriptor(
-      txHash,
-      innerTxs,
-    )
+    const aggregateDes =
+      new descriptors.AggregateCompleteTransactionV2Descriptor(txHash, innerTxs)
     const daoCreateBondedTx = models.AggregateCompleteTransactionV2.deserialize(
       facade
         .createTransactionFromTypedDescriptor(
@@ -152,7 +155,10 @@ export const createDao = async (c: Context) => {
     signTransaction(masterAccount, daoCreateBondedTx)
 
     // DAOアカウントで連署名
-    const cosign = facade.cosignTransaction(daoAccount.keyPair, daoCreateBondedTx)
+    const cosign = facade.cosignTransaction(
+      daoAccount.keyPair,
+      daoCreateBondedTx,
+    )
 
     daoCreateBondedTx.cosignatures.push(cosign)
 
@@ -162,6 +168,9 @@ export const createDao = async (c: Context) => {
     })
   } catch (error) {
     console.error("DAO作成エラー:", error)
-    return c.json({ message: "DAOの作成に失敗しました。再度実行してください。" }, 500)
+    return c.json(
+      { message: "DAOの作成に失敗しました。再度実行してください。" },
+      500,
+    )
   }
 }

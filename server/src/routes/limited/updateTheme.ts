@@ -26,7 +26,10 @@ export const updateTheme = async (c: Context) => {
     }
 
     const facade = new SymbolFacade(Config.NETWORK)
-    const userAccount = new SymbolPublicAccount(facade, new PublicKey(publicKey))
+    const userAccount = new SymbolPublicAccount(
+      facade,
+      new PublicKey(publicKey),
+    )
     const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
 
     // メタデータの更新
@@ -37,10 +40,11 @@ export const updateTheme = async (c: Context) => {
       userAccount.address.toString(),
     )
 
-    const accountMetadataTx = facade.createEmbeddedTransactionFromTypedDescriptor(
-      accountMetadataDes,
-      userAccount.publicKey,
-    )
+    const accountMetadataTx =
+      facade.createEmbeddedTransactionFromTypedDescriptor(
+        accountMetadataDes,
+        userAccount.publicKey,
+      )
 
     // 手数料代替トランザクションの作成
     const dummyDes = createDummy(masterAccount.address.toString())
@@ -52,10 +56,8 @@ export const updateTheme = async (c: Context) => {
     // アグリゲートトランザクションの作成
     const innerTxs = [accountMetadataTx, dummyTx]
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
-    const aggregateDes = new descriptors.AggregateCompleteTransactionV2Descriptor(
-      txHash,
-      innerTxs,
-    )
+    const aggregateDes =
+      new descriptors.AggregateCompleteTransactionV2Descriptor(txHash, innerTxs)
     const aggregateTx = models.AggregateCompleteTransactionV2.deserialize(
       facade
         .createTransactionFromTypedDescriptor(

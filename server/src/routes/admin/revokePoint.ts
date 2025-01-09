@@ -17,12 +17,13 @@ export const revokePoint = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)
 
-    const { daoId, mosaicId, sourceAddresses, amount } = (await c.req.json()) as {
-      daoId: string
-      mosaicId: string
-      sourceAddresses: string[]
-      amount: string
-    }
+    const { daoId, mosaicId, sourceAddresses, amount } =
+      (await c.req.json()) as {
+        daoId: string
+        mosaicId: string
+        sourceAddresses: string[]
+        amount: string
+      }
 
     const facade = new SymbolFacade(Config.NETWORK)
     const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
@@ -51,16 +52,17 @@ export const revokePoint = async (c: Context) => {
       txHash,
       innerTxs,
     )
-    const mosaicRevokeBondedTx = models.AggregateBondedTransactionV2.deserialize(
-      facade
-        .createTransactionFromTypedDescriptor(
-          aggregateDes,
-          masterAccount.publicKey,
-          Config.FEE_MULTIPLIER,
-          Config.DEADLINE_SECONDS,
-        )
-        .serialize(),
-    )
+    const mosaicRevokeBondedTx =
+      models.AggregateBondedTransactionV2.deserialize(
+        facade
+          .createTransactionFromTypedDescriptor(
+            aggregateDes,
+            masterAccount.publicKey,
+            Config.FEE_MULTIPLIER,
+            Config.DEADLINE_SECONDS,
+          )
+          .serialize(),
+      )
 
     // 署名
     const signedBondedTx = signTransaction(masterAccount, mosaicRevokeBondedTx)

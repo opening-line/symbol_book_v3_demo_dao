@@ -14,13 +14,14 @@ export const voting = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)
 
-    const { daoId, token, publicKey, userKey, amount } = (await c.req.json()) as {
-      daoId: string
-      token: string
-      publicKey: string
-      userKey: string
-      amount: number
-    }
+    const { daoId, token, publicKey, userKey, amount } =
+      (await c.req.json()) as {
+        daoId: string
+        token: string
+        publicKey: string
+        userKey: string
+        amount: number
+      }
 
     const facade = new SymbolFacade(Config.NETWORK)
     const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
@@ -49,10 +50,8 @@ export const voting = async (c: Context) => {
     // アグリゲートトランザクションの作成
     const innerTxs = [voteTx, dummyTx]
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
-    const aggregateDes = new descriptors.AggregateCompleteTransactionV2Descriptor(
-      txHash,
-      innerTxs,
-    )
+    const aggregateDes =
+      new descriptors.AggregateCompleteTransactionV2Descriptor(txHash, innerTxs)
     const votingTx = models.AggregateCompleteTransactionV2.deserialize(
       facade
         .createTransactionFromTypedDescriptor(

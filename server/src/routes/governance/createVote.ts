@@ -38,14 +38,15 @@ export const createVote = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)
 
-    const { daoId, title, voteA, voteB, voteC, voteD } = (await c.req.json()) as {
-      daoId: string
-      title: string
-      voteA: string
-      voteB: string
-      voteC: string
-      voteD: string
-    }
+    const { daoId, title, voteA, voteB, voteC, voteD } =
+      (await c.req.json()) as {
+        daoId: string
+        title: string
+        voteA: string
+        voteB: string
+        voteC: string
+        voteD: string
+      }
 
     const textDecoder = new TextDecoder()
     const textEncoder = new TextEncoder()
@@ -71,16 +72,14 @@ export const createVote = async (c: Context) => {
     const mdRes = await getMetadataInfoByQuery(
       `targetAddress=${daoAccount.address.toString()}`,
     )
-    const metadatas = mdRes.map(
-      (e: MetadataEntry) => {
-        return {
-          key: e.metadataEntry.scopedMetadataKey,
-          value: textDecoder.decode(
-            Uint8Array.from(Buffer.from(e.metadataEntry.value, "hex")),
-          ),
-        }
-      },
-    )
+    const metadatas = mdRes.map((e: MetadataEntry) => {
+      return {
+        key: e.metadataEntry.scopedMetadataKey,
+        value: textDecoder.decode(
+          Uint8Array.from(Buffer.from(e.metadataEntry.value, "hex")),
+        ),
+      }
+    })
     const tokenId = pickMetadata(
       metadatas,
       METADATA_KEYS.GOVERNANCE_TOKEN_ID,
@@ -129,7 +128,11 @@ export const createVote = async (c: Context) => {
     // 投票トークンを配布
     const transferDes: descriptors.TransferTransactionV1Descriptor[] = data.map(
       (e: { address: string; amount: number }) =>
-        transferMosaic(new Address(e.address), voteTokenId.id, BigInt(e.amount)),
+        transferMosaic(
+          new Address(e.address),
+          voteTokenId.id,
+          BigInt(e.amount),
+        ),
     )
 
     const txs = [
@@ -160,11 +163,13 @@ export const createVote = async (c: Context) => {
         tx.signer,
       ),
     )
-    const voteCreateTxHash = SymbolFacade.hashEmbeddedTransactions(voteCreateInnerTxs)
-    const voteCreateAggregateDes = new descriptors.AggregateCompleteTransactionV2Descriptor(
-      voteCreateTxHash,
-      voteCreateInnerTxs,
-    )
+    const voteCreateTxHash =
+      SymbolFacade.hashEmbeddedTransactions(voteCreateInnerTxs)
+    const voteCreateAggregateDes =
+      new descriptors.AggregateCompleteTransactionV2Descriptor(
+        voteCreateTxHash,
+        voteCreateInnerTxs,
+      )
     const voteCreateBondedTx = facade.createTransactionFromTypedDescriptor(
       voteCreateAggregateDes,
       masterAccount.publicKey,
@@ -173,7 +178,10 @@ export const createVote = async (c: Context) => {
     )
 
     // アナウンス
-    const announcedTx = await announceTransaction(masterAccount, voteCreateBondedTx)
+    const announcedTx = await announceTransaction(
+      masterAccount,
+      voteCreateBondedTx,
+    )
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     // 手数料代替トランザクションの作成
@@ -204,19 +212,23 @@ export const createVote = async (c: Context) => {
       txHash,
       innerTxs,
     )
-    const metadataCreateBondedTx = models.AggregateBondedTransactionV2.deserialize(
-      facade
-        .createTransactionFromTypedDescriptor(
-          aggregateDes,
-          masterAccount.publicKey,
-          Config.FEE_MULTIPLIER,
-          Config.DEADLINE_SECONDS,
-        )
-        .serialize(),
-    )
+    const metadataCreateBondedTx =
+      models.AggregateBondedTransactionV2.deserialize(
+        facade
+          .createTransactionFromTypedDescriptor(
+            aggregateDes,
+            masterAccount.publicKey,
+            Config.FEE_MULTIPLIER,
+            Config.DEADLINE_SECONDS,
+          )
+          .serialize(),
+      )
 
     // 署名
-    const signedBondedTx = signTransaction(masterAccount, metadataCreateBondedTx)
+    const signedBondedTx = signTransaction(
+      masterAccount,
+      metadataCreateBondedTx,
+    )
 
     // ハッシュロックトランザクションの作成
     const hashLockDes = createHashLock(signedBondedTx.hash)

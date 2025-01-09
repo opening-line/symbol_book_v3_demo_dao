@@ -43,16 +43,14 @@ export const getRewardInfo = async (c: Context) => {
       ),
     )
 
-    const mosaicMetadatas = mdRes.map(
-      (e: MetadataEntry[]) => {
-        return e.map((e) => {
-          return {
-            key: BigInt(`0x${e.metadataEntry.scopedMetadataKey}`).toString(),
-            value: decodeMetadataValue(e.metadataEntry.value),
-          }
-        })
-      },
-    )
+    const mosaicMetadatas = mdRes.map((e: MetadataEntry[]) => {
+      return e.map((e) => {
+        return {
+          key: BigInt(`0x${e.metadataEntry.scopedMetadataKey}`).toString(),
+          value: decodeMetadataValue(e.metadataEntry.value),
+        }
+      })
+    })
 
     // 特典モザイク情報の取得
     const rewardMosaics = await Promise.all(
