@@ -341,7 +341,7 @@ export const GovernanceVotingPage: React.FC = () => {
                 border: `1px solid ${theme.border}`,
                 marginBottom: "10px",
                 cursor: "pointer",
-                backgroundColor: hasMosaic ? theme.primary : "transparent",
+                backgroundColor: hasMosaic ? theme.background : "transparent",
               }}
               onClick={() => setIndex(hasMosaic ? i : -1)}
             >
