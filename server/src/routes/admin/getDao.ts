@@ -27,7 +27,9 @@ export const getDao = async (c: Context) => {
 
     const metadatas = mdRes
       .map(
-        (e: { metadataEntry: { scopedMetadataKey: string; value: string } }) => {
+        (e: {
+          metadataEntry: { scopedMetadataKey: string; value: string }
+        }) => {
           return {
             key: e.metadataEntry.scopedMetadataKey,
             value: textDecoder.decode(

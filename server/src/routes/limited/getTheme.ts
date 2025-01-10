@@ -17,14 +17,12 @@ type MetadataEntry = {
 export const getTheme = async (c: Context) => {
   const address = c.req.param("address")
   const mdRes = await getMetadataInfoByQuery(`targetAddress=${address}`)
-  const metadatas = mdRes.map(
-    (e: MetadataEntry) => {
-      return {
-        key: BigInt(`0x${e.metadataEntry.scopedMetadataKey}`).toString(),
-        value: decodeMetadataValue(e.metadataEntry.value),
-      }
-    },
-  )
+  const metadatas = mdRes.map((e: MetadataEntry) => {
+    return {
+      key: BigInt(`0x${e.metadataEntry.scopedMetadataKey}`).toString(),
+      value: decodeMetadataValue(e.metadataEntry.value),
+    }
+  })
   const theme = pickMetadata(metadatas, metadataGenerateKey("theme"))?.value
 
   return c.json({ theme })

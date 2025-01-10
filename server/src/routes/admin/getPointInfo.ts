@@ -64,23 +64,24 @@ export const getPointInfo = async (c: Context) => {
       ),
     ])
 
-    const mosaicMetadatas = [govTokenMdRes, ...pointMosaicsMdRes]
-      .map((e: MetadataEntry[]) => {
+    const mosaicMetadatas = [govTokenMdRes, ...pointMosaicsMdRes].map(
+      (e: MetadataEntry[]) => {
         return e.map((e) => {
           return {
             key: BigInt(`0x${e.metadataEntry.scopedMetadataKey}`).toString(),
             value: decodeMetadataValue(e.metadataEntry.value),
           }
         })
-      })
+      },
+    )
 
     // ポイントモザイク情報の取得
     const [govToken, ...pointMosaics] = await Promise.all([
       fetchMosaicData({
         id: govTokenId,
-        amount: accountInfo.mosaics.find(
-          (mosaic: Mosaic) => mosaic.id === govTokenId,
-        )?.amount || "0",
+        amount:
+          accountInfo.mosaics.find((mosaic: Mosaic) => mosaic.id === govTokenId)
+            ?.amount || "0",
       }),
       ...accountInfo.mosaics.map((mosaic: Mosaic, index: number) => {
         const metadata = mosaicMetadatas[index + 1]

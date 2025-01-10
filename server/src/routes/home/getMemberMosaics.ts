@@ -28,32 +28,34 @@ export const getMemberMosaics = async (c: Context) => {
 
     // アカウントが保有しているモザイク情報の取得
     const mosaics = await Promise.all(
-      accountInfo.mosaics.map(async (mosaic: { id: string; amount: string }) => {
-        const mosaicInfo = await getMosaicInfo(mosaic.id)
-        const mdRes = await getMetadataInfoByQuery(`targetId=${mosaic.id}`)
-        const metadatas = mdRes.map((e: MetadataEntry) => {
+      accountInfo.mosaics.map(
+        async (mosaic: { id: string; amount: string }) => {
+          const mosaicInfo = await getMosaicInfo(mosaic.id)
+          const mdRes = await getMetadataInfoByQuery(`targetId=${mosaic.id}`)
+          const metadatas = mdRes.map((e: MetadataEntry) => {
+            return {
+              key: BigInt(`0x${e.metadataEntry.scopedMetadataKey}`).toString(),
+              value: decodeMetadataValue(e.metadataEntry.value),
+            }
+          })
+
+          // ポイントモザイクまたは特典モザイクか確認
+          const isPoint = checkMetadataType(metadatas, "point")
+          const isReward = checkMetadataType(metadatas, "reward")
+
           return {
-            key: BigInt(`0x${e.metadataEntry.scopedMetadataKey}`).toString(),
-            value: decodeMetadataValue(e.metadataEntry.value),
+            id: mosaic.id,
+            name:
+              isPoint || isReward
+                ? getNameFromMetadata(metadatas, mosaic.id)
+                : null,
+            amount: convertToMosaicActualAmount(
+              Number(mosaic.amount),
+              mosaicInfo.divisibility,
+            ),
           }
-        })
-
-        // ポイントモザイクまたは特典モザイクか確認
-        const isPoint = checkMetadataType(metadatas, "point")
-        const isReward = checkMetadataType(metadatas, "reward")
-
-        return {
-          id: mosaic.id,
-          name:
-            isPoint || isReward
-              ? getNameFromMetadata(metadatas, mosaic.id)
-              : null,
-          amount: convertToMosaicActualAmount(
-            Number(mosaic.amount),
-            mosaicInfo.divisibility,
-          ),
-        }
-      }),
+        },
+      ),
     )
 
     return c.json(mosaics)

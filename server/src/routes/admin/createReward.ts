@@ -70,31 +70,32 @@ export const createReward = async (c: Context) => {
       ),
     )
 
-    // アグリゲート
+    // アグリゲートトランザクションの作成
     const innerTxs = [feeTx, ...mosaicCreateTxs]
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
     const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
       txHash,
       innerTxs,
     )
-    const mosaicCreateBondedTx = models.AggregateBondedTransactionV2.deserialize(
-      facade
-        .createTransactionFromTypedDescriptor(
-          aggregateDes,
-          masterAccount.publicKey,
-          Config.FEE_MULTIPLIER,
-          Config.DEADLINE_SECONDS,
-        )
-        .serialize(),
-    )
+    const mosaicCreateBondedTx =
+      models.AggregateBondedTransactionV2.deserialize(
+        facade
+          .createTransactionFromTypedDescriptor(
+            aggregateDes,
+            masterAccount.publicKey,
+            Config.FEE_MULTIPLIER,
+            Config.DEADLINE_SECONDS,
+          )
+          .serialize(),
+      )
 
     // 署名
-    const signedBonded = signTransaction(masterAccount, mosaicCreateBondedTx)
+    const signedBondedTx = signTransaction(masterAccount, mosaicCreateBondedTx)
 
-    // HashLock
-    const hashLock = createHashLock(signedBonded.hash)
+    // ハッシュロックトランザクションの作成
+    const hashLockDes = createHashLock(signedBondedTx.hash)
     const hashLockTx = facade.createTransactionFromTypedDescriptor(
-      hashLock,
+      hashLockDes,
       masterAccount.publicKey,
       Config.FEE_MULTIPLIER,
       Config.DEADLINE_SECONDS,
@@ -107,7 +108,7 @@ export const createReward = async (c: Context) => {
 
     await announceBonded(
       announcedHashLockTx.hash.toString(),
-      signedBonded.jsonPayload,
+      signedBondedTx.jsonPayload,
     ).catch(() => {
       console.error("hash lock error")
     })

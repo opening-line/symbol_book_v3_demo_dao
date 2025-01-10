@@ -32,7 +32,9 @@ export const createDao = async (c: Context) => {
     const textEncoder = new TextEncoder()
     const facade = new SymbolFacade(Config.NETWORK)
     const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
-    const ownerAccount = facade.createPublicAccount(new PublicKey(ownerPublicKey))
+    const ownerAccount = facade.createPublicAccount(
+      new PublicKey(ownerPublicKey),
+    )
 
     // DAO アカウントの生成
     const daoAccount = generateAccount()
@@ -57,7 +59,7 @@ export const createDao = async (c: Context) => {
     )
 
     // DAOアカウントをマルチシグに変換
-    const daoAccountMultisig = addMultisig([ownerAccount.address])
+    const daoAccountMultisigDes = addMultisig([ownerAccount.address])
 
     // 投票箱アカウントの生成
     const voteAccounts = [
@@ -99,7 +101,10 @@ export const createDao = async (c: Context) => {
       createAccountMetadata(
         daoAccount.address,
         m.key,
-        metadataUpdateValue(textEncoder.encode(""), textEncoder.encode(m.value)),
+        metadataUpdateValue(
+          textEncoder.encode(""),
+          textEncoder.encode(m.value),
+        ),
       ),
     )
     const txs = [
@@ -116,7 +121,7 @@ export const createDao = async (c: Context) => {
         signer: daoAccount.publicKey,
       },
       {
-        transaction: daoAccountMultisig,
+        transaction: daoAccountMultisigDes,
         signer: daoAccount.publicKey,
       },
       ...metadataTxs.map((tx) => ({
@@ -124,20 +129,18 @@ export const createDao = async (c: Context) => {
         signer: masterAccount.publicKey,
       })),
     ]
-    
-    // アグリゲート
-    const innerTransactions = txs.map((tx) =>
+
+    // アグリゲートトランザクションの作成
+    const innerTxs = txs.map((tx) =>
       facade.createEmbeddedTransactionFromTypedDescriptor(
         tx.transaction,
         tx.signer,
       ),
     )
-    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTransactions)
-    const aggregateDes = new descriptors.AggregateCompleteTransactionV2Descriptor(
-      txHash,
-      innerTransactions,
-    )
-    const tx = models.AggregateCompleteTransactionV2.deserialize(
+    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
+    const aggregateDes =
+      new descriptors.AggregateCompleteTransactionV2Descriptor(txHash, innerTxs)
+    const daoCreateBondedTx = models.AggregateCompleteTransactionV2.deserialize(
       facade
         .createTransactionFromTypedDescriptor(
           aggregateDes,
@@ -149,19 +152,25 @@ export const createDao = async (c: Context) => {
     )
 
     // 署名
-    signTransaction(masterAccount, tx)
+    signTransaction(masterAccount, daoCreateBondedTx)
 
     // DAOアカウントで連署名
-    const cosign = facade.cosignTransaction(daoAccount.keyPair, tx)
+    const cosign = facade.cosignTransaction(
+      daoAccount.keyPair,
+      daoCreateBondedTx,
+    )
 
-    tx.cosignatures.push(cosign)
+    daoCreateBondedTx.cosignatures.push(cosign)
 
     return c.json({
-      payload: utils.uint8ToHex(tx.serialize()),
+      payload: utils.uint8ToHex(daoCreateBondedTx.serialize()),
       daoId: daoAccount.publicKey.toString(),
     })
   } catch (error) {
     console.error("DAO作成エラー:", error)
-    return c.json({ message: "DAOの作成に失敗しました。再度実行してください。" }, 500)
+    return c.json(
+      { message: "DAOの作成に失敗しました。再度実行してください。" },
+      500,
+    )
   }
 }

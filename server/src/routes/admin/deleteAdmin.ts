@@ -28,28 +28,27 @@ export const deleteAdmin = async (c: Context) => {
 
     // DAO管理者アカウントの削除
     const deleteAdmins = addresses.map((address) => new Address(address))
-    const daoAccountMultisig = deleteMultisig(deleteAdmins)
-    const multisigTransaction =
-      facade.createEmbeddedTransactionFromTypedDescriptor(
-        daoAccountMultisig,
-        daoAccount.publicKey,
-      )
+    const daoAccountMultisigDes = deleteMultisig(deleteAdmins)
+    const multisigTx = facade.createEmbeddedTransactionFromTypedDescriptor(
+      daoAccountMultisigDes,
+      daoAccount.publicKey,
+    )
 
     // 手数料代替トランザクションの作成
-    const dummy = createDummy(daoAccount.address.toString())
-    const dummyTransaction = facade.createEmbeddedTransactionFromTypedDescriptor(
-      dummy,
+    const dummyDes = createDummy(daoAccount.address.toString())
+    const dummyTx = facade.createEmbeddedTransactionFromTypedDescriptor(
+      dummyDes,
       masterAccount.publicKey,
     )
-    
-    // アグリゲート
-    const innerTransactions = [multisigTransaction, dummyTransaction]
-    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTransactions)
+
+    // アグリゲートトランザクションの作成
+    const innerTxs = [multisigTx, dummyTx]
+    const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
     const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
       txHash,
-      innerTransactions,
+      innerTxs,
     )
-    const tx = models.AggregateBondedTransactionV2.deserialize(
+    const adminDeleteBondedTx = models.AggregateBondedTransactionV2.deserialize(
       facade
         .createTransactionFromTypedDescriptor(
           aggregateDes,
@@ -61,12 +60,12 @@ export const deleteAdmin = async (c: Context) => {
     )
 
     // 署名
-    const signedBonded = signTransaction(masterAccount, tx)
+    const signedBondedTx = signTransaction(masterAccount, adminDeleteBondedTx)
 
-    // HashLock
-    const hashLock = createHashLock(signedBonded.hash)
-    const hashLockTransaction = facade.createTransactionFromTypedDescriptor(
-      hashLock,
+    // ハッシュロックトランザクションの作成
+    const hashLockDes = createHashLock(signedBondedTx.hash)
+    const hashLockTx = facade.createTransactionFromTypedDescriptor(
+      hashLockDes,
       masterAccount.publicKey,
       Config.FEE_MULTIPLIER,
       Config.DEADLINE_SECONDS,
@@ -74,12 +73,12 @@ export const deleteAdmin = async (c: Context) => {
 
     const announcedHashLockTx = await announceTransaction(
       masterAccount,
-      hashLockTransaction,
+      hashLockTx,
     )
 
     await announceBonded(
       announcedHashLockTx.hash.toString(),
-      signedBonded.jsonPayload,
+      signedBondedTx.jsonPayload,
     ).catch(() => {
       console.error("hash lock error")
     })
