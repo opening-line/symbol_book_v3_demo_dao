@@ -8,14 +8,14 @@ export const PointCreatePage: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const [name, setName] = useState<string>("")
-  const [amount, setAmount] = useState<string>("")
+  const [amount, setAmount] = useState<number>(0)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const isDisabled = !name || !amount
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value)
     if (value <= 8999999999) {
-      setAmount(e.target.value)
+      setAmount(Number(e.target.value))
     }
   }
 
@@ -154,7 +154,7 @@ export const PointCreatePage: React.FC = () => {
                 max='8999999999'
               />
               <button
-                onClick={() => setAmount("8999999999")}
+                onClick={() => setAmount(8999999999)}
                 style={{
                   padding: "8px",
                   borderRadius: "4px",

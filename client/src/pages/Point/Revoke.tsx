@@ -13,7 +13,7 @@ export const PointRevokePage: React.FC = () => {
     [],
   )
   const [selectedAddresses, setSelectedAddresses] = useState<string[]>([])
-  const [amount, setAmount] = useState<string>("")
+  const [amount, setAmount] = useState<number>(0)
   const [error, setError] = useState<string>("")
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
@@ -35,22 +35,21 @@ export const PointRevokePage: React.FC = () => {
     fetchHolders()
   }, [mosaicId])
 
-  const validateAmount = (value: string, addresses: string[]) => {
-    if (value === "") {
+  const validateAmount = (value: number, addresses: string[]) => {
+    if (value === 0) {
       setError("")
       return
     }
-
-    const numValue = parseInt(value)
-    if (isNaN(numValue)) {
+  
+    if (isNaN(value)) {
       setError("数値を入力してください")
-    } else if (numValue <= 0) {
+    } else if (value <= 0) {
       setError("0より大きい数値を入力してください")
     } else {
       // 選択された各ユーザーの保有量をチェック
       const invalidHolder = holders
         .filter((h) => addresses.includes(h.address))
-        .find((h) => numValue > h.amount)
+        .find((h) => value > h.amount)
 
       if (invalidHolder) {
         setError(
@@ -63,7 +62,7 @@ export const PointRevokePage: React.FC = () => {
   }
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
+    const value = Number(e.target.value)
     setAmount(value)
     validateAmount(value, selectedAddresses)
   }

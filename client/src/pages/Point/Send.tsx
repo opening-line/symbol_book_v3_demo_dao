@@ -13,7 +13,7 @@ export const PointSendPage: React.FC = () => {
     [],
   )
   const [selectedAddresses, setSelectedAddresses] = useState<string[]>([])
-  const [amount, setAmount] = useState<string>("")
+  const [amount, setAmount] = useState<number>(0)
   const [message, setMessage] = useState<string>("")
   const [error, setError] = useState<string>("")
   const [accountValidationError, setAccountValidationError] =
@@ -51,10 +51,9 @@ export const PointSendPage: React.FC = () => {
 
   useEffect(() => {
     if (amount && selectedAddresses.length > 0) {
-      const numValue = parseInt(amount)
-      if (numValue * selectedAddresses.length > balance) {
+      if (amount * selectedAddresses.length > balance) {
         setError(
-          `選択された${selectedAddresses.length}名に${numValue.toLocaleString()}ずつ配布すると、合計${(numValue * selectedAddresses.length).toLocaleString()}となり配布可能な残高（${balance.toLocaleString()}）を超えています`,
+          `選択された${selectedAddresses.length}名に${amount.toLocaleString()}ずつ配布すると、合計${(amount * selectedAddresses.length).toLocaleString()}となり配布可能な残高（${balance.toLocaleString()}）を超えています`,
         )
       } else {
         setError("")
@@ -63,25 +62,24 @@ export const PointSendPage: React.FC = () => {
   }, [selectedAddresses, amount, balance])
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
+    const value = Number(e.target.value)
     setAmount(value)
 
-    if (value === "") {
+    if (value === 0) {
       setError("")
     } else {
-      const numValue = parseInt(value)
-      if (isNaN(numValue)) {
+      if (isNaN(value)) {
         setError("数値を入力してください")
-      } else if (numValue <= 0) {
+      } else if (value <= 0) {
         setError("0より大きい数値を入力してください")
-      } else if (numValue > balance) {
+      } else if (value > balance) {
         setError(`配布可能な残高（${balance.toLocaleString()}）を超えています`)
       } else if (
         selectedAddresses.length > 0 &&
-        numValue * selectedAddresses.length > balance
+        value * selectedAddresses.length > balance
       ) {
         setError(
-          `選択された${selectedAddresses.length}名に${numValue.toLocaleString()}ずつ配布すると、合計${(numValue * selectedAddresses.length).toLocaleString()}となり配布可能な残高（${balance.toLocaleString()}）を超えています`,
+          `選択された${selectedAddresses.length}名に${value.toLocaleString()}ずつ配布すると、合計${(value * selectedAddresses.length).toLocaleString()}となり配布可能な残高（${balance.toLocaleString()}）を超えています`,
         )
       } else {
         setError("")
