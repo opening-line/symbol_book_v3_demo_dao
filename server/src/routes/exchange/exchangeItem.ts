@@ -77,7 +77,7 @@ export const exchangeItem = async (c: Context) => {
       txHash,
       innerTxs,
     )
-    const mosaicRevokeBondedTx =
+    const mosaicExchangeBondedTx =
       models.AggregateBondedTransactionV2.deserialize(
         facade
           .createTransactionFromTypedDescriptor(
@@ -90,7 +90,10 @@ export const exchangeItem = async (c: Context) => {
       )
 
     // 署名
-    const signedBondedTx = signTransaction(masterAccount, mosaicRevokeBondedTx)
+    const signedBondedTx = signTransaction(
+      masterAccount,
+      mosaicExchangeBondedTx,
+    )
 
     // ハッシュロックトランザクションの作成
     const hashLockDes = createHashLock(signedBondedTx.hash)
@@ -119,6 +122,6 @@ export const exchangeItem = async (c: Context) => {
     })
   } catch (error) {
     console.error("アイテム交換申請エラー:", error)
-    return c.json({ message: "アイテム交換申請に失敗しました。" }, 500)
+    return c.json({ message: "アイテム交換申請に失敗しました。管理者にお問い合わせください。" }, 500)
   }
 }
