@@ -42,7 +42,7 @@ export const exchangeItem = async (c: Context) => {
     const revokeDes = revokeMosaic(
       pointMosaicId,
       [toAddress],
-      Number(pointMosaicAmount),
+      pointMosaicAmount,
     )
     const revokeTxs = revokeDes.map((des) =>
       facade.createEmbeddedTransactionFromTypedDescriptor(

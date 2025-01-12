@@ -21,7 +21,7 @@ export const createPoint = async (c: Context) => {
     const { daoId, mosaicName, amount } = (await c.req.json()) as {
       daoId: string
       mosaicName: string
-      amount: string
+      amount: number
     }
 
     const facade = new SymbolFacade(Config.NETWORK)
@@ -40,7 +40,7 @@ export const createPoint = async (c: Context) => {
     const pointMosaicDes = await createPointMosaic(
       mosaicIdInfo.id,
       mosaicIdInfo.nonce,
-      Number(amount),
+      amount,
       false,
       mosaicName,
       daoAccount.address.toString(),
