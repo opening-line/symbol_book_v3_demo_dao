@@ -4,6 +4,9 @@ import { ThemeProvider } from "./components/ThemeContext"
 import Layout from "./components/Layout"
 import { HomePage } from "./pages/Home"
 import { GovernanceVotingPage } from "./pages/GovernanceVoting"
+import { ExchangePage } from "./pages/Exchange"
+import { ExchangeItemCreatePage } from "./pages/Exchange/Create"
+import { ExchangeItemPage } from "./pages/Exchange/ExchangeItem"
 import { LimitedMemberPage } from "./pages/Limited"
 import { CreateDAOPage } from "./pages/DAO/Create"
 import { UpdateDAOPage } from "./pages/DAO/Update"
@@ -23,6 +26,16 @@ function App() {
           <Route path='/dao/create' element={<CreateDAOPage />} />
           <Route path='/dao/:id' element={<Layout />}>
             <Route path='' element={<HomePage />} />
+            <Route path='exchange' element={<ExchangePage />} />
+            <Route
+              path='exchange/createItem'
+              element={<ExchangeItemCreatePage />}
+            />
+            <Route
+              path='exchange/:rewardMosaicId'
+              element={<ExchangeItemPage />}
+            />
+            <Route path='limited' element={<LimitedMemberPage />} />
             <Route path='update' element={<UpdateDAOPage />} />
             <Route path='reward' element={<RewardPage />} />
             <Route path='governance' element={<GovernanceVotingPage />} />
@@ -35,7 +48,6 @@ function App() {
               path='point/revoke/:mosaicId'
               element={<PointRevokePage />}
             />
-            <Route path='limited' element={<LimitedMemberPage />} />
           </Route>
         </Routes>
       </Router>
