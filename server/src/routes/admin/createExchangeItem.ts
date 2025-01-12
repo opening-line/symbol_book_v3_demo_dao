@@ -126,7 +126,7 @@ export const createExchangeItem = async (c: Context) => {
       txHash,
       innerTxs,
     )
-    const mosaicCreateBondedTx =
+    const mosaicUpdateBondedTx =
       models.AggregateBondedTransactionV2.deserialize(
         facade
           .createTransactionFromTypedDescriptor(
@@ -139,7 +139,7 @@ export const createExchangeItem = async (c: Context) => {
       )
 
     // 署名
-    const signedBondedTx = signTransaction(masterAccount, mosaicCreateBondedTx)
+    const signedBondedTx = signTransaction(masterAccount, mosaicUpdateBondedTx)
 
     // ハッシュロックトランザクションの作成
     const hashLockDes = createHashLock(signedBondedTx.hash)
