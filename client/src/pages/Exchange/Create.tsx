@@ -148,7 +148,7 @@ export const ExchangeItemCreatePage: React.FC = () => {
             ← 戻る
           </button>
         </div>
-        <h1>特典作成</h1>
+        <h1>交換アイテム作成</h1>
 
         <div
           style={{
