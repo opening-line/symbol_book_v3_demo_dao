@@ -120,7 +120,7 @@ export const createExchangeItem = async (c: Context) => {
     )
 
     // アグリゲートトランザクションの作成
-    const innerTxs = [dummyTx, ...metadataTxs]
+    const innerTxs = [...metadataTxs, dummyTx]
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
     const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
       txHash,
