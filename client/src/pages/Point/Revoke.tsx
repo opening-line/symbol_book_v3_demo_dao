@@ -40,7 +40,7 @@ export const PointRevokePage: React.FC = () => {
       setError("")
       return
     }
-  
+
     if (isNaN(value)) {
       setError("数値を入力してください")
     } else if (value <= 0) {
