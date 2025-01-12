@@ -77,3 +77,15 @@ export const fetchMosaicData = async (
     return null
   }
 }
+
+/**
+ * 指定したキーのメタデータ値を取得する関数
+ * @param key キー
+ * @param metadatas メタデータ
+ * @param mosaicId モザイクID
+ * @returns メタデータ値
+ */
+export const getMetadataValue = (key: string, metadatas: Metadata[]) => {
+  const metadata = pickMetadata(metadatas, metadataGenerateKey(key))
+  return metadata ? metadata.value : null
+}
