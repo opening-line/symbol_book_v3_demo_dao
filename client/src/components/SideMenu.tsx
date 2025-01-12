@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { BiCoinStack } from "react-icons/bi"
+import { FaExchangeAlt } from "react-icons/fa"
 import {
   MdOutlineCardGiftcard,
   MdOutlineHowToVote,
@@ -11,12 +12,6 @@ import { Link, useLocation } from "react-router-dom"
 import { Config } from "../utils/config"
 import { useTheme } from "./ThemeContext"
 
-interface DaoInfo {
-  address: string
-  metadata: any[]
-  cosignatory: any[]
-}
-
 interface Mosaic {
   id: string
   amount: string
@@ -27,6 +22,7 @@ interface SideMenuProps {
   sssAddress: string
   isOpen: boolean
   isSSSLinked: boolean
+  isManagerAccount: boolean
 }
 
 const SideMenu: React.FC<SideMenuProps> = ({
@@ -34,10 +30,10 @@ const SideMenu: React.FC<SideMenuProps> = ({
   sssAddress,
   isOpen,
   isSSSLinked,
+  isManagerAccount,
 }) => {
   const location = useLocation()
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
-  const [isManagerAccount, setIsManagerAccount] = useState<boolean>(false)
   const [hasLimitedMosaic, setHasLimitedMosaic] = useState<boolean>(false)
   const { theme } = useTheme()
 
@@ -46,14 +42,6 @@ const SideMenu: React.FC<SideMenuProps> = ({
       if (!id) return
 
       try {
-        // 自分がDAO管理者であるかどうかを確認
-        const daoInfo: DaoInfo = await fetch(
-          `${Config.API_HOST}/admin/get/${id}`,
-        ).then((res) => res.json())
-        const isManagerAccount = daoInfo?.cosignatory?.includes(sssAddress)
-        console.log("isManagerAccount", isManagerAccount)
-        setIsManagerAccount(isManagerAccount)
-
         // 特別会員限定モザイクを保有しているかどうかを確認
         const mosaics = await fetch(
           `${Config.API_HOST}/home/mosaics/${sssAddress}`,
@@ -63,15 +51,12 @@ const SideMenu: React.FC<SideMenuProps> = ({
           `${Config.API_HOST}/admin/reward/${id}`,
         ).then((res) => res.json())
 
-        console.log(daoRewardMosaics)
-
         const hasLimitedMosaic = mosaics.some((mosaic: Mosaic) =>
           daoRewardMosaics.map((m: { id: string }) => m.id).includes(mosaic.id),
         )
         setHasLimitedMosaic(hasLimitedMosaic)
       } catch (error) {
         console.error("権限チェック中にエラーが発生しました:", error)
-        setIsManagerAccount(false)
         setHasLimitedMosaic(false)
       }
     }
@@ -92,6 +77,13 @@ const SideMenu: React.FC<SideMenuProps> = ({
           path: `/dao/${id}/governance`,
           icon: <MdOutlineHowToVote />,
           requiresSSS: true,
+        },
+        {
+          text: "ポイント交換",
+          path: `/dao/${id}/exchange`,
+          icon: <FaExchangeAlt />,
+          requiresSSS: true,
+          state: { isManagerAccount },
         },
         {
           text: "特別会員限定",

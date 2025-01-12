@@ -4,12 +4,25 @@ import Header from "./Header"
 import { getActiveAddress, getActiveName, isAllowedSSS } from "sss-module"
 import { CreateDAOPage } from "../pages/DAO/Create"
 import { Outlet, useParams } from "react-router"
+import { Config } from "../utils/config"
+
+interface DaoInfo {
+  address: string
+  metadata: any[]
+  cosignatory: any[]
+}
+
+// コンポーネントの外で型を定義
+export type LayoutContextType = {
+  isManagerAccount: boolean
+}
 
 const Layout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(true)
   const [address, setAddress] = useState<string>("")
   const [name, setName] = useState<string>("")
   const [isSSSLinked, setIsSSSLinked] = useState<boolean>(false)
+  const [isManagerAccount, setIsManagerAccount] = useState<boolean>(false)
   const { id } = useParams()
 
   useEffect(() => {
@@ -19,6 +32,16 @@ const Layout: React.FC = () => {
     setIsSSSLinked(isSSSLinked)
     setAddress(address)
     setName(name)
+
+    const fetchIsManagerAccount = async () => {
+      // 自分がDAO管理者であるかどうかを確認
+      const daoInfo: DaoInfo = await fetch(
+        `${Config.API_HOST}/admin/get/${id}`,
+      ).then((res) => res.json())
+      const isManagerAccount = daoInfo?.cosignatory?.includes(address)
+      setIsManagerAccount(isManagerAccount)
+    }
+    fetchIsManagerAccount()
   }, [])
 
   const layoutStyle = {
@@ -63,9 +86,10 @@ const Layout: React.FC = () => {
           sssAddress={address}
           isOpen={isMenuOpen}
           isSSSLinked={isSSSLinked}
+          isManagerAccount={isManagerAccount}
         />
         <main style={mainContentStyle}>
-          <Outlet />
+          <Outlet context={{ isManagerAccount }} />
         </main>
       </div>
     </div>
