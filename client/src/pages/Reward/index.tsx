@@ -99,7 +99,9 @@ export const RewardPage: React.FC = () => {
                 textAlign: "center",
               }}
             >
-              <div>読み込み中...</div>
+              <div>
+                <span style={{ color: theme.disabled }}>読み込み中...</span>
+              </div>
             </li>
           ) : (
             mosaics.map((mosaic, index) => (
