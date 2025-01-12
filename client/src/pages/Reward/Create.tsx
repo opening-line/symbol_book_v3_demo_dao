@@ -12,6 +12,13 @@ export const RewardCreatePage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const isDisabled = !name || !amount
 
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value)
+    if (value <= 8999999999) {
+      setAmount(e.target.value)
+    }
+  }
+
   const handleCreate = () => {
     setIsSubmitting(true)
     fetch(`${Config.API_HOST}/admin/reward/create`, {
@@ -84,13 +91,7 @@ export const RewardCreatePage: React.FC = () => {
               height: "36px",
             }}
           >
-            <label
-              style={{
-                marginTop: "4px",
-              }}
-            >
-              特典モザイク名：
-            </label>
+            <label>特典モザイク名：</label>
             <div
               style={{
                 display: "flex",
@@ -123,13 +124,7 @@ export const RewardCreatePage: React.FC = () => {
               height: "36px",
             }}
           >
-            <label
-              style={{
-                marginTop: "4px",
-              }}
-            >
-              発行数：
-            </label>
+            <label>発行数：</label>
             <div
               style={{
                 display: "flex",
@@ -140,12 +135,7 @@ export const RewardCreatePage: React.FC = () => {
               <input
                 type='number'
                 value={amount}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value)
-                  if (value <= 8999999999) {
-                    setAmount(e.target.value)
-                  }
-                }}
+                onChange={handleAmountChange}
                 style={{
                   padding: "8px",
                   borderRadius: "4px",

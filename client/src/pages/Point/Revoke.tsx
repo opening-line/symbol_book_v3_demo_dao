@@ -169,13 +169,7 @@ export const PointRevokePage: React.FC = () => {
             height: "56px",
           }}
         >
-          <label
-            style={{
-              marginTop: "4px",
-            }}
-          >
-            回収数量：
-          </label>
+          <label>回収数量：</label>
           <div
             style={{
               display: "flex",

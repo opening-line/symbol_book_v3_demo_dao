@@ -216,13 +216,7 @@ export const PointSendPage: React.FC = () => {
             height: "56px",
           }}
         >
-          <label
-            style={{
-              marginTop: "4px",
-            }}
-          >
-            配布数量：　
-          </label>
+          <label>配布数量：　</label>
           <div
             style={{
               display: "flex",
@@ -275,7 +269,7 @@ export const PointSendPage: React.FC = () => {
             gap: "12px",
           }}
         >
-          <label style={{ marginTop: "4px" }}>メッセージ：</label>
+          <label>メッセージ：</label>
           <textarea
             value={message}
             onChange={handleMessageChange}
