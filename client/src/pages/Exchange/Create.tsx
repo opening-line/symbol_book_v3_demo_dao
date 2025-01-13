@@ -321,7 +321,7 @@ export const ExchangeItemCreatePage: React.FC = () => {
                 処理中...
               </>
             ) : (
-              "登録する"
+              "作成する"
             )}
           </button>
         </div>
