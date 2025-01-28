@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router"
 import { Config } from "../../utils/config"
+import { useTheme } from "../../components/ThemeContext"
 
 export const UpdateDAOPage: React.FC = () => {
+  const {theme} = useTheme()
   const [admins, setAdmins] = useState<string[]>([])
   const [selectedAdmins, setSelectedAdmins] = useState<string[]>([])
 
@@ -48,16 +50,16 @@ export const UpdateDAOPage: React.FC = () => {
   }, [])
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1>Update DAO Page</h1>
+    <div style={{ padding: "20px", backgroundColor: theme.background }}>
+      <h1 style={{ color: theme.primary }}>Update DAO Page</h1>
       <div>
-        <h2>Current Admins</h2>
+        <h2 style={{ color: theme.secondary }}>Current Admins</h2>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
               <th
                 style={{
-                  border: "1px solid #ddd",
+                  border: `1px solid ${theme.border}`,
                   padding: "8px",
                   textAlign: "left",
                   width: "100px",
@@ -67,7 +69,7 @@ export const UpdateDAOPage: React.FC = () => {
               </th>
               <th
                 style={{
-                  border: "1px solid #ddd",
+                  border: `1px solid ${theme.border}`,
                   padding: "8px",
                   textAlign: "left",
                 }}
@@ -81,7 +83,7 @@ export const UpdateDAOPage: React.FC = () => {
               <tr key={admin}>
                 <td
                   style={{
-                    border: "1px solid #ddd",
+                    border: `1px solid ${theme.border}`,
                     padding: "8px",
                     textAlign: "left",
                   }}
@@ -92,7 +94,7 @@ export const UpdateDAOPage: React.FC = () => {
                     onChange={() => handleSelectAdmin(admin)}
                   />
                 </td>
-                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                <td style={{ border: `1px solid ${theme.border}`, padding: "8px" }}>
                   {admin}
                 </td>
               </tr>
@@ -104,8 +106,8 @@ export const UpdateDAOPage: React.FC = () => {
           style={{
             marginTop: "10px",
             padding: "10px 20px",
-            backgroundColor: "#f44336",
-            color: "white",
+            backgroundColor: theme.alert,
+            color: theme.white,
             border: "none",
             cursor: "pointer",
           }}
@@ -113,7 +115,7 @@ export const UpdateDAOPage: React.FC = () => {
         >
           Remove Selected Admins
         </button>
-        <h2>Add New Admin</h2>
+        <h2 style={{ color: theme.secondary }}>Add New Admin</h2>
         <input
           type='text'
           value={newAdmin}
@@ -123,15 +125,16 @@ export const UpdateDAOPage: React.FC = () => {
             padding: "10px",
             width: "calc(100% - 22px)",
             marginBottom: "10px",
-            border: "1px solid #ddd",
+            border: `1px solid ${theme.border}`,
+            backgroundColor: theme.white,
           }}
         />
         <button
           onClick={handleAddAdmin}
           style={{
             padding: "10px 20px",
-            backgroundColor: "#4CAF50",
-            color: "white",
+            backgroundColor: theme.primary,
+            color: theme.white,
             border: "none",
             cursor: "pointer",
           }}

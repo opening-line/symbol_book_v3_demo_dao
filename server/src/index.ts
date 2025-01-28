@@ -4,7 +4,7 @@ import { cors } from "hono/cors"
 import { serve } from "@hono/node-server"
 import adminRoute from "./routes/admin"
 import exchangeRoute from "./routes/exchange"
-import gavarnanceRoute from "./routes/governance"
+import governanceRoute from "./routes/governance"
 import homeRoute from "./routes/home"
 import limitedRoute from "./routes/limited"
 
@@ -20,7 +20,7 @@ app.use(
 
 app.route("/admin", adminRoute)
 app.route("/exchange", exchangeRoute)
-app.route("/gavarnance", gavarnanceRoute)
+app.route("/governance", governanceRoute)
 app.route("/home", homeRoute)
 app.route("/limited", limitedRoute)
 

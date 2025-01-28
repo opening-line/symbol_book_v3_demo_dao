@@ -8,8 +8,10 @@ import {
 } from "sss-module"
 import { useState } from "react"
 import { Config } from "../../utils/config"
+import { useTheme } from "../../components/ThemeContext"
 
 export const CreateDAOPage: React.FC = () => {
+  const {theme} = useTheme()
   const [name, setName] = useState<string>("")
   const sign = async () => {
     const ownerPublicKey = getActivePublicKey()
@@ -91,10 +93,10 @@ export const CreateDAOPage: React.FC = () => {
           onClick={sign}
           style={{
             padding: "10px 20px",
-            borderRadius: "5px",
+            backgroundColor: theme.primary,
+            color: theme.white,
             border: "none",
-            backgroundColor: "#007BFF",
-            color: "white",
+            borderRadius: "4px",
             cursor: "pointer",
           }}
         >
