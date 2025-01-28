@@ -22,7 +22,7 @@ export const revokePoint = async (c: Context) => {
         daoId: string
         mosaicId: string
         sourceAddresses: string[]
-        amount: string
+        amount: number
       }
 
     const facade = new SymbolFacade(Config.NETWORK)
@@ -30,7 +30,7 @@ export const revokePoint = async (c: Context) => {
     const daoAccount = facade.createPublicAccount(new PublicKey(daoId))
 
     // ポイントモザイクの回収
-    const revokeDes = revokeMosaic(mosaicId, sourceAddresses, Number(amount))
+    const revokeDes = revokeMosaic(mosaicId, sourceAddresses, amount)
     const revokeTxs = revokeDes.map((des) =>
       facade.createEmbeddedTransactionFromTypedDescriptor(
         des,

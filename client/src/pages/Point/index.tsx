@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useTheme } from "../../components/ThemeContext"
 import { Config } from "../../utils/config"
+
 interface Mosaic {
   id: string
   maxSupply: number
@@ -14,12 +15,12 @@ export const PointPage: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const [mosaics, setMosaics] = useState<Mosaic[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const fetchPointMosaics = async () => {
       try {
-        setLoading(true)
+        setIsLoading(true)
         const response = await fetch(`${Config.API_HOST}/admin/point/${id}`)
         const mosaics = await response.json()
         setMosaics(mosaics)
@@ -27,7 +28,7 @@ export const PointPage: React.FC = () => {
         console.error(error)
         alert("ポイントモザイクが見つかりませんでした。")
       } finally {
-        setLoading(false)
+        setIsLoading(false)
       }
     }
 
@@ -99,14 +100,16 @@ export const PointPage: React.FC = () => {
               ポイントモザイク一覧（{mosaics.length}件）
             </h2>
           </li>
-          {loading ? (
+          {isLoading ? (
             <li
               style={{
                 padding: "24px",
                 textAlign: "center",
               }}
             >
-              <div>読み込み中...</div>
+              <div>
+                <span style={{ color: theme.disabled }}>読み込み中...</span>
+              </div>
             </li>
           ) : (
             mosaics.map((mosaic, index) => (

@@ -7,7 +7,6 @@ import {
   models,
 } from "symbol-sdk/symbol"
 import { getMetadataInfoByQuery } from "../info/getMetadataInfoByQuery"
-import { getMosaicInfo } from "../info/getMosaicInfo"
 
 /**
  * アカウントメタデータの設定
@@ -88,14 +87,10 @@ export const configureMosaicMetadata = async (
 
     // モザイク新規作成時以外は既存メタデータの値を取得
     if (!isCreate) {
-      // 対象モザイクの既存メタデータを取得
-      const mosaicInfo = await getMosaicInfo(targetMosaicId.toUpperCase())
-      mosaicCreatorAddress = mosaicInfo.mosaic?.ownerAddress
-
       // 既存モザイクメタデータの値を取得
       const query = new URLSearchParams({
         targetId: targetMosaicId.toUpperCase(),
-        sourceAddress: mosaicCreatorAddress.toString(),
+        sourceAddress: mosaicCreatorAddress,
         scopedMetadataKey: key.toString(16).toUpperCase(),
         metadataType: "1",
       })
@@ -114,11 +109,14 @@ export const configureMosaicMetadata = async (
     }
 
     // モザイクメタデータ登録トランザクションの作成
+    const mosaicId = isCreate
+      ? new models.UnresolvedMosaicId(BigInt(targetMosaicId))
+      : new models.UnresolvedMosaicId(BigInt(`0x${targetMosaicId}`))
     const mosaicMetadataTransactionDescriptor =
       new descriptors.MosaicMetadataTransactionV1Descriptor(
         new Address(mosaicCreatorAddress),
         key,
-        new models.UnresolvedMosaicId(BigInt(targetMosaicId)),
+        mosaicId,
         valueSizeDelta,
         value,
       )

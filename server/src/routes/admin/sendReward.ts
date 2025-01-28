@@ -22,7 +22,7 @@ export const sendReward = async (c: Context) => {
         daoId: string
         mosaicId: string
         recipientsAddresses: string[]
-        amount: string
+        amount: number
         message: string
       }
 

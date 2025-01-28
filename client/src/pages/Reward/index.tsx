@@ -15,12 +15,12 @@ export const RewardPage: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams()
   const [mosaics, setMosaics] = useState<Mosaic[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const fetchRewardMosaics = async () => {
       try {
-        setLoading(true)
+        setIsLoading(true)
         const response = await fetch(`${Config.API_HOST}/admin/reward/${id}`)
         const mosaics = await response.json()
         setMosaics(mosaics)
@@ -28,7 +28,7 @@ export const RewardPage: React.FC = () => {
         console.error(error)
         alert("特典モザイクが見つかりませんでした。")
       } finally {
-        setLoading(false)
+        setIsLoading(false)
       }
     }
 
@@ -92,14 +92,16 @@ export const RewardPage: React.FC = () => {
               特典モザイク一覧（{mosaics.length}件）
             </h2>
           </li>
-          {loading ? (
+          {isLoading ? (
             <li
               style={{
                 padding: "24px",
                 textAlign: "center",
               }}
             >
-              <div>読み込み中...</div>
+              <div>
+                <span style={{ color: theme.disabled }}>読み込み中...</span>
+              </div>
             </li>
           ) : (
             mosaics.map((mosaic, index) => (

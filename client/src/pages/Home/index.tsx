@@ -14,7 +14,7 @@ export const HomePage: React.FC = () => {
   const [username, setUsername] = useState<string>("")
   const [isSSSLinked, setIsSSSLinked] = useState<boolean>(false)
   const [mosaics, setMosaics] = useState<Mosaic[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const isSSSLinked = isAllowedSSS()
@@ -24,13 +24,13 @@ export const HomePage: React.FC = () => {
     setUsername(name)
     if (!address) {
       setMosaics([])
-      setLoading(false)
+      setIsLoading(false)
       return
     }
 
     const fetchMosaics = async () => {
       try {
-        setLoading(true)
+        setIsLoading(true)
         const response = await fetch(
           `${Config.API_HOST}/home/mosaics/${address}`,
         )
@@ -39,7 +39,7 @@ export const HomePage: React.FC = () => {
       } catch (error) {
         console.error(error)
       } finally {
-        setLoading(false)
+        setIsLoading(false)
       }
     }
     fetchMosaics()
@@ -74,14 +74,16 @@ export const HomePage: React.FC = () => {
                 保有モザイク
               </h2>
             </li>
-            {loading ? (
+            {isLoading ? (
               <li
                 style={{
                   padding: "24px",
                   textAlign: "center",
                 }}
               >
-                <div>読み込み中...</div>
+                <div>
+                  <span style={{ color: theme.disabled }}>読み込み中...</span>
+                </div>
               </li>
             ) : (
               mosaics.map((mosaic, index) => (

@@ -6,44 +6,62 @@ import { announceBonded } from "../../functions/announceBonded"
 import { announceTransaction } from "../../functions/announceTransaction"
 import { createDummy } from "../../functions/createDummy"
 import { createHashLock } from "../../functions/createHashLock"
+import { revokeMosaic } from "../../functions/revokeMosaic"
 import { signTransaction } from "../../functions/signTransaction"
 import { transfer } from "../../functions/transfer"
 import { Config } from "../../utils/config"
 
 /**
- * ポイントモザイクを配布する
+ * ポイントモザイクと特典モザイクの交換
  */
-export const sendPoint = async (c: Context) => {
+export const exchangeItem = async (c: Context) => {
   try {
     const ENV = env<{ PRIVATE_KEY: string }>(c)
 
-    const { daoId, mosaicId, recipientsAddresses, amount, message } =
-      (await c.req.json()) as {
-        daoId: string
-        mosaicId: string
-        recipientsAddresses: string[]
-        amount: number
-        message: string
-      }
+    const {
+      daoId,
+      toAddress,
+      rewardMosaicId,
+      rewardMosaicAmount,
+      pointMosaicId,
+      pointMosaicAmount,
+    } = (await c.req.json()) as {
+      daoId: string
+      toAddress: string
+      rewardMosaicId: string
+      rewardMosaicAmount: number
+      pointMosaicId: string
+      pointMosaicAmount: number
+    }
 
     const facade = new SymbolFacade(Config.NETWORK)
     const masterAccount = facade.createAccount(new PrivateKey(ENV.PRIVATE_KEY))
     const daoAccount = facade.createPublicAccount(new PublicKey(daoId))
 
-    // 複数のtransferTransactionを生成
-    const transferTxs = recipientsAddresses.map((address) => {
-      const recipientAddress = new Address(address)
-      const transferDes = transfer(
-        recipientAddress,
-        BigInt(`0x${mosaicId}`),
-        BigInt(amount),
-        message,
-      )
-      return facade.createEmbeddedTransactionFromTypedDescriptor(
-        transferDes,
+    // ポイントモザイクの回収
+    const revokeDes = revokeMosaic(
+      pointMosaicId,
+      [toAddress],
+      pointMosaicAmount,
+    )
+    const revokeTxs = revokeDes.map((des) =>
+      facade.createEmbeddedTransactionFromTypedDescriptor(
+        des,
         daoAccount.publicKey,
-      )
-    })
+      ),
+    )
+
+    // 交換アイテムの配布
+    const recipientAddress = new Address(toAddress)
+    const transferDes = transfer(
+      recipientAddress,
+      BigInt(`0x${rewardMosaicId}`),
+      BigInt(rewardMosaicAmount),
+    )
+    const transferTx = facade.createEmbeddedTransactionFromTypedDescriptor(
+      transferDes,
+      daoAccount.publicKey,
+    )
 
     // 手数料代替トランザクションの作成
     const dummyDes = createDummy(daoAccount.address.toString())
@@ -53,25 +71,29 @@ export const sendPoint = async (c: Context) => {
     )
 
     // アグリゲートトランザクションの作成
-    const innerTxs = [...transferTxs, dummyTx]
+    const innerTxs = [...revokeTxs, transferTx, dummyTx]
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
     const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
       txHash,
       innerTxs,
     )
-    const mosaicSendBondedTx = models.AggregateBondedTransactionV2.deserialize(
-      facade
-        .createTransactionFromTypedDescriptor(
-          aggregateDes,
-          masterAccount.publicKey,
-          Config.FEE_MULTIPLIER,
-          Config.DEADLINE_SECONDS,
-        )
-        .serialize(),
-    )
+    const mosaicExchangeBondedTx =
+      models.AggregateBondedTransactionV2.deserialize(
+        facade
+          .createTransactionFromTypedDescriptor(
+            aggregateDes,
+            masterAccount.publicKey,
+            Config.FEE_MULTIPLIER,
+            Config.DEADLINE_SECONDS,
+          )
+          .serialize(),
+      )
 
     // 署名
-    const signedBondedTx = signTransaction(masterAccount, mosaicSendBondedTx)
+    const signedBondedTx = signTransaction(
+      masterAccount,
+      mosaicExchangeBondedTx,
+    )
 
     // ハッシュロックトランザクションの作成
     const hashLockDes = createHashLock(signedBondedTx.hash)
@@ -96,10 +118,10 @@ export const sendPoint = async (c: Context) => {
 
     return c.json({
       message:
-        "ポイントモザイクの配布を実施しました。他の管理者による承認をお待ちください。",
+        "アイテム交換申請を実施しました。管理者による承認をお待ちください。",
     })
   } catch (error) {
-    console.error("ポイントモザイク配布エラー:", error)
-    return c.json({ message: "ポイントモザイクの配布に失敗しました。" }, 500)
+    console.error("アイテム交換申請エラー:", error)
+    return c.json({ message: "アイテム交換申請に失敗しました。管理者にお問い合わせください。" }, 500)
   }
 }

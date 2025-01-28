@@ -2,6 +2,7 @@ import { Hono } from "hono"
 import { createDao } from "./createDao"
 import { getDao } from "./getDao"
 import { getHolders } from "./getHolders"
+import { createExchangeItem } from "./createExchangeItem"
 import { addAdmin } from "./addAdmin"
 import { deleteAdmin } from "./deleteAdmin"
 import { getRewardInfo } from "./getRewardInfo"
@@ -17,6 +18,7 @@ const adminRoute = new Hono()
 adminRoute.post("/new", createDao)
 adminRoute.get("/get/:id", getDao)
 adminRoute.get("/holders/:id/mosaic/:mosaicId", getHolders)
+adminRoute.post("/exchange/createItem", createExchangeItem)
 adminRoute.put("/add", addAdmin)
 adminRoute.put("/delete", deleteAdmin)
 adminRoute.get("/reward/:id", getRewardInfo)

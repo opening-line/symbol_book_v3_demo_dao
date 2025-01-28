@@ -8,9 +8,16 @@ export const PointCreatePage: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const [name, setName] = useState<string>("")
-  const [amount, setAmount] = useState<string>("")
+  const [amount, setAmount] = useState<number>(0)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const isDisabled = !name || !amount
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value)
+    if (value <= 8999999999) {
+      setAmount(Number(e.target.value))
+    }
+  }
 
   const handleCreate = () => {
     setIsSubmitting(true)
@@ -84,13 +91,7 @@ export const PointCreatePage: React.FC = () => {
               height: "36px",
             }}
           >
-            <label
-              style={{
-                marginTop: "4px",
-              }}
-            >
-              ポイントモザイク名：
-            </label>
+            <label>ポイントモザイク名：</label>
             <div
               style={{
                 display: "flex",
@@ -140,12 +141,7 @@ export const PointCreatePage: React.FC = () => {
               <input
                 type='number'
                 value={amount}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value)
-                  if (value <= 8999999999) {
-                    setAmount(e.target.value)
-                  }
-                }}
+                onChange={handleAmountChange}
                 style={{
                   padding: "8px",
                   borderRadius: "4px",
@@ -158,7 +154,7 @@ export const PointCreatePage: React.FC = () => {
                 max='8999999999'
               />
               <button
-                onClick={() => setAmount("8999999999")}
+                onClick={() => setAmount(8999999999)}
                 style={{
                   padding: "8px",
                   borderRadius: "4px",
