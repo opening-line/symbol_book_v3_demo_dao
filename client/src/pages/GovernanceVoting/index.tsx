@@ -15,6 +15,7 @@ import {
   requestSignCosignatureTransaction,
   setTransactionByPayload,
 } from "sss-module"
+import { useTheme } from "../../components/ThemeContext"
 type Vote = {
   title: string
   a: string
@@ -35,6 +36,7 @@ type Acc = {
 
 type Metadata = { key: string; value: string }
 export const GovernanceVotingPage: React.FC = () => {
+  const {theme} = useTheme()
   const { id } = useParams()
   const [title, setTitle] = useState<string>("")
   const [voteA, setVoteA] = useState<string>("")
@@ -148,7 +150,7 @@ export const GovernanceVotingPage: React.FC = () => {
   }, [])
 
   const handleCreateVote = () => {
-    fetch(`${Config.API_HOST}/gavarnance/new`, {
+    fetch(`${Config.API_HOST}/governance/new`, {
       method: "POST",
       body: JSON.stringify({
         daoId: id,
@@ -170,7 +172,7 @@ export const GovernanceVotingPage: React.FC = () => {
       amount: number
     }
     console.log(mosaic)
-    const { payload } = await fetch(`${Config.API_HOST}/gavarnance/vote`, {
+    const { payload } = await fetch(`${Config.API_HOST}/governance/vote`, {
       method: "POST",
       body: JSON.stringify({
         daoId: id,
@@ -223,15 +225,15 @@ export const GovernanceVotingPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: "20px", paddingRight: "40px" }}>
-      <h2>Create Vote</h2>
+    <div style={{ padding: "20px", paddingRight: "40px", backgroundColor: theme.background }}>
+      <h2 style={{ color: theme.primary }}>Create Vote</h2>
       <div style={{ marginBottom: "20px" }}>
         <input
           type='text'
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder='Enter title'
-          style={{ padding: "10px", marginBottom: "10px", width: "100%" }}
+          style={{ padding: "10px", marginBottom: "10px", width: "100%", backgroundColor: theme.white, border: `1px solid ${theme.border}` }}
         />
         <div style={{ display: "flex", gap: "10px" }}>
           <input
@@ -239,36 +241,36 @@ export const GovernanceVotingPage: React.FC = () => {
             value={voteA}
             onChange={(e) => setVoteA(e.target.value)}
             placeholder='Enter A'
-            style={{ padding: "10px", flex: 1 }}
+            style={{ padding: "10px", flex: 1, backgroundColor: theme.white, border: `1px solid ${theme.border}` }}
           />
           <input
             type='text'
             value={voteB}
             onChange={(e) => setVoteB(e.target.value)}
             placeholder='Enter B'
-            style={{ padding: "10px", flex: 1 }}
+            style={{ padding: "10px", flex: 1, backgroundColor: theme.white, border: `1px solid ${theme.border}` }}
           />
           <input
             type='text'
             value={voteC}
             onChange={(e) => setVoteC(e.target.value)}
             placeholder='Enter C'
-            style={{ padding: "10px", flex: 1 }}
+            style={{ padding: "10px", flex: 1, backgroundColor: theme.white, border: `1px solid ${theme.border}` }}
           />
           <input
             type='text'
             value={voteD}
             onChange={(e) => setVoteD(e.target.value)}
             placeholder='Enter D'
-            style={{ padding: "10px", flex: 1 }}
+            style={{ padding: "10px", flex: 1, backgroundColor: theme.white, border: `1px solid ${theme.border}` }}
           />
         </div>
         <button
           onClick={handleCreateVote}
           style={{
             padding: "10px 20px",
-            backgroundColor: "#4CAF50",
-            color: "white",
+            backgroundColor: theme.secondary,
+            color: theme.white,
             border: "none",
             cursor: "pointer",
             marginTop: "10px",
@@ -278,7 +280,7 @@ export const GovernanceVotingPage: React.FC = () => {
         </button>
       </div>
 
-      <h2>Vote List</h2>
+      <h2 style={{ color: theme.primary }}>Vote List</h2>
       <div>
         {votes.map((vote, i) => {
           const hasMosaic = voteMosaics.some(
@@ -336,10 +338,10 @@ export const GovernanceVotingPage: React.FC = () => {
               key={vote.token}
               style={{
                 padding: "10px",
-                border: "1px solid #ddd",
+                border: `1px solid ${theme.border}`,
                 marginBottom: "10px",
                 cursor: "pointer",
-                backgroundColor: hasMosaic ? "#e0f7fa" : "transparent",
+                backgroundColor: hasMosaic ? theme.background : "transparent",
               }}
               onClick={() => setIndex(hasMosaic ? i : -1)}
             >
@@ -375,19 +377,19 @@ export const GovernanceVotingPage: React.FC = () => {
 
       {index !== -1 && (
         <div style={{ marginTop: "20px" }}>
-          <h2>{votes[index].title}</h2>
+          <h2 style={{ color: theme.primary }}>{votes[index].title}</h2>
           <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
             {votes[index].a !== "" && (
               <div
-                style={{ padding: "10px", border: "1px solid #ddd", flex: 1 }}
+                style={{ padding: "10px", border: `1px solid ${theme.border}`, flex: 1 }}
               >
                 <p>A: {votes[index].a}</p>
                 <button
                   onClick={() => vote(0)}
                   style={{
                     padding: "10px 20px",
-                    backgroundColor: "#4CAF50",
-                    color: "white",
+                    backgroundColor: theme.secondary,
+                    color: theme.white,
                     border: "none",
                     cursor: "pointer",
                   }}
@@ -398,15 +400,15 @@ export const GovernanceVotingPage: React.FC = () => {
             )}
             {votes[index].b !== "" && (
               <div
-                style={{ padding: "10px", border: "1px solid #ddd", flex: 1 }}
+                style={{ padding: "10px", border: `1px solid ${theme.border}`, flex: 1 }}
               >
                 <p>B: {votes[index].b}</p>
                 <button
                   onClick={() => vote(1)}
                   style={{
                     padding: "10px 20px",
-                    backgroundColor: "#4CAF50",
-                    color: "white",
+                    backgroundColor: theme.secondary,
+                    color: theme.white,
                     border: "none",
                     cursor: "pointer",
                   }}
@@ -417,15 +419,15 @@ export const GovernanceVotingPage: React.FC = () => {
             )}
             {votes[index].c !== "" && (
               <div
-                style={{ padding: "10px", border: "1px solid #ddd", flex: 1 }}
+                style={{ padding: "10px", border: `1px solid ${theme.border}`, flex: 1 }}
               >
                 <p>C: {votes[index].c}</p>
                 <button
                   onClick={() => vote(2)}
                   style={{
                     padding: "10px 20px",
-                    backgroundColor: "#4CAF50",
-                    color: "white",
+                    backgroundColor: theme.secondary,
+                    color: theme.white,
                     border: "none",
                     cursor: "pointer",
                   }}
@@ -437,15 +439,15 @@ export const GovernanceVotingPage: React.FC = () => {
 
             {votes[index].d !== "" && (
               <div
-                style={{ padding: "10px", border: "1px solid #ddd", flex: 1 }}
+                style={{ padding: "10px", border: `1px solid ${theme.border}`, flex: 1 }}
               >
                 <p>D: {votes[index].d}</p>
                 <button
                   onClick={() => vote(3)}
                   style={{
                     padding: "10px 20px",
-                    backgroundColor: "#4CAF50",
-                    color: "white",
+                    backgroundColor: theme.secondary,
+                    color: theme.white,
                     border: "none",
                     cursor: "pointer",
                   }}

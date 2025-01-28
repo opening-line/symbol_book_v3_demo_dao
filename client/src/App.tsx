@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
 import { ThemeProvider } from "./components/ThemeContext"
 
 import Layout from "./components/Layout"
-import { HomePage } from "./pages/Home"
+import { DAOHomePage } from "./pages/DAO/Home"
 import { GovernanceVotingPage } from "./pages/GovernanceVoting"
 import { ExchangePage } from "./pages/Exchange"
 import { ExchangeItemCreatePage } from "./pages/Exchange/Create"
@@ -17,15 +17,17 @@ import { PointRevokePage } from "./pages/Point/Revoke"
 import { RewardSendPage } from "./pages/Reward/Send"
 import { PointCreatePage } from "./pages/Point/Create"
 import { RewardCreatePage } from "./pages/Reward/Create"
+import { HomePage } from "./pages/Home"
 
 function App() {
   return (
     <ThemeProvider>
       <Router>
         <Routes>
+          <Route path='' element={<HomePage />} />
           <Route path='/dao/create' element={<CreateDAOPage />} />
           <Route path='/dao/:id' element={<Layout />}>
-            <Route path='' element={<HomePage />} />
+            <Route path='' element={<DAOHomePage />} />
             <Route path='exchange' element={<ExchangePage />} />
             <Route
               path='exchange/createItem'
