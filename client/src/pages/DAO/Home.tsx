@@ -83,6 +83,15 @@ export const DAOHomePage: React.FC = () => {
               >
                 <div>読み込み中...</div>
               </li>
+            ) : !mosaics?.length ? (
+              <li
+                style={{
+                  padding: "24px",
+                  textAlign: "center",
+                }}
+              >
+                <div>保有しているモザイクはありません</div>
+              </li>
             ) : (
               mosaics.map((mosaic, index) => (
                 <li
