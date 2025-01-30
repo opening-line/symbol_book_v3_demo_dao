@@ -85,7 +85,7 @@ export const addAdmin = async (c: Context) => {
 
     return c.json({
       message:
-        "DAO管理者アカウントの追加を実施しました。他の管理者による承認をお待ちください。",
+        "DAO管理者アカウントの追加を実施しました。Symbol Walletで署名した後、他の管理者による承認をお待ちください。",
     })
   } catch (error) {
     console.error("DAO管理者アカウントの追加エラー:", error)

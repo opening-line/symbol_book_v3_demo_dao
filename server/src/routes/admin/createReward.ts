@@ -115,7 +115,7 @@ export const createReward = async (c: Context) => {
 
     return c.json({
       message:
-        "特典モザイクの作成を実施しました。他の管理者による承認をお待ちください。",
+        "特典モザイクの作成を実施しました。Symbol Walletで署名した後、他の管理者による承認をお待ちください。",
     })
   } catch (error) {
     console.error("特典モザイク作成エラー:", error)

@@ -90,7 +90,7 @@ export const revokePoint = async (c: Context) => {
 
     return c.json({
       message:
-        "ポイントモザイクの回収を実施しました。他の管理者による承認をお待ちください。",
+        "ポイントモザイクの回収を実施しました。Symbol Walletで署名した後、他の管理者による承認をお待ちください。",
     })
   } catch (error) {
     console.error("ポイントモザイク回収エラー:", error)

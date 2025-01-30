@@ -164,7 +164,7 @@ export const createExchangeItem = async (c: Context) => {
 
     return c.json({
       message:
-        "交換アイテムの作成を実施しました。他の管理者による承認をお待ちください。",
+        "交換アイテムの作成を実施しました。Symbol Walletで署名した後、他の管理者による承認をお待ちください。",
     })
   } catch (error) {
     console.error("交換アイテム作成エラー:", error)

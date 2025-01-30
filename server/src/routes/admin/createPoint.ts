@@ -115,7 +115,7 @@ export const createPoint = async (c: Context) => {
 
     return c.json({
       message:
-        "ポイントモザイクの作成を実施しました。他の管理者による承認をお待ちください。",
+        "ポイントモザイクの作成を実施しました。Symbol Walletで署名した後、他の管理者による承認をお待ちください。",
     })
   } catch (error) {
     console.error("ポイントモザイク作成エラー:", error)
