@@ -54,6 +54,8 @@ export const GovernanceVotingPage: React.FC = () => {
     }[]
   >([])
 
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+
   const [metadatas, setMetadatas] = useState<
     {
       key: number
@@ -150,6 +152,7 @@ export const GovernanceVotingPage: React.FC = () => {
   }, [])
 
   const handleCreateVote = () => {
+    setIsSubmitting(true)
     fetch(`${Config.API_HOST}/governance/new`, {
       method: "POST",
       body: JSON.stringify({
@@ -165,6 +168,8 @@ export const GovernanceVotingPage: React.FC = () => {
       if (!data.ok) {
         alert("投票の作成に失敗しました")
       }
+    }).finally(() => {
+      setIsSubmitting(false)
     })
   }
 
@@ -270,19 +275,35 @@ export const GovernanceVotingPage: React.FC = () => {
             style={{ padding: "10px", flex: 1, backgroundColor: theme.white, border: `1px solid ${theme.border}` }}
           />
         </div>
-        <button
-          onClick={handleCreateVote}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: theme.secondary,
-            color: theme.white,
-            border: "none",
-            cursor: "pointer",
-            marginTop: "10px",
-          }}
-        >
-          Create Vote
-        </button>
+          <button
+            onClick={handleCreateVote}
+            style={{
+              padding: "8px 16px",
+              marginTop: "20px",
+              marginBottom: "20px",
+              borderRadius: "4px",
+              border: "none",
+              backgroundColor: isSubmitting ? theme.disabled : theme.primary,
+              color: theme.white,
+              cursor: isSubmitting ? "not-allowed" : "pointer",
+              width: "120px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+            }}
+            >
+            {
+            isSubmitting ? (
+              <>
+                <div className='loader' />
+                処理中...
+              </>
+            ) : (
+              "Create Vote"
+            )
+          }
+          </button>
       </div>
 
       <h2 style={{ color: theme.primary }}>Vote List</h2>
