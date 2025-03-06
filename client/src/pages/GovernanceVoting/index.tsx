@@ -161,6 +161,11 @@ export const GovernanceVotingPage: React.FC = () => {
         voteD,
       }),
     })
+    .then((data) => {
+      if (!data.ok) {
+        alert("投票の作成に失敗しました")
+      }
+    })
   }
 
   const vote = async (i: number) => {

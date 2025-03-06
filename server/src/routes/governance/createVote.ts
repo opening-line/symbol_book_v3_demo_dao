@@ -88,6 +88,10 @@ export const createVote = async (c: Context) => {
     // ガバナンストークンの保有量を取得
     const tokenHolders = await getMosaicHolders(tokenId)
 
+    if (tokenHolders.length <= 1) {
+      throw new Error("投票権を保有しているアカウントが存在しません。")
+    }
+
     const data = tokenHolders
       .map((e: any) => {
         const address = decordHexAddress(e.account.address)
