@@ -74,7 +74,7 @@ export const GovernanceVotingPage: React.FC = () => {
         setMetadatas(d)
 
         const transactionIds = d
-          .filter((md: { key: number }) => md.key >= 64)
+          .filter((md: { key: number }) => md.key >= 63)
           .map((md: Metadata) => md.value)
 
         fetch(`${Config.NODE_URL}/transactions/confirmed`, {
