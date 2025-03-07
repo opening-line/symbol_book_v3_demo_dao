@@ -20,7 +20,7 @@ export const getDao = async (c: Context) => {
 
     // メタデータ情報の取得
     const mdRes = await getMetadataInfoByQuery(
-      `targetAddress=${address.toString()}`,
+      `targetAddress=${address.toString()}&metadataType=0&pageSize=100`,
     )
     // マルチシグ情報の取得
     const msRes = await getMultisigInfo(address.toString())
