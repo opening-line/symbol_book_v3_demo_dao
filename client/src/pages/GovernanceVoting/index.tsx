@@ -376,21 +376,27 @@ export const GovernanceVotingPage: React.FC = () => {
                 <div>{metadatas[0].value}</div>
                 <div>
                   <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
+                    style={{ display: "flex", justifyContent: "space-between", background: '#CCC', padding: '4px', borderRadius: '4px', margin: '4px' }}
                   >
                     <span>A: {vote.a}</span>{" "}
                     {a && aa !== undefined && <span>{aa}票</span>}
                   </div>
 
-                  <div>
+                  <div
+                    style={{ display: "flex", justifyContent: "space-between", background: '#CCC', padding: '4px', borderRadius: '4px', margin: '4px' }}
+                  >
                     <span>B: {vote.b}</span>{" "}
                     {b && bb !== undefined && <span>{bb}票</span>}
                   </div>
-                  <div>
+                  <div
+                    style={{ display: "flex", justifyContent: "space-between", background: '#CCC', padding: '4px', borderRadius: '4px', margin: '4px' }}
+                  >
                     <span>C: {vote.c}</span>{" "}
                     {c && cc !== undefined && <span>{cc}票</span>}
                   </div>
-                  <div>
+                  <div
+                    style={{ display: "flex", justifyContent: "space-between", background: '#CCC', padding: '4px', borderRadius: '4px', margin: '4px' }}
+                  >
                     <span>D: {vote.d}</span>{" "}
                     {d && dd !== undefined && <span>{dd}票</span>}
                   </div>
