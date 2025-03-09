@@ -52,7 +52,10 @@ export const ExchangeItemCreatePage: React.FC = () => {
         setIsLoadingPointMosaics(true)
         const response = await fetch(`${Config.API_HOST}/admin/point/${id}`)
         const mosaics = await response.json()
-        setPointMosaics(mosaics)
+        const pointMosaics = mosaics.filter(
+          (mosaic: Mosaic) => mosaic.name && mosaic.name !== "",
+        )
+        setPointMosaics(pointMosaics)
       } catch (error) {
         console.error(error)
         alert("ポイントモザイクが見つかりませんでした。")
