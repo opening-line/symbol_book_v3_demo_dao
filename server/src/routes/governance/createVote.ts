@@ -70,7 +70,7 @@ export const createVote = async (c: Context) => {
 
     // ガバナンストークンIDの取得
     const mdRes = await getMetadataInfoByQuery(
-      `targetAddress=${daoAccount.address.toString()}`,
+      `targetAddress=${daoAccount.address.toString()}&metadataType=0`,
     )
     const metadatas = mdRes.map((e: MetadataEntry) => {
       return {
