@@ -6,14 +6,18 @@
 動作確認済みバージョン： 22.11.0
 
 - .env  ファイル  
-.env.sampleをコピーして、.envファイルを作成。作成後に `PRIVATE_KEY`の設定をしてください。
-```
+.env.sampleをコピーして、.envファイルを作成
+```bash
 cp server/.env.sample server/.env
+``` 
+ `PRIVATE_KEY`の設定をしてください
+```ini: server/.env
+PRIVATE_KEY=12*************************34
 ```
 
 - server  
 serverフォルダに移動し、依存パッケージをインストール。その後アプリケーションを起動。
-```
+```bash
 cd server
 npm i
 npm run dev
@@ -21,7 +25,7 @@ npm run dev
 
 - client  
 clientフォルダに移動し、依存パッケージをインストール。その後アプリケーションを起動。
-```
+```bash
 cd client
 npm i
 npm run dev
