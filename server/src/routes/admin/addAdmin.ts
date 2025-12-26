@@ -44,11 +44,11 @@ export const addAdmin = async (c: Context) => {
     // アグリゲートトランザクションの作成
     const innerTxs = [multisigTx, dummyTx]
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
-    const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
+    const aggregateDes = new descriptors.AggregateBondedTransactionV3Descriptor(
       txHash,
       innerTxs,
     )
-    const adminAddBondedTx = models.AggregateBondedTransactionV2.deserialize(
+    const adminAddBondedTx = models.AggregateBondedTransactionV3.deserialize(
       facade
         .createTransactionFromTypedDescriptor(
           aggregateDes,

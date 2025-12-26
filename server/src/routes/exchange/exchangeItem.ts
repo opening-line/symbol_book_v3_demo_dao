@@ -73,12 +73,12 @@ export const exchangeItem = async (c: Context) => {
     // アグリゲートトランザクションの作成
     const innerTxs = [...revokeTxs, transferTx, dummyTx]
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
-    const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
+    const aggregateDes = new descriptors.AggregateBondedTransactionV3Descriptor(
       txHash,
       innerTxs,
     )
     const mosaicExchangeBondedTx =
-      models.AggregateBondedTransactionV2.deserialize(
+      models.AggregateBondedTransactionV3.deserialize(
         facade
           .createTransactionFromTypedDescriptor(
             aggregateDes,
