@@ -48,12 +48,12 @@ export const revokePoint = async (c: Context) => {
     // アグリゲートトランザクションの作成
     const innerTxs = [...revokeTxs, dummyTx]
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
-    const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
+    const aggregateDes = new descriptors.AggregateBondedTransactionV3Descriptor(
       txHash,
       innerTxs,
     )
     const mosaicRevokeBondedTx =
-      models.AggregateBondedTransactionV2.deserialize(
+      models.AggregateBondedTransactionV3.deserialize(
         facade
           .createTransactionFromTypedDescriptor(
             aggregateDes,

@@ -57,8 +57,8 @@ export const updateTheme = async (c: Context) => {
     const innerTxs = [accountMetadataTx, dummyTx]
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
     const aggregateDes =
-      new descriptors.AggregateCompleteTransactionV2Descriptor(txHash, innerTxs)
-    const aggregateTx = models.AggregateCompleteTransactionV2.deserialize(
+      new descriptors.AggregateCompleteTransactionV3Descriptor(txHash, innerTxs)
+    const aggregateTx = models.AggregateCompleteTransactionV3.deserialize(
       facade
         .createTransactionFromTypedDescriptor(
           aggregateDes,

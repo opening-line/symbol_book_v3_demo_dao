@@ -33,7 +33,7 @@ export const LimitedMemberPage: React.FC = () => {
       }),
     }).then((res) => res.json())
 
-    const tx = models.AggregateCompleteTransactionV2.deserialize(
+    const tx = models.AggregateCompleteTransactionV3.deserialize(
       utils.hexToUint8(payload),
     )
     setTransactionByPayload(payload)

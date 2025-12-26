@@ -170,7 +170,7 @@ export const createVote = async (c: Context) => {
     const voteCreateTxHash =
       SymbolFacade.hashEmbeddedTransactions(voteCreateInnerTxs)
     const voteCreateAggregateDes =
-      new descriptors.AggregateCompleteTransactionV2Descriptor(
+      new descriptors.AggregateCompleteTransactionV3Descriptor(
         voteCreateTxHash,
         voteCreateInnerTxs,
       )
@@ -212,12 +212,12 @@ export const createVote = async (c: Context) => {
       ),
     ]
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
-    const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
+    const aggregateDes = new descriptors.AggregateBondedTransactionV3Descriptor(
       txHash,
       innerTxs,
     )
     const metadataCreateBondedTx =
-      models.AggregateBondedTransactionV2.deserialize(
+      models.AggregateBondedTransactionV3.deserialize(
         facade
           .createTransactionFromTypedDescriptor(
             aggregateDes,

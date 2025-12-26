@@ -51,8 +51,8 @@ export const voting = async (c: Context) => {
     const innerTxs = [voteTx, dummyTx]
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
     const aggregateDes =
-      new descriptors.AggregateCompleteTransactionV2Descriptor(txHash, innerTxs)
-    const votingTx = models.AggregateCompleteTransactionV2.deserialize(
+      new descriptors.AggregateCompleteTransactionV3Descriptor(txHash, innerTxs)
+    const votingTx = models.AggregateCompleteTransactionV3.deserialize(
       facade
         .createTransactionFromTypedDescriptor(
           aggregateDes,

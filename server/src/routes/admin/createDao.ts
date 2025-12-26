@@ -139,8 +139,8 @@ export const createDao = async (c: Context) => {
     )
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
     const aggregateDes =
-      new descriptors.AggregateCompleteTransactionV2Descriptor(txHash, innerTxs)
-    const daoCreateBondedTx = models.AggregateCompleteTransactionV2.deserialize(
+      new descriptors.AggregateCompleteTransactionV3Descriptor(txHash, innerTxs)
+    const daoCreateBondedTx = models.AggregateCompleteTransactionV3.deserialize(
       facade
         .createTransactionFromTypedDescriptor(
           aggregateDes,

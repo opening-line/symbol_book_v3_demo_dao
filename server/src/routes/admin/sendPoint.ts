@@ -55,11 +55,11 @@ export const sendPoint = async (c: Context) => {
     // アグリゲートトランザクションの作成
     const innerTxs = [...transferTxs, dummyTx]
     const txHash = SymbolFacade.hashEmbeddedTransactions(innerTxs)
-    const aggregateDes = new descriptors.AggregateBondedTransactionV2Descriptor(
+    const aggregateDes = new descriptors.AggregateBondedTransactionV3Descriptor(
       txHash,
       innerTxs,
     )
-    const mosaicSendBondedTx = models.AggregateBondedTransactionV2.deserialize(
+    const mosaicSendBondedTx = models.AggregateBondedTransactionV3.deserialize(
       facade
         .createTransactionFromTypedDescriptor(
           aggregateDes,
