@@ -195,7 +195,7 @@ export const GovernanceVotingPage: React.FC = () => {
 
     const facade = new SymbolFacade(Network.TESTNET)
 
-    const tx = models.AggregateCompleteTransactionV2.deserialize(
+    const tx = models.AggregateCompleteTransactionV3.deserialize(
       utils.hexToUint8(payload),
     )
     setTransactionByPayload(payload)
